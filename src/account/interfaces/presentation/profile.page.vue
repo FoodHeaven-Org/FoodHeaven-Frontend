@@ -98,8 +98,7 @@ async function deleteAccount() {
         <a>{{ formatText(profile.paymentMethod) }}</a>
         <p>{{ $t('account.subscription') }}</p>
         <a>{{ subscriptionLabel }}</a>
-        <Button class="config" :label="$t('account.editProfile')" @click="goToSettings('profile')" />
-        <Button class="config security" :label="$t('account.security')" @click="goToSettings('security')" />
+        <Button class="config" :label="$t('account.dataSecurity')" @click="goToSettings('profile')" />
         <Button class="delete" :disabled="isDeleting" :label="$t('account.delete')" @click="deleteAccount" />
       </div>
     </template>
@@ -162,10 +161,6 @@ Button {
   background: #000000;
   padding: 10px;
   margin: 2rem auto 0;
-}
-
-.security {
-  margin-top: 1rem;
 }
 
 .delete {
