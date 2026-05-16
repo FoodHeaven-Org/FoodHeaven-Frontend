@@ -17,6 +17,14 @@ const isSavingPassword = ref(false)
 const isSavingPlan = ref(false)
 const statusMessage = ref('')
 const errorMessage = ref('')
+const activeTab = ref('profile')
+
+const tabs = [
+  { key: 'profile', labelKey: 'settings.personalTitle' },
+  { key: 'plan', labelKey: 'settings.planTitle' },
+  { key: 'security', labelKey: 'settings.passwordTitle' },
+  { key: 'language', labelKey: 'settings.languageTitle' }
+]
 
 const profileForm = ref({
   fullName: '',
@@ -154,8 +162,20 @@ async function savePlan() {
     <p v-if="statusMessage" class="success-message">{{ statusMessage }}</p>
     <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
 
+    <div v-if="!isLoading" class="settings-tabs">
+      <button
+          v-for="tab in tabs"
+          :key="tab.key"
+          type="button"
+          :class="{ active: activeTab === tab.key }"
+          @click="activeTab = tab.key"
+      >
+        {{ $t(tab.labelKey) }}
+      </button>
+    </div>
+
     <div v-if="!isLoading" class="settings-grid">
-      <form class="settings-card" @submit.prevent="saveProfile">
+      <form v-if="activeTab === 'profile'" class="settings-card single-card" @submit.prevent="saveProfile">
         <h2>{{ $t('settings.personalTitle') }}</h2>
         <label for="fullName">{{ $t('account.name') }}</label>
         <input id="fullName" v-model="profileForm.fullName" type="text" />
@@ -172,7 +192,7 @@ async function savePlan() {
         <button type="submit" :disabled="isSavingProfile">{{ $t('settings.saveProfile') }}</button>
       </form>
 
-      <form class="settings-card" @submit.prevent="savePassword">
+      <form v-if="activeTab === 'security'" class="settings-card single-card" @submit.prevent="savePassword">
         <h2>{{ $t('settings.passwordTitle') }}</h2>
         <label for="currentPassword">{{ $t('settings.currentPassword') }}</label>
         <input id="currentPassword" v-model="passwordForm.currentPassword" type="password" />
@@ -186,7 +206,7 @@ async function savePlan() {
         <button type="submit" :disabled="isSavingPassword">{{ $t('settings.savePassword') }}</button>
       </form>
 
-      <article class="settings-card plan-card">
+      <article v-if="activeTab === 'plan'" class="settings-card single-card plan-card">
         <h2>{{ $t('settings.planTitle') }}</h2>
         <p>{{ $t('settings.planDescription') }}</p>
 
@@ -210,7 +230,7 @@ async function savePlan() {
         <button type="button" :disabled="isSavingPlan" @click="savePlan">{{ $t('settings.savePlan') }}</button>
       </article>
 
-      <article class="settings-card language-card">
+      <article v-if="activeTab === 'language'" class="settings-card single-card language-card">
         <h2>{{ $t('settings.languageTitle') }}</h2>
         <p>{{ $t('settings.languageDescription') }}</p>
         <Language />
@@ -247,14 +267,40 @@ h1 {
 
 .settings-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 24px;
+}
+
+.settings-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.settings-tabs button {
+  background: white;
+  border: 1px solid #000;
+  color: #000;
+}
+
+.settings-tabs button.active {
+  background: #53C758;
+  border-color: #53C758;
+  color: white;
 }
 
 .settings-card {
   border: 1px solid #53C758;
   border-radius: 8px;
   padding: 24px;
+}
+
+.single-card {
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .settings-card h2 {
@@ -295,10 +341,6 @@ button {
 button:disabled {
   cursor: wait;
   opacity: 0.65;
-}
-
-.plan-card {
-  grid-column: 1 / -1;
 }
 
 .plan-options {
