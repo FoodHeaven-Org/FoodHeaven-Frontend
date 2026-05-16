@@ -1,7 +1,6 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
-import { localizeMeal } from '@/food-catalog/domain/model/valueobjects/meal-translation.valueobject.js'
 
 const { t, locale } = useI18n()
 const emit = defineEmits(['select'])
@@ -9,14 +8,15 @@ const emit = defineEmits(['select'])
 const props = defineProps({
   comida: { type: Object, required: true },
   selected: { type: Boolean, default: false },
+  isBlocked: { type: Boolean, default: false },
   isSaving: { type: Boolean, default: false }
 })
 
-const displayedMeal = computed(() => localizeMeal(props.comida, locale.value))
+const displayedMeal = computed(() => props.comida.getLocalized(locale.value))
 </script>
 
 <template>
-  <Card class="custom-card" :class="{ selected }">
+  <Card class="custom-card" :class="{ selected, blocked: isBlocked }">
     <template #header>
       <img
           class="card-image"
@@ -26,10 +26,10 @@ const displayedMeal = computed(() => localizeMeal(props.comida, locale.value))
       >
 
       <div class="contenedor-info">
-        <p>Kcal: {{ displayedMeal.nutriente }} kcal</p>
-        <p>Prote: {{ displayedMeal.prote }} g</p>
-        <p>Carbo: {{ displayedMeal.carbo }} g</p>
-        <p>Grasa: {{ displayedMeal.grasa }} g</p>
+        <p>{{ t('nutrition.calories') }}: {{ displayedMeal.nutriente }} kcal</p>
+        <p>{{ t('nutrition.protein') }}: {{ displayedMeal.prote }} g</p>
+        <p>{{ t('nutrition.carbs') }}: {{ displayedMeal.carbo }} g</p>
+        <p>{{ t('nutrition.fat') }}: {{ displayedMeal.grasa }} g</p>
       </div>
     </template>
 
@@ -44,9 +44,9 @@ const displayedMeal = computed(() => localizeMeal(props.comida, locale.value))
     <template #footer>
       <Button
           class="select-button"
-          :class="{ selected }"
+          :class="{ selected, blocked: isBlocked }"
           :disabled="isSaving"
-          :label="selected ? t('planner.remove') : t('planner.choose')"
+          :label="isBlocked ? t('planner.planBlocked') : selected ? t('planner.remove') : t('planner.choose')"
           @click="emit('select', comida)"
       />
     </template>
@@ -67,6 +67,11 @@ const displayedMeal = computed(() => localizeMeal(props.comida, locale.value))
 
 .custom-card.selected {
   border-color: #2ecc71;
+}
+
+.custom-card.blocked {
+  border-color: #e5484d;
+  background: #fff5f5;
 }
 
 .custom-card:hover {
@@ -126,5 +131,11 @@ const displayedMeal = computed(() => localizeMeal(props.comida, locale.value))
   background-color: #2ecc71;
   color: white;
   border-color: #2ecc71;
+}
+
+.select-button.blocked {
+  background-color: #e5484d;
+  border-color: #e5484d;
+  color: white;
 }
 </style>

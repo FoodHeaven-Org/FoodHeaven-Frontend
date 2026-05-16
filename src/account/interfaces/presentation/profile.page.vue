@@ -39,7 +39,11 @@ onBeforeMount(async () => {
 })
 
 function formatPhone(phone) {
-  return phone ? `+${phone}` : 'Not provided'
+  return phone ? `+${phone}` : t('account.notProvided')
+}
+
+function formatText(value) {
+  return value || t('account.notProvided')
 }
 
 function goToSettings(tab = 'profile') {
@@ -87,10 +91,15 @@ async function deleteAccount() {
         <p>{{ $t('account.phone') }}</p>
         <a>{{ formatPhone(profile.phone) }}</a>
         <p>{{ $t('account.city') }}</p>
-        <a>{{ profile.city }}</a>
+        <a>{{ formatText(profile.city) }}</a>
+        <p>{{ $t('account.address') }}</p>
+        <a>{{ formatText(profile.address) }}</a>
+        <p>{{ $t('account.paymentMethod') }}</p>
+        <a>{{ formatText(profile.paymentMethod) }}</a>
         <p>{{ $t('account.subscription') }}</p>
         <a>{{ subscriptionLabel }}</a>
-        <Button class="config" :label="$t('account.config')" @click="goToSettings('profile')" />
+        <Button class="config" :label="$t('account.editProfile')" @click="goToSettings('profile')" />
+        <Button class="config security" :label="$t('account.security')" @click="goToSettings('security')" />
         <Button class="delete" :disabled="isDeleting" :label="$t('account.delete')" @click="deleteAccount" />
       </div>
     </template>
@@ -153,6 +162,10 @@ Button {
   background: #000000;
   padding: 10px;
   margin: 2rem auto 0;
+}
+
+.security {
+  margin-top: 1rem;
 }
 
 .delete {

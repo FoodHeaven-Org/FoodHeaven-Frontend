@@ -1,8 +1,7 @@
 <script setup>
-import { computed, onBeforeMount, ref } from 'vue'
+import { computed, onBeforeMount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import Language from '@/shared/interfaces/presentation/language-switcher.component.vue'
 import { AccountApiService } from '@/account/application/internal/account-api.service.js'
 import {
   getSubscriptionPlan,
@@ -21,9 +20,8 @@ const statusMessage = ref('')
 const errorMessage = ref('')
 const tabs = [
   { key: 'profile', labelKey: 'settings.personalTitle' },
-  { key: 'plan', labelKey: 'settings.planTitle' },
-  { key: 'security', labelKey: 'settings.passwordTitle' },
-  { key: 'language', labelKey: 'settings.languageTitle' }
+  { key: 'plan', labelKey: 'settings.changePlanTitle' },
+  { key: 'security', labelKey: 'settings.passwordTitle' }
 ]
 const requestedTab = String(route.query.tab ?? 'profile')
 const activeTab = ref(tabs.some(tab => tab.key === requestedTab) ? requestedTab : 'profile')
@@ -32,7 +30,9 @@ const profileForm = ref({
   fullName: '',
   username: '',
   phone: '',
-  city: ''
+  city: '',
+  address: '',
+  paymentMethod: 'Card'
 })
 
 const passwordForm = ref({
@@ -56,7 +56,9 @@ async function loadProfile() {
       fullName: profile.fullName ?? profile.FullName ?? '',
       username: profile.username ?? '',
       phone: String(profile.phone ?? ''),
-      city: profile.city ?? ''
+      city: profile.city ?? '',
+      address: profile.address ?? '',
+      paymentMethod: profile.paymentMethod || 'Card'
     }
     selectedPlan.value = getSubscriptionPlan(profile.subscription).code
   } catch (error) {
@@ -74,7 +76,7 @@ async function saveProfile() {
 
   const parsedPhone = Number(String(profileForm.value.phone).replace(/\D/g, ''))
 
-  if (!profileForm.value.fullName || !profileForm.value.username || !parsedPhone || !profileForm.value.city) {
+  if (!profileForm.value.fullName || !profileForm.value.username || !parsedPhone || !profileForm.value.city || !profileForm.value.address || !profileForm.value.paymentMethod) {
     errorMessage.value = t('settings.requiredError')
     isSavingProfile.value = false
     return
@@ -85,7 +87,9 @@ async function saveProfile() {
       fullName: profileForm.value.fullName,
       username: profileForm.value.username,
       phone: parsedPhone,
-      city: profileForm.value.city
+      city: profileForm.value.city,
+      address: profileForm.value.address,
+      paymentMethod: profileForm.value.paymentMethod
     })
     statusMessage.value = t('settings.profileSaved')
   } catch (error) {
@@ -153,6 +157,11 @@ async function savePlan() {
     isSavingPlan.value = false
   }
 }
+
+watch(() => route.query.tab, (tab) => {
+  const nextTab = String(tab ?? 'profile')
+  activeTab.value = tabs.some(item => item.key === nextTab) ? nextTab : 'profile'
+})
 </script>
 
 <template>
@@ -191,6 +200,16 @@ async function savePlan() {
         <label for="city">{{ $t('account.city') }}</label>
         <input id="city" v-model="profileForm.city" type="text" />
 
+        <label for="address">{{ $t('account.address') }}</label>
+        <input id="address" v-model="profileForm.address" type="text" />
+
+        <label for="paymentMethod">{{ $t('account.paymentMethod') }}</label>
+        <select id="paymentMethod" v-model="profileForm.paymentMethod">
+          <option value="Card">{{ $t('settings.paymentCard') }}</option>
+          <option value="Yape">{{ $t('settings.paymentYape') }}</option>
+          <option value="Cash">{{ $t('settings.paymentCash') }}</option>
+        </select>
+
         <button type="submit" :disabled="isSavingProfile">{{ $t('settings.saveProfile') }}</button>
       </form>
 
@@ -209,7 +228,7 @@ async function savePlan() {
       </form>
 
       <article v-if="activeTab === 'plan'" class="settings-card single-card plan-card">
-        <h2>{{ $t('settings.planTitle') }}</h2>
+        <h2>{{ $t('settings.changePlanTitle') }}</h2>
         <p>{{ $t('settings.planDescription') }}</p>
 
         <div class="plan-options">
@@ -230,12 +249,6 @@ async function savePlan() {
           {{ $t('settings.selectedPlanRule', { meals: activePlan.mealsPerDay }) }}
         </p>
         <button type="button" :disabled="isSavingPlan" @click="savePlan">{{ $t('settings.savePlan') }}</button>
-      </article>
-
-      <article v-if="activeTab === 'language'" class="settings-card single-card language-card">
-        <h2>{{ $t('settings.languageTitle') }}</h2>
-        <p>{{ $t('settings.languageDescription') }}</p>
-        <Language />
       </article>
     </div>
   </section>
@@ -320,7 +333,8 @@ label {
   margin-bottom: 8px;
 }
 
-input {
+input,
+select {
   border: 1px solid black;
   border-radius: 18px;
   font: inherit;

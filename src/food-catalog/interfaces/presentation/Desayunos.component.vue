@@ -7,7 +7,8 @@ import { onBeforeMount, ref } from 'vue'
 const props = defineProps({
   selectedDay: { type: Number, required: true },
   selectedMealId: { type: Number, default: 0 },
-  isSaving: { type: Boolean, default: false }
+  isSaving: { type: Boolean, default: false },
+  isBlocked: { type: Boolean, default: false }
 })
 
 const emit = defineEmits(['meal-selected'])
@@ -33,6 +34,7 @@ function selectMeal(comida) {
           :key="comida.id"
           :comida="comida"
           :selected="selectedMealId === comida.id"
+          :is-blocked="isBlocked && selectedMealId !== comida.id"
           :is-saving="isSaving"
           @select="selectMeal"
       />

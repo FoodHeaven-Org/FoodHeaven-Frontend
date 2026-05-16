@@ -141,6 +141,7 @@ export default {
         choose: "Elegir",
         selected: "Elegido",
         remove: "Quitar",
+        planBlocked: "Plan limitado",
         slotsSelected: "comidas elegidas",
         planLimit: "{meals} comida(s) por dia",
         limitReached: "Tu plan actual permite hasta {meals} comida(s) por dia. Quita una comida de este dia o cambia de plan.",
@@ -148,6 +149,12 @@ export default {
         saved: "Comida guardada en tu calendario semanal.",
         loadError: "No se pudo cargar tu plan semanal. Inicia sesion nuevamente.",
         saveError: "No se pudo guardar esta comida."
+    },
+    nutrition: {
+        calories: "Calorias",
+        protein: "Proteina",
+        carbs: "Carbohidratos",
+        fat: "Grasa"
     },
     configuracion: {
         conf: "Configuración"
@@ -205,8 +212,12 @@ export default {
         city: "Ciudad",
         district: "Distrito",
         address: "Dirección",
+        paymentMethod: "Metodo de pago",
         subscription: "Suscripcion",
         config: "Configuracion",
+        editProfile: "Editar datos",
+        security: "Seguridad",
+        notProvided: "No registrado",
         delete: "Borrar cuenta",
         deleteConfirm: "Esta accion borrara tu cuenta y tus planes. Deseas continuar?",
         deleteError: "No se pudo borrar tu cuenta."
@@ -230,15 +241,17 @@ export default {
         passwordError: "No se pudo cambiar la contrasena.",
         passwordLengthError: "La nueva contrasena debe tener al menos 6 caracteres.",
         passwordMatchError: "Las contrasenas no coinciden.",
-        languageTitle: "Idioma",
-        languageDescription: "Cambia el idioma de la interfaz cuando lo necesites.",
         planTitle: "Plan semanal",
+        changePlanTitle: "Cambiar plan",
         planDescription: "Elige cuantas comidas por dia quieres poder programar en tu calendario.",
         selectedPlanRule: "Este plan permite hasta {meals} comida(s) por dia.",
         savePlan: "Guardar plan",
         planSaved: "Plan actualizado correctamente.",
         planError: "No se pudo actualizar tu plan.",
-        editPlan: "Editar plan"
+        editPlan: "Editar plan",
+        paymentCard: "Tarjeta de credito o debito",
+        paymentYape: "Yape",
+        paymentCash: "Pago contra entrega"
     },
     register: {
         title: "Regístrate",

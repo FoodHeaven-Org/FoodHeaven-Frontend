@@ -25,7 +25,7 @@
           </div>
 
           <div class="form-group">
-            <label for="subscription">Subscription</label>
+            <label for="subscription">{{ $t('account.subscription') }}</label>
             <select id="subscription" v-model="subscription" class="input-field" required>
               <option v-for="plan in SUBSCRIPTION_PLANS" :key="plan.code" :value="plan.code">
                 {{ t(plan.nameKey) }} - S/ {{ plan.monthlyPrice }}
@@ -41,6 +41,20 @@
           <div class="form-group full-width">
             <label for="city">{{ $t('account.city') }}</label>
             <input id="city" type="text" v-model="city" class="input-field" required />
+          </div>
+
+          <div class="form-group full-width">
+            <label for="address">{{ $t('account.address') }}</label>
+            <input id="address" type="text" v-model="address" class="input-field" required />
+          </div>
+
+          <div class="form-group full-width">
+            <label for="paymentMethod">{{ $t('account.paymentMethod') }}</label>
+            <select id="paymentMethod" v-model="paymentMethod" class="input-field" required>
+              <option value="Card">{{ $t('settings.paymentCard') }}</option>
+              <option value="Yape">{{ $t('settings.paymentYape') }}</option>
+              <option value="Cash">{{ $t('settings.paymentCash') }}</option>
+            </select>
           </div>
         </div>
 
@@ -75,6 +89,8 @@ const password = ref('')
 const subscription = ref('Full')
 const phone = ref('')
 const city = ref('')
+const address = ref('')
+const paymentMethod = ref('Card')
 const showPassword = ref(false)
 const errorMessage = ref('')
 
@@ -87,7 +103,7 @@ const handleRegister = async () => {
 
   const parsedPhone = Number(String(phone.value).replace(/\D/g, ''))
 
-  if (!fullName.value || !email.value || !password.value || !subscription.value || !parsedPhone || !city.value) {
+  if (!fullName.value || !email.value || !password.value || !subscription.value || !parsedPhone || !city.value || !address.value || !paymentMethod.value) {
     errorMessage.value = t('register.errorRequired')
     return
   }
@@ -104,7 +120,9 @@ const handleRegister = async () => {
       password: password.value,
       subscription: subscription.value,
       phone: parsedPhone,
-      city: city.value
+      city: city.value,
+      address: address.value,
+      paymentMethod: paymentMethod.value
     })
     await router.push({ name: 'Login' })
   } catch (error) {
