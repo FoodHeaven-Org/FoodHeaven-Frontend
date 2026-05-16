@@ -18,14 +18,16 @@ export class AuthApiService {
         return token
     }
 
-    async signUp({ fullName, username, password, subscription, phone, city }) {
+    async signUp({ fullName, username, password, subscription, phone, city, address, paymentMethod }) {
         const response = await apiClient.post('/User/sign-up', {
             fullName,
             username,
             password,
             subscription,
             phone,
-            city
+            city,
+            address,
+            paymentMethod
         })
 
         return response.data
@@ -76,7 +78,9 @@ export function getSessionUser() {
         fullName: payload.fullName ?? '',
         subscription: payload[ROLE_CLAIM] ?? payload.role ?? '',
         phone: payload.phone ?? '',
-        city: payload.city ?? ''
+        city: payload.city ?? '',
+        address: payload.address ?? '',
+        paymentMethod: payload.paymentMethod ?? ''
     }
 }
 

@@ -13,7 +13,7 @@ export class AccountApiService {
         return response.data
     }
 
-    async updateCurrentProfile({ fullName, username, phone, city }) {
+    async updateCurrentProfile({ fullName, username, phone, city, address, paymentMethod }) {
         const userId = getCurrentUserId()
 
         if (!userId) {
@@ -24,7 +24,9 @@ export class AccountApiService {
             fullName,
             username,
             phone,
-            city
+            city,
+            address,
+            paymentMethod
         })
         return response.data
     }

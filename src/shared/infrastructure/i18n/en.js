@@ -208,8 +208,12 @@ export default {
         city: "City",
         district: "District",
         address: "Address",
+        paymentMethod: "Payment method",
         subscription: "Subscription",
         config: "Settings",
+        editProfile: "Edit data",
+        security: "Security",
+        notProvided: "Not provided",
         delete: "Delete account",
         deleteConfirm: "This will delete your account and meal plans. Do you want to continue?",
         deleteError: "Unable to delete your account."
@@ -233,15 +237,17 @@ export default {
         passwordError: "Unable to change your password.",
         passwordLengthError: "The new password must have at least 6 characters.",
         passwordMatchError: "Passwords do not match.",
-        languageTitle: "Language",
-        languageDescription: "Change the interface language whenever you need to.",
         planTitle: "Weekly plan",
+        changePlanTitle: "Change plan",
         planDescription: "Choose how many meals per day you can schedule in your calendar.",
         selectedPlanRule: "This plan allows up to {meals} meal(s) per day.",
         savePlan: "Save plan",
         planSaved: "Plan updated successfully.",
         planError: "Unable to update your plan.",
-        editPlan: "Edit plan"
+        editPlan: "Edit plan",
+        paymentCard: "Credit or debit card",
+        paymentYape: "Yape",
+        paymentCash: "Pay on delivery"
     },
     register: {
         title: "Register",
