@@ -27,9 +27,9 @@
           <div class="form-group">
             <label for="subscription">Subscription</label>
             <select id="subscription" v-model="subscription" class="input-field" required>
-              <option value="Full">Full</option>
-              <option value="BreakfastLunch">Breakfast + lunch</option>
-              <option value="LunchDinner">Lunch + dinner</option>
+              <option v-for="plan in SUBSCRIPTION_PLANS" :key="plan.code" :value="plan.code">
+                {{ t(plan.nameKey) }} - S/ {{ plan.monthlyPrice }}
+              </option>
             </select>
           </div>
 
@@ -63,6 +63,7 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { AuthApiService } from '@/security/application/internal/auth-api.service.js'
+import { SUBSCRIPTION_PLANS } from '@/security/domain/model/valueobjects/subscription-plan.valueobject.js'
 
 const { t } = useI18n()
 const router = useRouter()

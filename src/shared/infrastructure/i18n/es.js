@@ -138,7 +138,10 @@ export default {
     planner: {
         choose: "Elegir",
         selected: "Elegido",
+        remove: "Quitar",
         slotsSelected: "comidas elegidas",
+        planLimit: "{meals} comida(s) por dia",
+        limitReached: "Tu plan actual permite hasta {meals} comida(s) por dia. Quita una comida de este dia o cambia de plan.",
         loadingPlan: "Cargando tu plan semanal...",
         saved: "Comida guardada en tu calendario semanal.",
         loadError: "No se pudo cargar tu plan semanal. Inicia sesion nuevamente.",
@@ -179,6 +182,20 @@ export default {
     subscription: {
         expires: "Tu suscripción vence en 45 días"
     },
+    subscriptionPlans: {
+        essential: {
+            name: "Plan Esencial",
+            description: "1 comida por dia. Ideal si solo quieres cubrir una comida principal."
+        },
+        balance: {
+            name: "Plan Balance",
+            description: "2 comidas por dia. Pensado para combinar desayuno, almuerzo o cena."
+        },
+        full: {
+            name: "Plan Full",
+            description: "3 comidas por dia. Cubre desayuno, almuerzo y cena."
+        }
+    },
     account: {
         name: "Nombre",
         email: "Correo",
@@ -191,11 +208,31 @@ export default {
     },
     settings: {
         title: "Configuracion",
-        subtitle: "Ajusta las preferencias basicas de tu experiencia en FoodHeaven.",
+        subtitle: "Ajusta tus datos, seguridad y plan de comidas.",
+        loading: "Cargando configuracion...",
+        loadError: "No se pudo cargar tu configuracion.",
+        requiredError: "Completa todos los campos requeridos.",
+        personalTitle: "Datos personales",
+        saveProfile: "Guardar datos",
+        profileSaved: "Datos actualizados correctamente.",
+        profileError: "No se pudieron actualizar tus datos.",
+        passwordTitle: "Contrasena y seguridad",
+        currentPassword: "Contrasena actual",
+        newPassword: "Nueva contrasena",
+        confirmPassword: "Confirmar contrasena",
+        savePassword: "Cambiar contrasena",
+        passwordSaved: "Contrasena actualizada correctamente.",
+        passwordError: "No se pudo cambiar la contrasena.",
+        passwordLengthError: "La nueva contrasena debe tener al menos 6 caracteres.",
+        passwordMatchError: "Las contrasenas no coinciden.",
         languageTitle: "Idioma",
         languageDescription: "Cambia el idioma de la interfaz cuando lo necesites.",
         planTitle: "Plan semanal",
-        planDescription: "Tu calendario se mantiene activo cada semana hasta que lo actualices.",
+        planDescription: "Elige cuantas comidas por dia quieres poder programar en tu calendario.",
+        selectedPlanRule: "Este plan permite hasta {meals} comida(s) por dia.",
+        savePlan: "Guardar plan",
+        planSaved: "Plan actualizado correctamente.",
+        planError: "No se pudo actualizar tu plan.",
         editPlan: "Editar plan"
     },
     register: {

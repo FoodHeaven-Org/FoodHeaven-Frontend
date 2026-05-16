@@ -141,7 +141,10 @@ export default {
     planner: {
         choose: "Choose",
         selected: "Selected",
+        remove: "Remove",
         slotsSelected: "meals selected",
+        planLimit: "{meals} meal(s) per day",
+        limitReached: "Your current plan allows up to {meals} meal(s) per day. Remove one meal from this day or change your plan.",
         loadingPlan: "Loading your weekly plan...",
         saved: "Meal saved in your weekly calendar.",
         loadError: "Unable to load your weekly plan. Please sign in again.",
@@ -182,6 +185,20 @@ export default {
     subscription: {
         expires: "Your subscription expires in 45 days"
     },
+    subscriptionPlans: {
+        essential: {
+            name: "Essential Plan",
+            description: "1 meal per day. Useful if you only want to cover one main meal."
+        },
+        balance: {
+            name: "Balance Plan",
+            description: "2 meals per day. Built for combining breakfast, lunch, or dinner."
+        },
+        full: {
+            name: "Full Plan",
+            description: "3 meals per day. Covers breakfast, lunch, and dinner."
+        }
+    },
     account: {
         name: "Name",
         email: "Email",
@@ -194,11 +211,31 @@ export default {
     },
     settings: {
         title: "Settings",
-        subtitle: "Adjust the basic preferences for your FoodHeaven experience.",
+        subtitle: "Adjust your personal data, security, and meal plan.",
+        loading: "Loading settings...",
+        loadError: "Unable to load your settings.",
+        requiredError: "Complete all required fields.",
+        personalTitle: "Personal data",
+        saveProfile: "Save data",
+        profileSaved: "Data updated successfully.",
+        profileError: "Unable to update your data.",
+        passwordTitle: "Password and security",
+        currentPassword: "Current password",
+        newPassword: "New password",
+        confirmPassword: "Confirm password",
+        savePassword: "Change password",
+        passwordSaved: "Password updated successfully.",
+        passwordError: "Unable to change your password.",
+        passwordLengthError: "The new password must have at least 6 characters.",
+        passwordMatchError: "Passwords do not match.",
         languageTitle: "Language",
         languageDescription: "Change the interface language whenever you need to.",
         planTitle: "Weekly plan",
-        planDescription: "Your calendar remains active every week until you update it.",
+        planDescription: "Choose how many meals per day you can schedule in your calendar.",
+        selectedPlanRule: "This plan allows up to {meals} meal(s) per day.",
+        savePlan: "Save plan",
+        planSaved: "Plan updated successfully.",
+        planError: "Unable to update your plan.",
         editPlan: "Edit plan"
     },
     register: {
