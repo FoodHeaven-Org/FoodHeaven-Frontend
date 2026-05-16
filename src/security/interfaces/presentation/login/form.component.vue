@@ -3,45 +3,29 @@
     <div class="login-content">
       <h2 class="login-title">{{ $t('login.title') }}</h2>
       <p class="login-subtitle">{{ $t('login.subtitle') }}</p>
-      <div class="social-login">
-        <button class="social-button facebook">
-          <img src="https://i.imgur.com/y0qN6qp.png" alt="Facebook" class="social-icon" />
-        </button>
-        <button class="social-button google">
-          <img src="https://i.imgur.com/fdWBoqr.png" alt="Google" class="social-icon" />
-        </button>
-      </div>
-
-      <div class="divider-container">
-        <hr class="divider-line">
-        <span class="divider-text"> {{ $t('login.or') }} </span>
-        <hr class="divider-line">
-      </div>
 
       <form @submit.prevent="handleLogin">
         <div class="form-group">
           <label for="email">{{ $t('login.email') }}</label>
-          <input type="email" v-model="email" class="input-field" required />
+          <input id="email" type="email" v-model="email" class="input-field" required />
         </div>
 
         <div class="form-group">
           <label for="password">{{ $t('login.password') }}</label>
           <div class="password-container">
-            <input :type="showPassword ? 'text' : 'password'" v-model="password" class="input-field" required minlength="6" />
+            <input id="password" :type="showPassword ? 'text' : 'password'" v-model="password" class="input-field" required minlength="6" />
             <i :class="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'" @click="togglePasswordVisibility"></i>
           </div>
         </div>
 
-        <button class="login-button">{{ $t('login.button') }}</button>
+        <p v-if="errorMessage" class="form-error">{{ errorMessage }}</p>
+        <button class="login-button" type="submit">{{ $t('login.button') }}</button>
       </form>
 
       <div class="extra-links">
-        <a href="#" class="forgot-password">{{ $t('login.forgot') }} <span>{{ $t('login.forgotLink') }}</span></a>
-        <br>
-        <!-- El siguiente enlace es para ir a la página de registro -->
-        <a href="/register" class="register">
+        <RouterLink :to="{ name: 'Register' }" class="register">
           {{ $t('login.registerText') }} <span>{{ $t('login.registerLink') }}</span>
-        </a>
+        </RouterLink>
       </div>
     </div>
     <div class="login-image"></div>
@@ -49,47 +33,43 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';  // Importa useRouter
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { AuthApiService } from '@/security/application/internal/auth-api.service.js'
 
-const email = ref("");
-const password = ref("");
-const showPassword = ref(false);
-const router = useRouter(); // Inicializa el router
+const authApiService = new AuthApiService()
+const email = ref('')
+const password = ref('')
+const showPassword = ref(false)
+const errorMessage = ref('')
+const router = useRouter()
 
 const togglePasswordVisibility = () => {
-  showPassword.value = !showPassword.value;
-};
+  showPassword.value = !showPassword.value
+}
 
 const handleLogin = async () => {
-  if (!email.value || !password.value) {
-    alert("Por favor, completa todos los campos.");
-    return;
-  }
+  errorMessage.value = ''
 
-  if (password.value.length < 6) {
-    alert("La contraseña debe tener al menos 6 caracteres.");
-    return;
+  if (!email.value || !password.value) {
+    errorMessage.value = 'Please complete all fields.'
+    return
   }
 
   try {
-    const auth = getAuth();
-    await signInWithEmailAndPassword(auth, email.value, password.value);
-    alert("Inicio de sesión exitoso.");
-    router.push({ name: 'Inicio' });  // Asegúrate de que esta ruta exista
+    await authApiService.login({ username: email.value, password: password.value })
+    await router.push({ name: 'Inicio' })
   } catch (error) {
-    console.error(error);
-    alert("Credenciales incorrectas o usuario no registrado.");
+    console.error(error)
+    errorMessage.value = 'Invalid credentials or unavailable backend.'
   }
-};
+}
 </script>
 
 <style scoped>
-/* (todo el mismo CSS que ya tenías) */
 .login-container {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
   width: 100%;
 }
 
@@ -109,59 +89,6 @@ const handleLogin = async () => {
   margin-bottom: 0.5rem;
 }
 
-.social-login {
-  display: flex;
-  gap: 1rem;
-  margin: 1rem 0;
-}
-
-.social-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.6rem 2rem;
-  border: none;
-  border-radius: 12px;
-  font-size: 1rem;
-  cursor: pointer;
-  width: 100%;
-}
-
-.social-icon {
-  width: 24px;
-  height: 24px;
-}
-
-.facebook {
-  background-color: #1877F2;
-}
-
-.google {
-  background-color: #FFFFFF;
-  border: 1px solid #ddd;
-}
-
-.divider-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  margin-bottom: 16px;
-}
-
-.divider-line {
-  flex: 1;
-  height: 1px;
-  background-color: black;
-  border: none;
-}
-
-.divider-text {
-  font-size: 1rem;
-  color: black;
-  padding: 0 0.5rem;
-}
-
 .form-group label {
   margin-bottom: 0.25rem;
   display: block;
@@ -170,7 +97,7 @@ const handleLogin = async () => {
 
 .input-field {
   width: 100%;
-  padding: 5px;
+  padding: 8px 14px;
   border: 1px solid black;
   border-radius: 25px;
   margin-bottom: 1.5rem;
@@ -180,7 +107,7 @@ const handleLogin = async () => {
 .login-button {
   background-color: white;
   color: black;
-  padding: 5px 20px;
+  padding: 8px 20px;
   width: 40%;
   border: 1px solid #000;
   border-radius: 25px;
@@ -192,7 +119,7 @@ const handleLogin = async () => {
   margin: 1rem auto;
 }
 
-.login-button:hover{
+.login-button:hover {
   background: #2e7d32;
   color: white;
 }
@@ -201,7 +128,7 @@ const handleLogin = async () => {
   flex: 1;
   background: url('https://i.imgur.com/6BeFx2n.jpeg') no-repeat center/cover;
   clip-path: circle(95% at right center);
-  height: auto;
+  min-height: 100vh;
 }
 
 .extra-links {
@@ -233,11 +160,26 @@ const handleLogin = async () => {
 .password-container i {
   position: absolute;
   right: 15px;
+  top: 12px;
   font-size: 1.2rem;
   color: black;
 }
 
-.pi-eye{
-  margin-top: 10px;
+.form-error {
+  color: #b42318;
+  font-weight: 600;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .login-image {
+    display: none;
+  }
+
+  .login-content {
+    margin-left: 0;
+    max-width: 100%;
+    padding: 2rem;
+  }
 }
 </style>

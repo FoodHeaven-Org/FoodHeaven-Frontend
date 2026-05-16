@@ -1,5 +1,4 @@
-﻿import './assets/main.css';
-import './firebase.js'; 
+import './assets/main.css';
 
 import 'primeicons/primeicons.css';
 import i18n from './shared/infrastructure/i18n/i18n.js';

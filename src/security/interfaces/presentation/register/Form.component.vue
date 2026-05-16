@@ -3,44 +3,50 @@
     <div class="login-content">
       <h2 class="login-title">{{ $t('register.title') }}</h2>
       <p class="login-subtitle">{{ $t('register.subtitle') }}</p>
-      <div class="social-login">
-        <button class="social-button facebook">
-          <img src="https://i.imgur.com/y0qN6qp.png" alt="Facebook" class="social-icon" />
-        </button>
-        <button class="social-button google">
-          <img src="https://i.imgur.com/fdWBoqr.png" alt="Google" class="social-icon" />
-        </button>
-      </div>
 
-      <div class="divider-container">
-        <hr class="divider-line">
-        <span class="divider-text"> {{ $t('register.or') }} </span>
-        <hr class="divider-line">
-      </div>
+      <form @submit.prevent="handleRegister">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="email">{{ $t('register.email') }}</label>
+            <input id="email" type="email" v-model="email" class="input-field" required />
+          </div>
 
-      <form @submit.prevent="handleLogin">
-        <div class="form-group">
-          <label for="email">{{ $t('register.email') }}</label>
-          <input type="email" v-model="email" class="input-field" required />
-        </div>
+          <div class="form-group">
+            <label for="password">{{ $t('register.password') }}</label>
+            <div class="password-container">
+              <input id="password" :type="showPassword ? 'text' : 'password'" v-model="password" class="input-field" required minlength="6" />
+              <i :class="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'" @click="togglePasswordVisibility"></i>
+            </div>
+          </div>
 
-        <div class="form-group">
-          <label for="password">{{ $t('register.password') }}</label>
-          <div class="password-container">
-            <input :type="showPassword ? 'text' : 'password'" v-model="password" class="input-field" required minlength="6" />
-            <i :class="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'" @click="togglePasswordVisibility"></i>
+          <div class="form-group">
+            <label for="subscription">Subscription</label>
+            <select id="subscription" v-model="subscription" class="input-field" required>
+              <option value="Full">Full</option>
+              <option value="BreakfastLunch">Breakfast + lunch</option>
+              <option value="LunchDinner">Lunch + dinner</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">{{ $t('account.phone') }}</label>
+            <input id="phone" type="tel" v-model="phone" class="input-field" required />
+          </div>
+
+          <div class="form-group full-width">
+            <label for="city">{{ $t('account.city') }}</label>
+            <input id="city" type="text" v-model="city" class="input-field" required />
           </div>
         </div>
 
-        <button class="login-button" @click.prevent="handleRegister">
-          {{ $t('register.button') }}
-        </button>
+        <p v-if="errorMessage" class="form-error">{{ errorMessage }}</p>
+        <button class="login-button" type="submit">{{ $t('register.button') }}</button>
       </form>
 
       <div class="extra-links">
-        <a href="#" class="forgot-password" @click.prevent="goToLogin">
+        <RouterLink :to="{ name: 'Login' }" class="forgot-password">
           {{ $t('register.already') }} <span>{{ $t('register.login') }}</span>
-        </a>
+        </RouterLink>
       </div>
     </div>
     <div class="login-image"></div>
@@ -48,53 +54,62 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useI18n } from 'vue-i18n';
-import router from "@/routes.js";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
+import { AuthApiService } from '@/security/application/internal/auth-api.service.js'
 
-const { t } = useI18n();
-const email = ref("");
-const password = ref("");
-const showPassword = ref(false);
+const { t } = useI18n()
+const router = useRouter()
+const authApiService = new AuthApiService()
+
+const email = ref('')
+const password = ref('')
+const subscription = ref('Full')
+const phone = ref('')
+const city = ref('')
+const showPassword = ref(false)
+const errorMessage = ref('')
 
 const togglePasswordVisibility = () => {
-  showPassword.value = !showPassword.value;
-};
+  showPassword.value = !showPassword.value
+}
 
 const handleRegister = async () => {
-  if (!email.value || !password.value) {
-    alert(t('login.errorRequired'));
-    return;
+  errorMessage.value = ''
+
+  const parsedPhone = Number(String(phone.value).replace(/\D/g, ''))
+
+  if (!email.value || !password.value || !subscription.value || !parsedPhone || !city.value) {
+    errorMessage.value = t('login.errorRequired')
+    return
   }
 
   if (password.value.length < 6) {
-    alert(t('login.errorLength'));
-    return;
+    errorMessage.value = t('login.errorLength')
+    return
   }
 
   try {
-    const auth = getAuth();
-    const userCredential = await createUserWithEmailAndPassword(auth, email.value, password.value);
-    alert(t('register.success')); // Puedes personalizar esta clave en i18n
-    console.log('Usuario registrado:', userCredential.user);
-    router.push({ name: 'Login' }); // Redirige al login tras registrarse
+    await authApiService.signUp({
+      username: email.value,
+      password: password.value,
+      subscription: subscription.value,
+      phone: parsedPhone,
+      city: city.value
+    })
+    await router.push({ name: 'Login' })
   } catch (error) {
-    console.error("Error al registrar:", error);
-    alert(error.message);
+    console.error(error)
+    errorMessage.value = error.response?.data?.message ?? 'Unable to register this user.'
   }
-};
-
-const goToLogin = () => {
-  router.push({ name: 'Login' });
-};
+}
 </script>
-
 
 <style scoped>
 .login-container {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
   width: 100%;
 }
 
@@ -104,7 +119,7 @@ const goToLogin = () => {
   flex-direction: column;
   justify-content: center;
   padding: 3rem 4rem;
-  max-width: 700px;
+  max-width: 760px;
   margin-left: 80px;
 }
 
@@ -114,57 +129,14 @@ const goToLogin = () => {
   margin-bottom: 0.5rem;
 }
 
-.social-login {
-  display: flex;
-  gap: 1rem;
-  margin: 1rem 0;
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1rem;
 }
 
-.social-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.6rem 2rem;
-  border: none;
-  border-radius: 12px;
-  font-size: 1rem;
-  cursor: pointer;
-  width: 100%;
-}
-
-.social-icon {
-  width: 24px;
-  height: 24px;
-}
-
-.facebook {
-  background-color: #1877F2;
-}
-
-.google {
-  background-color: #FFFFFF;
-  border: 1px solid #ddd;
-}
-
-.divider-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  margin-bottom: 16px;
-}
-
-.divider-line {
-  flex: 1;
-  height: 1px;
-  background-color: black;
-  border: none;
-}
-
-.divider-text {
-  font-size: 1rem;
-  color: black;
-  padding: 0 0.5rem;
+.full-width {
+  grid-column: 1 / -1;
 }
 
 .form-group label {
@@ -175,17 +147,18 @@ const goToLogin = () => {
 
 .input-field {
   width: 100%;
-  padding: 5px;
+  padding: 8px 14px;
   border: 1px solid black;
   border-radius: 25px;
   margin-bottom: 1.5rem;
   font-size: 1.1rem;
+  background: white;
 }
 
 .login-button {
   background-color: white;
   color: black;
-  padding: 5px 20px;
+  padding: 8px 20px;
   width: 40%;
   border: 1px solid #000;
   border-radius: 25px;
@@ -197,7 +170,7 @@ const goToLogin = () => {
   margin: 1rem auto;
 }
 
-.login-button:hover{
+.login-button:hover {
   background: #2e7d32;
   color: white;
 }
@@ -206,7 +179,7 @@ const goToLogin = () => {
   flex: 1;
   background: url('https://i.imgur.com/6BeFx2n.jpeg') no-repeat center/cover;
   clip-path: circle(95% at right center);
-  height: auto;
+  min-height: 100vh;
 }
 
 .extra-links {
@@ -238,11 +211,30 @@ const goToLogin = () => {
 .password-container i {
   position: absolute;
   right: 15px;
+  top: 12px;
   font-size: 1.2rem;
   color: black;
 }
 
-.pi-eye{
-  margin-top: 10px;
+.form-error {
+  color: #b42318;
+  font-weight: 600;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .login-image {
+    display: none;
+  }
+
+  .login-content {
+    margin-left: 0;
+    max-width: 100%;
+    padding: 2rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

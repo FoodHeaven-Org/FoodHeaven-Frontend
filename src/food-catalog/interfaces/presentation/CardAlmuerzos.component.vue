@@ -1,24 +1,9 @@
 <script setup>
-import {defineEmits, defineProps} from "vue";
+import { defineProps } from "vue"
 
-const props = defineProps({
-  comida: {type: Object, required: true}
-});
-
-
-import { useConfirm } from 'primevue/useconfirm'
-const confirm = useConfirm()
-
-function confirmarAccion() {
-  confirm.require({
-    group: 'add',
-    message: 'Almuerzo añadido',
-    acceptLabel: 'Aceptar',
-    accept: () => {
-      console.log('Navegar al inicio')
-    }
-  })
-}
+defineProps({
+  comida: { type: Object, required: true }
+})
 </script>
 
 <template>
@@ -48,13 +33,6 @@ function confirmarAccion() {
 
 
       <p class="card-subtitle">{{comida.complemento}}</p>
-    </template>
-
-    <!-- Botón -->
-    <template #footer>
-      <div class="card-footer">
-        <Button @click="confirmarAccion" label="Añadir" class="add-button" />
-      </div>
     </template>
   </Card>
 </template>
@@ -93,21 +71,6 @@ function confirmarAccion() {
   padding: 0 12px;
   color: #444;
   margin-bottom: 12px;
-}
-
-.card-footer {
-  display: flex;
-  justify-content: center;
-  padding-bottom: 16px;
-}
-
-.add-button {
-  background-color: #4CAF50;
-  color: white;
-  border-radius: 20px;
-  padding: 8px 24px;
-  border: none;
-  font-weight: bold;
 }
 
 .contenedor-info{
