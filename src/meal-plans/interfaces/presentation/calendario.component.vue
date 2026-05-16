@@ -1,8 +1,13 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeMount, ref, watch } from 'vue'
+import { MealPlanApiService } from '@/meal-plans/application/internal/meal-plan-api.service.js'
+import { ComidasApiService } from '@/food-catalog/application/internal/comidas-api.service.js'
+import { toComidaEntitiesFromResponse } from '@/food-catalog/application/internal/comida-resource.transform.js'
 
 const { t, locale } = useI18n()
+const mealPlanApiService = new MealPlanApiService()
+const comidasApiService = new ComidasApiService()
 
 const dias = computed(() => [
   t('calendar.monday'),
@@ -22,9 +27,12 @@ const comidas = computed(() => [
 
 const today = new Date()
 const todayIndex = today.getDay() === 0 ? 6 : today.getDay() - 1
-
 const monday = new Date(today)
+monday.setHours(0, 0, 0, 0)
 monday.setDate(today.getDate() - todayIndex)
+
+const sunday = new Date(monday)
+sunday.setDate(monday.getDate() + 7)
 
 const mesActual = new Date().toLocaleString('es-ES', { month: 'short' }).replace('.', '')
 const mesFormateado = mesActual.charAt(0).toUpperCase() + mesActual.slice(1) + '.'
@@ -40,45 +48,99 @@ for (let i = 0; i < 7; i++) {
   })
 }
 
-// Actualizar los días cuando cambie el idioma
 watch(() => locale.value, () => {
   fechasSemana.value.forEach((fecha, i) => {
     fecha.dia = dias.value[i]
   })
 })
 
+const emptyMeal = { nombre: '-', descripcion: '', calorias: 0 }
+const datosComida = ref(createEmptyWeek())
+const isLoading = ref(true)
+const errorMessage = ref('')
+const hasActivePlan = ref(false)
 
-// Datos de comidas: vacío por ahora
-const datosComida = ref([
-  // desayuno, almuerzo, cena para 7 días
-  Array.from({ length: 7 }, () => ({ nombre: '', descripcion: '', calorias: 0 })),
-  Array.from({ length: 7 }, () => ({ nombre: '', descripcion: '', calorias: 0 })),
-  Array.from({ length: 7 }, () => ({ nombre: '', descripcion: '', calorias: 0 }))
-])
+onBeforeMount(async () => {
+  try {
+    const [mealPlans, mealsResponse] = await Promise.all([
+      mealPlanApiService.getCurrentUserMealPlans(),
+      comidasApiService.getAllMeals()
+    ])
 
-// Datos de ejemplo
-datosComida.value[1][3] = {
-  nombre: 'Ejemplo',
-  descripcion: 'Descripción de ejemplo',
-  calorias: 450
-}
+    const meals = toComidaEntitiesFromResponse(mealsResponse)
+    const mealById = new Map(meals.map(meal => [meal.id, meal]))
+    const activePlan = findPlanForCurrentWeek(mealPlans)
 
-// === Calorías por día ===
+    if (!activePlan) {
+      hasActivePlan.value = false
+      return
+    }
+
+    hasActivePlan.value = true
+    datosComida.value = buildCalendarMeals(activePlan.listaComidas ?? activePlan.ListaComidas ?? [], mealById)
+  } catch (error) {
+    console.error(error)
+    errorMessage.value = 'Unable to load your weekly meal plan.'
+  } finally {
+    isLoading.value = false
+  }
+})
+
 const caloriasPorDia = computed(() =>
     fechasSemana.value.map((_, diaIndex) =>
         datosComida.value.reduce((total, comida) => total + (comida[diaIndex]?.calorias || 0), 0)
     )
 )
 
-// === Calorías total de la semana ===
 const caloriasSemana = computed(() =>
     caloriasPorDia.value.reduce((total, calorias) => total + calorias, 0)
 )
+
+function createEmptyWeek() {
+  return [
+    Array.from({ length: 7 }, () => ({ ...emptyMeal })),
+    Array.from({ length: 7 }, () => ({ ...emptyMeal })),
+    Array.from({ length: 7 }, () => ({ ...emptyMeal }))
+  ]
+}
+
+function findPlanForCurrentWeek(mealPlans) {
+  return mealPlans.find(plan => {
+    const start = new Date(plan.fechaInicio ?? plan.FechaInicio)
+    const end = new Date(plan.fechaFin ?? plan.FechaFin)
+    return start < sunday && monday < end
+  })
+}
+
+function buildCalendarMeals(mealIds, mealById) {
+  const calendarMeals = createEmptyWeek()
+
+  for (let mealTypeIndex = 0; mealTypeIndex < 3; mealTypeIndex++) {
+    for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+      const mealId = mealIds[(mealTypeIndex * 7) + dayIndex]
+      const meal = mealById.get(mealId)
+
+      if (!meal) continue
+
+      calendarMeals[mealTypeIndex][dayIndex] = {
+        nombre: meal.nombre,
+        descripcion: meal.complemento,
+        calorias: meal.nutriente
+      }
+    }
+  }
+
+  return calendarMeals
+}
 </script>
 
 <template>
   <div class="p-4">
-    <table>
+    <p v-if="isLoading" class="status-message">Loading meal plan...</p>
+    <p v-else-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+    <p v-else-if="!hasActivePlan" class="status-message">No meal plan is scheduled for this week.</p>
+
+    <table v-else>
       <thead class="table-header">
       <tr>
         <th><h1>{{ mesFormateado }}</h1></th>
@@ -100,7 +162,6 @@ const caloriasSemana = computed(() =>
             :key="j"
             :class="fecha.esHoy ? 'highlight-day' : ''"
         >
-          <!-- Aquí irá la comida cuando se tenga data -->
           <h3>{{ datosComida[i][j].nombre }}</h3>
           <p>{{ datosComida[i][j].descripcion }}</p>
         </td>
@@ -130,9 +191,7 @@ const caloriasSemana = computed(() =>
   </div>
 </template>
 
-
 <style scoped>
-
 h2,h3,p{
   text-align: center;
   margin: auto 0;
@@ -141,8 +200,8 @@ h2,h3,p{
 table{
   border-collapse: collapse;
   margin: 20px auto;
-
 }
+
 th, td {
   border: 1px solid black;
   border-collapse: collapse;
@@ -152,9 +211,9 @@ th, td {
 h2{
   font-weight: normal;
 }
+
 h3{
   line-height: 28px;
-
 }
 
 .day-table{
@@ -190,7 +249,6 @@ td.empty-space {
 }
 
 .highlight-day-circle {
-
   background-color: #53C758;
   color: white;
   border-radius: 50%;
@@ -200,5 +258,16 @@ td.empty-space {
 
 .highlight-day {
   color: #53C758;
+}
+
+.status-message,
+.error-message {
+  margin: 2rem auto;
+  text-align: center;
+  font-weight: 600;
+}
+
+.error-message {
+  color: #b42318;
 }
 </style>
