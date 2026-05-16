@@ -4,6 +4,11 @@ import { computed, onBeforeMount, ref, watch } from 'vue'
 import { MealPlanApiService } from '@/meal-plans/application/internal/meal-plan-api.service.js'
 import { ComidasApiService } from '@/food-catalog/application/internal/comidas-api.service.js'
 import { toComidaEntitiesFromResponse } from '@/food-catalog/application/internal/comida-resource.transform.js'
+import {
+  findPlanForWeek,
+  getCurrentWeekRange,
+  getPlanMeals
+} from '@/meal-plans/application/internal/weekly-plan.helpers.js'
 
 const { t, locale } = useI18n()
 const mealPlanApiService = new MealPlanApiService()
@@ -25,15 +30,7 @@ const comidas = computed(() => [
   t('calendar.dinner')
 ])
 
-const today = new Date()
-const todayIndex = today.getDay() === 0 ? 6 : today.getDay() - 1
-const monday = new Date(today)
-monday.setHours(0, 0, 0, 0)
-monday.setDate(today.getDate() - todayIndex)
-
-const sunday = new Date(monday)
-sunday.setDate(monday.getDate() + 7)
-
+const { monday, nextMonday, todayIndex } = getCurrentWeekRange()
 const mesActual = new Date().toLocaleString('es-ES', { month: 'short' }).replace('.', '')
 const mesFormateado = mesActual.charAt(0).toUpperCase() + mesActual.slice(1) + '.'
 
@@ -56,15 +53,9 @@ watch(() => locale.value, () => {
 
 const emptyMeal = { nombre: '-', descripcion: '', calorias: 0 }
 const datosComida = ref(createEmptyWeek())
-const catalogMeals = ref([])
 const isLoading = ref(true)
-const isGenerating = ref(false)
 const errorMessage = ref('')
 const hasActivePlan = ref(false)
-
-const canGeneratePlan = computed(() =>
-  [1, 2, 3].every(mealTypeId => catalogMeals.value.some(meal => meal.id_tipo_comida === mealTypeId))
-)
 
 onBeforeMount(async () => {
   try {
@@ -74,9 +65,8 @@ onBeforeMount(async () => {
     ])
 
     const meals = toComidaEntitiesFromResponse(mealsResponse)
-    catalogMeals.value = meals
     const mealById = new Map(meals.map(meal => [meal.id, meal]))
-    const activePlan = findPlanForCurrentWeek(mealPlans)
+    const activePlan = findPlanForWeek(mealPlans, monday, nextMonday)
 
     if (!activePlan) {
       hasActivePlan.value = false
@@ -84,7 +74,7 @@ onBeforeMount(async () => {
     }
 
     hasActivePlan.value = true
-    datosComida.value = buildCalendarMeals(activePlan.listaComidas ?? activePlan.ListaComidas ?? [], mealById)
+    datosComida.value = buildCalendarMeals(getPlanMeals(activePlan), mealById)
   } catch (error) {
     console.error(error)
     errorMessage.value = 'Unable to load your weekly meal plan.'
@@ -103,50 +93,12 @@ const caloriasSemana = computed(() =>
     caloriasPorDia.value.reduce((total, calorias) => total + calorias, 0)
 )
 
-async function createGeneratedPlan() {
-  errorMessage.value = ''
-  isGenerating.value = true
-
-  try {
-    const listaComidas = [
-      ...buildMealIdsForType(1),
-      ...buildMealIdsForType(2),
-      ...buildMealIdsForType(3)
-    ]
-
-    const createdPlan = await mealPlanApiService.createWeeklyMealPlan({
-      fechaInicio: toBackendDate(monday),
-      fechaFin: toBackendDate(sunday),
-      listaComidas
-    })
-
-    const mealById = new Map(catalogMeals.value.map(meal => [meal.id, meal]))
-    datosComida.value = buildCalendarMeals(createdPlan.listaComidas ?? createdPlan.ListaComidas ?? listaComidas, mealById)
-    hasActivePlan.value = true
-  } catch (error) {
-    console.error(error)
-    errorMessage.value = error.response?.data?.detail
-        ?? error.response?.data?.message
-        ?? (typeof error.response?.data === 'string' ? error.response.data : 'Unable to create your weekly meal plan.')
-  } finally {
-    isGenerating.value = false
-  }
-}
-
 function createEmptyWeek() {
   return [
     Array.from({ length: 7 }, () => ({ ...emptyMeal })),
     Array.from({ length: 7 }, () => ({ ...emptyMeal })),
     Array.from({ length: 7 }, () => ({ ...emptyMeal }))
   ]
-}
-
-function findPlanForCurrentWeek(mealPlans) {
-  return mealPlans.find(plan => {
-    const start = new Date(plan.fechaInicio ?? plan.FechaInicio)
-    const end = new Date(plan.fechaFin ?? plan.FechaFin)
-    return start < sunday && monday < end
-  })
 }
 
 function buildCalendarMeals(mealIds, mealById) {
@@ -169,15 +121,6 @@ function buildCalendarMeals(mealIds, mealById) {
 
   return calendarMeals
 }
-
-function buildMealIdsForType(mealTypeId) {
-  const meals = catalogMeals.value.filter(meal => meal.id_tipo_comida === mealTypeId)
-  return Array.from({ length: 7 }, (_, index) => meals[index % meals.length].id)
-}
-
-function toBackendDate(date) {
-  return new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString()
-}
 </script>
 
 <template>
@@ -186,14 +129,7 @@ function toBackendDate(date) {
     <p v-else-if="errorMessage" class="error-message">{{ errorMessage }}</p>
     <div v-else-if="!hasActivePlan" class="empty-state">
       <p class="status-message">No meal plan is scheduled for this week.</p>
-      <Button
-          v-if="canGeneratePlan"
-          class="generate-button"
-          :disabled="isGenerating"
-          :label="isGenerating ? 'Generating...' : 'Generate weekly plan'"
-          @click="createGeneratedPlan"
-      />
-      <p v-else class="status-message">The food catalog needs breakfast, lunch, and dinner meals first.</p>
+      <RouterLink class="home-link" :to="{ name: 'Inicio' }">{{ $t('calendar.goHome') }}</RouterLink>
     </div>
 
     <table v-else>
@@ -334,12 +270,17 @@ td.empty-space {
   gap: 1rem;
 }
 
-.generate-button {
-  background-color: #53C758;
-  border: none;
-  color: white;
+.home-link {
+  border: 1px solid #2e7d32;
+  border-radius: 10px;
+  color: #2e7d32;
   font-weight: 700;
   padding: 10px 20px;
-  border-radius: 10px;
+  text-decoration: none;
+}
+
+.home-link:hover {
+  background: #2e7d32;
+  color: white;
 }
 </style>
