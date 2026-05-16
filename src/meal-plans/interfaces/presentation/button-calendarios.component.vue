@@ -1,6 +1,8 @@
 <script setup>
 import { useConfirm } from 'primevue/useconfirm'
+import { useRouter } from 'vue-router'
 const confirm = useConfirm()
+const router = useRouter()
 
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
@@ -26,7 +28,7 @@ function confirmationDone() {
     message: t('calendar.confirmText2'),
     acceptLabel: t('calendar.goHome'),
     accept: () => {
-      console.log('Navegar al inicio')
+      router.push({ name: 'Inicio' })
     }
   })
 }

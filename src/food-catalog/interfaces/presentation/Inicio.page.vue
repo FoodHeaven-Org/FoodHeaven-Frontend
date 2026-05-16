@@ -4,6 +4,7 @@ import PvDesayunos from '@/food-catalog/interfaces/presentation/Desayunos.compon
 import PvAlmuerzos from '@/food-catalog/interfaces/presentation/Almuerzos.component.vue'
 import PvCenas from '@/food-catalog/interfaces/presentation/Cenas.component.vue'
 import { computed, onBeforeMount, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { MealPlanApiService } from '@/meal-plans/application/internal/meal-plan-api.service.js'
 import {
   createEmptyMealSlots,
@@ -15,6 +16,7 @@ import {
   toBackendDate
 } from '@/meal-plans/application/internal/weekly-plan.helpers.js'
 
+const { t } = useI18n()
 const mealPlanApiService = new MealPlanApiService()
 const { monday, nextMonday, todayIndex } = getCurrentWeekRange()
 
@@ -52,7 +54,7 @@ async function loadCurrentWeekPlan() {
     mealSlots.value = getPlanMeals(currentPlan)
   } catch (error) {
     console.error(error)
-    errorMessage.value = 'Unable to load your weekly plan. Please sign in again.'
+    errorMessage.value = t('planner.loadError')
   } finally {
     isLoadingPlan.value = false
   }
@@ -88,12 +90,12 @@ async function persistCurrentPlan() {
       mealSlots.value = getPlanMeals(createdPlan)
     }
 
-    statusMessage.value = 'Meal saved in your calendar.'
+    statusMessage.value = t('planner.saved')
   } catch (error) {
     console.error(error)
     errorMessage.value = error.response?.data?.detail
         ?? error.response?.data?.message
-        ?? (typeof error.response?.data === 'string' ? error.response.data : 'Unable to save this meal.')
+        ?? (typeof error.response?.data === 'string' ? error.response.data : t('planner.saveError'))
   } finally {
     isSavingPlan.value = false
   }
@@ -108,7 +110,7 @@ async function persistCurrentPlan() {
   />
 
   <div class="planner-status">
-    <p v-if="isLoadingPlan">Loading your weekly plan...</p>
+    <p v-if="isLoadingPlan">{{ $t('planner.loadingPlan') }}</p>
     <p v-else>{{ selectedSlotsCount }}/21 {{ $t('planner.slotsSelected') }}</p>
     <p v-if="statusMessage" class="success-message">{{ statusMessage }}</p>
     <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>

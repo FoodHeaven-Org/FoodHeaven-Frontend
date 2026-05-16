@@ -75,7 +75,8 @@ export default {
         title: "FoodHeaven",
         home: "Inicio",
         calendar: "Calendario",
-        account: "Cuenta"
+        account: "Cuenta",
+        settings: "Configuracion"
     },
     calendar: {
         title: "Calendario Semanal",
@@ -85,7 +86,7 @@ export default {
         dinner: "Cena",
         totalCalories: "Calorías totales:",
         totalWeekCalories: "Calorías totales de la semana:",
-        confirmButton: "Confirmar plan",
+        confirmButton: "Guardar plan",
         monday: "lun",
         tuesday: "mar",
         wednesday: "mie",
@@ -93,8 +94,12 @@ export default {
         friday: "vie",
         saturday: "sab",
         sunday: "dom",
-        confirmText1: "¿Estás conforme con su plan?",
-        confirmText2: "Su plan ha sido cancelado con exito",
+        confirmText1: "Deseas guardar este plan semanal?",
+        confirmText2: "Tu plan semanal se ha guardado correctamente.",
+        policyNote: "Este calendario se repetira cada semana hasta que lo actualices. Para que un cambio aplique a la semana actual, debes actualizarlo como minimo con 1 dia de anticipacion; si modificas el mismo dia, el cambio recien aplicara desde la proxima semana.",
+        loading: "Cargando tu plan semanal...",
+        noPlan: "Todavia no tienes un plan programado para esta semana.",
+        loadError: "No se pudo cargar tu plan semanal.",
         goHome: "Ir a inicio",
         yes: "Sí",
         no: "No"
@@ -133,7 +138,11 @@ export default {
     planner: {
         choose: "Elegir",
         selected: "Elegido",
-        slotsSelected: "comidas elegidas"
+        slotsSelected: "comidas elegidas",
+        loadingPlan: "Cargando tu plan semanal...",
+        saved: "Comida guardada en tu calendario semanal.",
+        loadError: "No se pudo cargar tu plan semanal. Inicia sesion nuevamente.",
+        saveError: "No se pudo guardar esta comida."
     },
     configuracion: {
         conf: "Configuración"
@@ -162,7 +171,7 @@ export default {
         suscri: "Cancelar Suscripcion",
         last: "Si cancela ahora aún podrá acceder a su suscripcion hasta el 25/06",
     },
-    welcome: "¡Bienvenido",
+    welcome: "Bienvenido,",
     plan: {
         full: "Plan: Full",
         change: "Cambiar Plan"
@@ -177,7 +186,17 @@ export default {
         city: "Ciudad",
         district: "Distrito",
         address: "Dirección",
-        config: "Configuración"
+        subscription: "Suscripcion",
+        config: "Configuracion"
+    },
+    settings: {
+        title: "Configuracion",
+        subtitle: "Ajusta las preferencias basicas de tu experiencia en FoodHeaven.",
+        languageTitle: "Idioma",
+        languageDescription: "Cambia el idioma de la interfaz cuando lo necesites.",
+        planTitle: "Plan semanal",
+        planDescription: "Tu calendario se mantiene activo cada semana hasta que lo actualices.",
+        editPlan: "Editar plan"
     },
     register: {
         title: "Regístrate",

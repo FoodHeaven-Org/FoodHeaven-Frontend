@@ -79,7 +79,8 @@ export default {
         title: "FoodHeaven",
         home: "Home",
         calendar: "Calendar",
-        account: "Account"
+        account: "Account",
+        settings: "Settings"
     },
     calendar: {
         title: "Weekly Calendar",
@@ -89,7 +90,7 @@ export default {
         dinner: "Dinner",
         totalCalories: "Total calories:",
         totalWeekCalories: "Total weekly calories:",
-        confirmButton: "Confirm plan",
+        confirmButton: "Save plan",
         monday: "mon",
         tuesday: "tue",
         wednesday: "wed",
@@ -97,8 +98,12 @@ export default {
         friday: "fri",
         saturday: "sat",
         sunday: "sun",
-        confirmText1: "Are you satisfied with your plan?",
-        confirmText2: "Your plan has been successfully canceled",
+        confirmText1: "Do you want to save this weekly plan?",
+        confirmText2: "Your weekly plan has been saved successfully.",
+        policyNote: "This calendar repeats every week until you update it. For a change to apply to the current week, update it at least 1 day in advance; if you modify the same day, the change will apply starting next week.",
+        loading: "Loading your weekly plan...",
+        noPlan: "You do not have a meal plan scheduled for this week yet.",
+        loadError: "Unable to load your weekly meal plan.",
         goHome: "Go to home",
         yes: "Yes",
         no: "No"
@@ -136,7 +141,11 @@ export default {
     planner: {
         choose: "Choose",
         selected: "Selected",
-        slotsSelected: "meals selected"
+        slotsSelected: "meals selected",
+        loadingPlan: "Loading your weekly plan...",
+        saved: "Meal saved in your weekly calendar.",
+        loadError: "Unable to load your weekly plan. Please sign in again.",
+        saveError: "Unable to save this meal."
     },
     configuracion: {
         conf: "Configuration"
@@ -165,7 +174,7 @@ export default {
         last: "If you can still access your subscription until 08/25",
     },
 
-    welcome: "!Welcome",
+    welcome: "Welcome,",
     plan: {
         full: "Plan: Full",
         change: "Change Plan"
@@ -180,7 +189,17 @@ export default {
         city: "City",
         district: "District",
         address: "Address",
+        subscription: "Subscription",
         config: "Settings"
+    },
+    settings: {
+        title: "Settings",
+        subtitle: "Adjust the basic preferences for your FoodHeaven experience.",
+        languageTitle: "Language",
+        languageDescription: "Change the interface language whenever you need to.",
+        planTitle: "Weekly plan",
+        planDescription: "Your calendar remains active every week until you update it.",
+        editPlan: "Edit plan"
     },
     register: {
         title: "Register",

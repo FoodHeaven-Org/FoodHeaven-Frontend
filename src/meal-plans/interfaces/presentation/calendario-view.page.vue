@@ -8,6 +8,7 @@ const { t  } = useI18n();
 <template>
   <h1 class="titulo">{{ $t('calendar.title') }}</h1>
   <h2 class="subtitulo">{{$t('calendar.subtitle')}}</h2>
+  <p class="policy-note">{{ $t('calendar.policyNote') }}</p>
   <hr class="margin-top"/>
   <Calendario/>
 
@@ -38,6 +39,16 @@ hr{
   font-weight: normal;
   color: black;
   margin: 10px 0 20px;
+  text-align: center;
+}
+
+.policy-note {
+  max-width: 900px;
+  margin: 0 auto 22px;
+  color: #2e7d32;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
   text-align: center;
 }
 </style>
