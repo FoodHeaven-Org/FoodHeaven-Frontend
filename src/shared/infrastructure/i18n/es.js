@@ -121,7 +121,7 @@ export default {
 
     cuadro: {
         title: "Comidas disponibles",
-        text: "Disponemos de una variedad de 20 platos distintos en cada sección de comida: desayuno, almuerzo y cena",
+        text: "Elige un desayuno, almuerzo y cena para el dia seleccionado. Tus elecciones se guardan en el calendario.",
         dia1: "Lunes",
         dia2: "Martes",
         dia3: "Miércoles",
@@ -129,6 +129,11 @@ export default {
         dia5: "Viernes",
         dia6: "Sábado",
         dia7: "Domingo",
+    },
+    planner: {
+        choose: "Elegir",
+        selected: "Elegido",
+        slotsSelected: "comidas elegidas"
     },
     configuracion: {
         conf: "Configuración"

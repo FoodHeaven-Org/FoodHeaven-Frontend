@@ -124,7 +124,7 @@ export default {
 
     cuadro: {
         title: "Meals available",
-        text: "We have a variety of 20 different dishes in each food section: breakfast, lunch and dinner",
+        text: "Choose one breakfast, lunch, and dinner for the selected day. Your choices are saved to the calendar.",
         dia1: "Monday",
         dia2: "Tuesday",
         dia3: "Wednesday",
@@ -132,6 +132,11 @@ export default {
         dia5: "Friday",
         dia6: "Saturday",
         dia7: "Sunday",
+    },
+    planner: {
+        choose: "Choose",
+        selected: "Selected",
+        slotsSelected: "meals selected"
     },
     configuracion: {
         conf: "Configuration"

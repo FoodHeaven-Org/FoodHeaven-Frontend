@@ -1,58 +1,70 @@
-﻿<script setup>
-    import CardDesayunosComponent from "@/food-catalog/interfaces/presentation/CardDesayunos.component.vue";
-    import { toComidaEntitiesFromResponse } from "@/food-catalog/application/internal/comida-resource.transform.js";
-    import {ComidasApiService} from "@/food-catalog/application/internal/comidas-api.service.js";
-    import {onBeforeMount, ref} from "vue";
+<script setup>
+import CardDesayunosComponent from '@/food-catalog/interfaces/presentation/CardDesayunos.component.vue'
+import { toComidaEntitiesFromResponse } from '@/food-catalog/application/internal/comida-resource.transform.js'
+import { ComidasApiService } from '@/food-catalog/application/internal/comidas-api.service.js'
+import { onBeforeMount, ref } from 'vue'
 
-    const comidasApiService = new ComidasApiService();
+const props = defineProps({
+  selectedDay: { type: Number, required: true },
+  selectedMealId: { type: Number, default: 0 },
+  isSaving: { type: Boolean, default: false }
+})
 
-    const comidas = ref([])
+const emit = defineEmits(['meal-selected'])
+const comidasApiService = new ComidasApiService()
+const comidas = ref([])
 
-    onBeforeMount(async () => {
-      comidas.value = toComidaEntitiesFromResponse(await comidasApiService.getBreakfastMeals());
+onBeforeMount(async () => {
+  comidas.value = toComidaEntitiesFromResponse(await comidasApiService.getBreakfastMeals())
+})
 
-    });
-
+function selectMeal(comida) {
+  emit('meal-selected', { mealTypeId: 1, mealId: comida.id })
+}
 </script>
 
-      <template>
-        <div class="contenedor-principal-desayunos">
-          <h2>{{ $t('title.desayuno') }}</h2>
-          <hr>
-          <div class="contenedor-desayunos">
-
-            <card-desayunos-component v-for="comida in comidas"
-                                      :key="comida.id"
-                                      :comida="comida"/>
-          </div>
-        </div>
-      </template>
+<template>
+  <div class="contenedor-principal-desayunos">
+    <h2>{{ $t('title.desayuno') }}</h2>
+    <hr>
+    <div class="contenedor-desayunos">
+      <card-desayunos-component
+          v-for="comida in comidas"
+          :key="comida.id"
+          :comida="comida"
+          :selected="selectedMealId === comida.id"
+          :is-saving="isSaving"
+          @select="selectMeal"
+      />
+    </div>
+  </div>
+</template>
 
 <style scoped>
-.contenedor-desayunos{
+.contenedor-desayunos {
   display: grid;
-  grid-template-columns:1fr 1fr 1fr 1fr;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   column-gap: 50px;
-
-
+  row-gap: 30px;
 }
-.contenedor-principal-desayunos{
+
+.contenedor-principal-desayunos {
   max-width: 1200px;
   margin: 40px auto 0;
-
 }
-hr{
+
+hr {
   margin-bottom: 30px;
 }
 
-@media (max-width: 680px) {
-  .contenedor-desayunos{
-    grid-template-columns:1fr 1fr ;
+@media (max-width: 900px) {
+  .contenedor-desayunos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     row-gap: 30px;
-
   }
+
   .contenedor-principal-desayunos {
-    padding: 50px;
+    padding: 0 20px;
   }
 }
 </style>

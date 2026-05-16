@@ -4,7 +4,7 @@
       
       <template #start>
         <div class="logo-section">
-          <img src="https://i.imgur.com/r5tfrlF.png" alt="Logo" class="logo" />
+          <img src="/logoFoodHeaven.png" alt="FoodHeaven logo" class="logo" />
           <span class="logo-text">
             <span class="text-green">Food</span><span class="text-black">Heaven</span>
           </span>
@@ -74,6 +74,7 @@ function goTo(page) {
 .logo {
   width: 40px;
   height: 40px;
+  object-fit: contain;
 }
 
 .logo-text {

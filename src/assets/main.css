@@ -13,6 +13,16 @@ img {
   height: auto;
 }
 
+#__vue-devtools-container__,
+#vue-devtools-anchor,
+.vue-devtools__anchor,
+[data-vue-devtools],
+vite-plugin-vue-devtools {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 .container {
   padding: 0 1rem;
 }
