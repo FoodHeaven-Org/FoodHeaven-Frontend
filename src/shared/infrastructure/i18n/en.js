@@ -144,6 +144,7 @@ export default {
         choose: "Choose",
         selected: "Selected",
         remove: "Remove",
+        planBlocked: "Plan limit",
         slotsSelected: "meals selected",
         planLimit: "{meals} meal(s) per day",
         limitReached: "Your current plan allows up to {meals} meal(s) per day. Remove one meal from this day or change your plan.",

@@ -3,7 +3,7 @@ import PvHeader from '@/food-catalog/interfaces/presentation/Header.component.vu
 import PvDesayunos from '@/food-catalog/interfaces/presentation/Desayunos.component.vue'
 import PvAlmuerzos from '@/food-catalog/interfaces/presentation/Almuerzos.component.vue'
 import PvCenas from '@/food-catalog/interfaces/presentation/Cenas.component.vue'
-import { computed, onBeforeMount, ref } from 'vue'
+import { computed, onBeforeMount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { AccountApiService } from '@/account/application/internal/account-api.service.js'
 import { MealPlanApiService } from '@/meal-plans/application/internal/meal-plan-api.service.js'
@@ -32,6 +32,7 @@ const isSavingPlan = ref(false)
 const statusMessage = ref('')
 const errorMessage = ref('')
 const subscriptionPlan = ref(getSubscriptionPlan('Full'))
+const blockedMealTypeId = ref(null)
 
 const selectedMealsByType = computed(() => ({
   1: mealSlots.value[getMealSlotIndex(1, selectedDay.value)],
@@ -77,12 +78,14 @@ async function handleMealSelected({ mealTypeId, mealId }) {
 
   statusMessage.value = ''
   errorMessage.value = ''
+  blockedMealTypeId.value = null
 
   const slotIndex = getMealSlotIndex(mealTypeId, selectedDay.value)
   const currentMealId = mealSlots.value[slotIndex]
   const nextMealId = currentMealId === mealId ? EMPTY_MEAL_SLOT : mealId
 
   if (nextMealId > 0 && currentMealId <= 0 && getSelectedMealsForDay(selectedDay.value) >= subscriptionPlan.value.mealsPerDay) {
+    blockedMealTypeId.value = mealTypeId
     errorMessage.value = t('planner.limitReached', { meals: subscriptionPlan.value.mealsPerDay })
     return
   }
@@ -97,6 +100,16 @@ async function handleMealSelected({ mealTypeId, mealId }) {
 function getSelectedMealsForDay(dayIndex) {
   return [1, 2, 3].filter(mealTypeId => mealSlots.value[getMealSlotIndex(mealTypeId, dayIndex)] > 0).length
 }
+
+function isMealTypeBlocked(mealTypeId) {
+  return blockedMealTypeId.value === mealTypeId
+      && selectedMealsByType.value[mealTypeId] <= 0
+      && getSelectedMealsForDay(selectedDay.value) >= subscriptionPlan.value.mealsPerDay
+}
+
+watch(selectedDay, () => {
+  blockedMealTypeId.value = null
+})
 
 async function persistCurrentPlan() {
   isSavingPlan.value = true
@@ -151,18 +164,21 @@ async function persistCurrentPlan() {
       :selected-day="selectedDay"
       :selected-meal-id="selectedMealsByType[1]"
       :is-saving="isSavingPlan"
+      :is-blocked="isMealTypeBlocked(1)"
       @meal-selected="handleMealSelected"
   />
   <PvAlmuerzos
       :selected-day="selectedDay"
       :selected-meal-id="selectedMealsByType[2]"
       :is-saving="isSavingPlan"
+      :is-blocked="isMealTypeBlocked(2)"
       @meal-selected="handleMealSelected"
   />
   <PvCenas
       :selected-day="selectedDay"
       :selected-meal-id="selectedMealsByType[3]"
       :is-saving="isSavingPlan"
+      :is-blocked="isMealTypeBlocked(3)"
       @meal-selected="handleMealSelected"
   />
 </template>

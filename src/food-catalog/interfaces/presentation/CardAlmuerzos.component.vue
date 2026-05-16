@@ -8,6 +8,7 @@ const emit = defineEmits(['select'])
 const props = defineProps({
   comida: { type: Object, required: true },
   selected: { type: Boolean, default: false },
+  isBlocked: { type: Boolean, default: false },
   isSaving: { type: Boolean, default: false }
 })
 
@@ -15,7 +16,7 @@ const displayedMeal = computed(() => props.comida.getLocalized(locale.value))
 </script>
 
 <template>
-  <Card class="custom-card" :class="{ selected }">
+  <Card class="custom-card" :class="{ selected, blocked: isBlocked }">
     <template #header>
       <img
           class="card-image"
@@ -43,9 +44,9 @@ const displayedMeal = computed(() => props.comida.getLocalized(locale.value))
     <template #footer>
       <Button
           class="select-button"
-          :class="{ selected }"
+          :class="{ selected, blocked: isBlocked }"
           :disabled="isSaving"
-          :label="selected ? t('planner.remove') : t('planner.choose')"
+          :label="isBlocked ? t('planner.planBlocked') : selected ? t('planner.remove') : t('planner.choose')"
           @click="emit('select', comida)"
       />
     </template>
@@ -66,6 +67,11 @@ const displayedMeal = computed(() => props.comida.getLocalized(locale.value))
 
 .custom-card.selected {
   border-color: #2ecc71;
+}
+
+.custom-card.blocked {
+  border-color: #e5484d;
+  background: #fff5f5;
 }
 
 .custom-card:hover {
@@ -125,5 +131,11 @@ const displayedMeal = computed(() => props.comida.getLocalized(locale.value))
   background-color: #2ecc71;
   color: white;
   border-color: #2ecc71;
+}
+
+.select-button.blocked {
+  background-color: #e5484d;
+  border-color: #e5484d;
+  color: white;
 }
 </style>
