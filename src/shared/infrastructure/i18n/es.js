@@ -149,6 +149,12 @@ export default {
         loadError: "No se pudo cargar tu plan semanal. Inicia sesion nuevamente.",
         saveError: "No se pudo guardar esta comida."
     },
+    nutrition: {
+        calories: "Calorias",
+        protein: "Proteina",
+        carbs: "Carbohidratos",
+        fat: "Grasa"
+    },
     configuracion: {
         conf: "Configuración"
     },

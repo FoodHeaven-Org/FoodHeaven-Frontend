@@ -152,6 +152,12 @@ export default {
         loadError: "Unable to load your weekly plan. Please sign in again.",
         saveError: "Unable to save this meal."
     },
+    nutrition: {
+        calories: "Calories",
+        protein: "Protein",
+        carbs: "Carbs",
+        fat: "Fat"
+    },
     configuracion: {
         conf: "Configuration"
     },

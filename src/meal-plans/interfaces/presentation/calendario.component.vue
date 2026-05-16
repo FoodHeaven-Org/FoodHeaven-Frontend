@@ -4,7 +4,6 @@ import { computed, onBeforeMount, ref, watch } from 'vue'
 import { MealPlanApiService } from '@/meal-plans/application/internal/meal-plan-api.service.js'
 import { ComidasApiService } from '@/food-catalog/application/internal/comidas-api.service.js'
 import { toComidaEntitiesFromResponse } from '@/food-catalog/application/internal/comida-resource.transform.js'
-import { localizeMeal } from '@/food-catalog/domain/model/valueobjects/meal-translation.valueobject.js'
 import {
   findPlanForWeek,
   getCurrentWeekRange,
@@ -114,7 +113,7 @@ function buildCalendarMeals(mealIds, mealById, currentLocale) {
       const meal = mealById.get(mealId)
 
       if (!meal) continue
-      const localizedMeal = localizeMeal(meal, currentLocale)
+      const localizedMeal = meal.getLocalized(currentLocale)
 
       calendarMeals[mealTypeIndex][dayIndex] = {
         nombre: localizedMeal.nombre,

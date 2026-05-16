@@ -1,7 +1,6 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
-import { localizeMeal } from '@/food-catalog/domain/model/valueobjects/meal-translation.valueobject.js'
 
 const { t, locale } = useI18n()
 const emit = defineEmits(['select'])
@@ -12,7 +11,7 @@ const props = defineProps({
   isSaving: { type: Boolean, default: false }
 })
 
-const displayedMeal = computed(() => localizeMeal(props.comida, locale.value))
+const displayedMeal = computed(() => props.comida.getLocalized(locale.value))
 </script>
 
 <template>
@@ -26,10 +25,10 @@ const displayedMeal = computed(() => localizeMeal(props.comida, locale.value))
       >
 
       <div class="contenedor-info">
-        <p>Kcal: {{ displayedMeal.nutriente }} kcal</p>
-        <p>Prote: {{ displayedMeal.prote }} g</p>
-        <p>Carbo: {{ displayedMeal.carbo }} g</p>
-        <p>Grasa: {{ displayedMeal.grasa }} g</p>
+        <p>{{ t('nutrition.calories') }}: {{ displayedMeal.nutriente }} kcal</p>
+        <p>{{ t('nutrition.protein') }}: {{ displayedMeal.prote }} g</p>
+        <p>{{ t('nutrition.carbs') }}: {{ displayedMeal.carbo }} g</p>
+        <p>{{ t('nutrition.fat') }}: {{ displayedMeal.grasa }} g</p>
       </div>
     </template>
 
