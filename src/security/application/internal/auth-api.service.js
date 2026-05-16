@@ -55,6 +55,10 @@ export function getCurrentToken() {
     return localStorage.getItem(TOKEN_KEY)
 }
 
+export function hasActiveSession() {
+    return Boolean(getCurrentUserId())
+}
+
 export function getCurrentUserId() {
     const payload = getSessionPayload()
     const userId = payload?.[SID_CLAIM] ?? payload?.sid ?? payload?.sub ?? payload?.nameid

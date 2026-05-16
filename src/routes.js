@@ -6,6 +6,7 @@ import LoginView from '@/security/interfaces/presentation/login/login-view.page.
 import InicioView from '@/food-catalog/interfaces/presentation/Inicio.page.vue'
 import RegisterView from '@/security/interfaces/presentation/register/register-view.page.vue'
 import SettingsView from '@/settings/interfaces/presentation/settings.page.vue'
+import { hasActiveSession } from '@/security/application/internal/auth-api.service.js'
 
 const routes = [
     {
@@ -16,16 +17,19 @@ const routes = [
         path: '/login',
         name: 'Login',
         component: LoginView,
+        meta: { guestOnly: true }
     },
     {
         path: '/register',
         name: 'Register',
         component: RegisterView,
+        meta: { guestOnly: true }
     },
     {
         path: '/foodheaven',
         name: 'FoodHeaven',
         component: FoodHeavenView,
+        meta: { requiresAuth: true },
         children: [
             {
                 path: 'inicio',
@@ -54,6 +58,18 @@ const routes = [
 const router = createRouter({
     history: createWebHashHistory(),
     routes
+})
+
+router.beforeEach((to) => {
+    const isAuthenticated = hasActiveSession()
+
+    if (to.matched.some(record => record.meta.requiresAuth) && !isAuthenticated) {
+        return { name: 'Login' }
+    }
+
+    if (to.meta.guestOnly && isAuthenticated) {
+        return { name: 'Inicio' }
+    }
 })
 
 export default router
