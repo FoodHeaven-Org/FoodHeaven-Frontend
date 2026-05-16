@@ -1,14 +1,18 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
+import { localizeMeal } from '@/food-catalog/domain/model/valueobjects/meal-translation.valueobject.js'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const emit = defineEmits(['select'])
 
-defineProps({
+const props = defineProps({
   comida: { type: Object, required: true },
   selected: { type: Boolean, default: false },
   isSaving: { type: Boolean, default: false }
 })
+
+const displayedMeal = computed(() => localizeMeal(props.comida, locale.value))
 </script>
 
 <template>
@@ -16,25 +20,25 @@ defineProps({
     <template #header>
       <img
           class="card-image"
-          v-if="comida.url"
-          :src="comida.url"
-          :alt="comida.nombre"
+          v-if="displayedMeal.url"
+          :src="displayedMeal.url"
+          :alt="displayedMeal.nombre"
       >
 
       <div class="contenedor-info">
-        <p>Kcal: {{ comida.nutriente }} kcal</p>
-        <p>Prote: {{ comida.prote }} g</p>
-        <p>Carbo: {{ comida.carbo }} g</p>
-        <p>Grasa: {{ comida.grasa }} g</p>
+        <p>Kcal: {{ displayedMeal.nutriente }} kcal</p>
+        <p>Prote: {{ displayedMeal.prote }} g</p>
+        <p>Carbo: {{ displayedMeal.carbo }} g</p>
+        <p>Grasa: {{ displayedMeal.grasa }} g</p>
       </div>
     </template>
 
     <template #title>
-      <h2 class="card-title">{{ comida.nombre }}</h2>
+      <h2 class="card-title">{{ displayedMeal.nombre }}</h2>
     </template>
 
     <template #subtitle>
-      <p class="card-subtitle">{{ comida.complemento }}</p>
+      <p class="card-subtitle">{{ displayedMeal.complemento }}</p>
     </template>
 
     <template #footer>
