@@ -51,7 +51,7 @@ async function loadProfile() {
     const profile = await accountApiService.getCurrentProfile()
 
     profileForm.value = {
-      fullName: profile.fullName ?? '',
+      fullName: profile.fullName ?? profile.FullName ?? '',
       username: profile.username ?? '',
       phone: String(profile.phone ?? ''),
       city: profile.city ?? ''

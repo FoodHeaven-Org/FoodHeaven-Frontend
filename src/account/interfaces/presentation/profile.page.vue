@@ -18,9 +18,7 @@ const displayName = computed(() => {
   const fullName = profile.value?.fullName ?? profile.value?.FullName ?? ''
   if (fullName) return fullName
 
-  const username = profile.value?.username ?? ''
-  const fallbackName = username.includes('@') ? username.split('@')[0] : username
-  return toDisplayName(fallbackName)
+  return t('account.defaultName')
 })
 
 const subscriptionPlan = computed(() => getSubscriptionPlan(profile.value?.subscription ?? profile.value?.Subscription))
@@ -42,13 +40,6 @@ onBeforeMount(async () => {
 
 function formatPhone(phone) {
   return phone ? `+${phone}` : 'Not provided'
-}
-
-function toDisplayName(value) {
-  return value
-      .replace(/[._-]+/g, ' ')
-      .trim()
-      .replace(/\b\w/g, letter => letter.toUpperCase())
 }
 
 function goToSettings() {

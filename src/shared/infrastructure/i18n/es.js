@@ -58,6 +58,7 @@ export default {
         review3: "Gerente de Marketing",
         reviewText3: "Mi trabajo es demandante y siempre me resulta difícil mantenerme saludable. FoodHeaven me ayuda a tener un menú personalizado, nutritivo y rápido. ¡Es todo lo que necesitaba!",
         name: "Nombre",
+        defaultName: "Usuario FoodHeaven",
         email: "Correo",
         phone: "Número",
         follow: "Siguenos",

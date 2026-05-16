@@ -62,6 +62,7 @@ export default {
         review3: "Marketing Manager",
         reviewText3: "My job is demanding, and I always find it difficult to stay healthy. FoodHeaven helps me create a personalized, nutritious, and quick menu. It's everything I needed!",
         name: "Name",
+        defaultName: "FoodHeaven user",
         email: "Email",
         phone: "Phone Number",
         follow: "Follow us",
