@@ -141,7 +141,10 @@ export default {
     planner: {
         choose: "Choose",
         selected: "Selected",
+        remove: "Remove",
         slotsSelected: "meals selected",
+        planLimit: "{meals} meal(s) per day",
+        limitReached: "Your current plan allows up to {meals} meal(s) per day. Remove one meal from this day or change your plan.",
         loadingPlan: "Loading your weekly plan...",
         saved: "Meal saved in your weekly calendar.",
         loadError: "Unable to load your weekly plan. Please sign in again.",

@@ -5,9 +5,11 @@ import PvAlmuerzos from '@/food-catalog/interfaces/presentation/Almuerzos.compon
 import PvCenas from '@/food-catalog/interfaces/presentation/Cenas.component.vue'
 import { computed, onBeforeMount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { AccountApiService } from '@/account/application/internal/account-api.service.js'
 import { MealPlanApiService } from '@/meal-plans/application/internal/meal-plan-api.service.js'
 import {
   createEmptyMealSlots,
+  EMPTY_MEAL_SLOT,
   findPlanForWeek,
   getCurrentWeekRange,
   getMealSlotIndex,
@@ -15,8 +17,10 @@ import {
   getPlanMeals,
   toBackendDate
 } from '@/meal-plans/application/internal/weekly-plan.helpers.js'
+import { getSubscriptionPlan } from '@/security/domain/model/valueobjects/subscription-plan.valueobject.js'
 
 const { t } = useI18n()
+const accountApiService = new AccountApiService()
 const mealPlanApiService = new MealPlanApiService()
 const { monday, nextMonday, todayIndex } = getCurrentWeekRange()
 
@@ -27,6 +31,7 @@ const isLoadingPlan = ref(true)
 const isSavingPlan = ref(false)
 const statusMessage = ref('')
 const errorMessage = ref('')
+const subscriptionPlan = ref(getSubscriptionPlan('Full'))
 
 const selectedMealsByType = computed(() => ({
   1: mealSlots.value[getMealSlotIndex(1, selectedDay.value)],
@@ -35,6 +40,8 @@ const selectedMealsByType = computed(() => ({
 }))
 
 const selectedSlotsCount = computed(() => mealSlots.value.filter(mealId => mealId > 0).length)
+const weeklySlotsLimit = computed(() => subscriptionPlan.value.mealsPerDay * 7)
+const subscriptionPlanName = computed(() => t(subscriptionPlan.value.nameKey))
 
 onBeforeMount(async () => {
   await loadCurrentWeekPlan()
@@ -45,7 +52,12 @@ async function loadCurrentWeekPlan() {
   errorMessage.value = ''
 
   try {
-    const plans = await mealPlanApiService.getCurrentUserMealPlans()
+    const [plans, profile] = await Promise.all([
+      mealPlanApiService.getCurrentUserMealPlans(),
+      accountApiService.getCurrentProfile()
+    ])
+    subscriptionPlan.value = getSubscriptionPlan(profile.subscription)
+
     const currentPlan = findPlanForWeek(plans, monday, nextMonday)
 
     if (!currentPlan) return
@@ -63,11 +75,27 @@ async function loadCurrentWeekPlan() {
 async function handleMealSelected({ mealTypeId, mealId }) {
   if (isLoadingPlan.value || isSavingPlan.value) return
 
+  statusMessage.value = ''
+  errorMessage.value = ''
+
+  const slotIndex = getMealSlotIndex(mealTypeId, selectedDay.value)
+  const currentMealId = mealSlots.value[slotIndex]
+  const nextMealId = currentMealId === mealId ? EMPTY_MEAL_SLOT : mealId
+
+  if (nextMealId > 0 && currentMealId <= 0 && getSelectedMealsForDay(selectedDay.value) >= subscriptionPlan.value.mealsPerDay) {
+    errorMessage.value = t('planner.limitReached', { meals: subscriptionPlan.value.mealsPerDay })
+    return
+  }
+
   const nextSlots = [...mealSlots.value]
-  nextSlots[getMealSlotIndex(mealTypeId, selectedDay.value)] = mealId
+  nextSlots[slotIndex] = nextMealId
   mealSlots.value = nextSlots
 
   await persistCurrentPlan()
+}
+
+function getSelectedMealsForDay(dayIndex) {
+  return [1, 2, 3].filter(mealTypeId => mealSlots.value[getMealSlotIndex(mealTypeId, dayIndex)] > 0).length
 }
 
 async function persistCurrentPlan() {
@@ -111,7 +139,10 @@ async function persistCurrentPlan() {
 
   <div class="planner-status">
     <p v-if="isLoadingPlan">{{ $t('planner.loadingPlan') }}</p>
-    <p v-else>{{ selectedSlotsCount }}/21 {{ $t('planner.slotsSelected') }}</p>
+    <p v-else>
+      {{ selectedSlotsCount }}/{{ weeklySlotsLimit }} {{ $t('planner.slotsSelected') }}
+      - {{ subscriptionPlanName }} ({{ $t('planner.planLimit', { meals: subscriptionPlan.mealsPerDay }) }})
+    </p>
     <p v-if="statusMessage" class="success-message">{{ statusMessage }}</p>
     <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
   </div>

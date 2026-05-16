@@ -42,7 +42,7 @@ defineProps({
           class="select-button"
           :class="{ selected }"
           :disabled="isSaving"
-          :label="selected ? t('planner.selected') : t('planner.choose')"
+          :label="selected ? t('planner.remove') : t('planner.choose')"
           @click="emit('select', comida)"
       />
     </template>

@@ -138,7 +138,10 @@ export default {
     planner: {
         choose: "Elegir",
         selected: "Elegido",
+        remove: "Quitar",
         slotsSelected: "comidas elegidas",
+        planLimit: "{meals} comida(s) por dia",
+        limitReached: "Tu plan actual permite hasta {meals} comida(s) por dia. Quita una comida de este dia o cambia de plan.",
         loadingPlan: "Cargando tu plan semanal...",
         saved: "Comida guardada en tu calendario semanal.",
         loadError: "No se pudo cargar tu plan semanal. Inicia sesion nuevamente.",
