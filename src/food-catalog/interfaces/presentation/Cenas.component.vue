@@ -1,18 +1,14 @@
 ﻿<script setup>
 import CardCenasComponent from "@/food-catalog/interfaces/presentation/CardCenas.component.vue";
-import {defineProps} from "vue";
-import {ComidaAssembler} from "@/food-catalog/application/internal/comidaAssembler.js";
+import { toComidaEntitiesFromResponse } from "@/food-catalog/application/internal/comida-resource.transform.js";
 import {ComidasApiService} from "@/food-catalog/application/internal/comidas-api.service.js";
 import {onBeforeMount, ref} from "vue";
-import { useI18n } from 'vue-i18n';
-
-const { t } = useI18n();
-const newsApiService = new ComidasApiService();
+const comidasApiService = new ComidasApiService();
 
 const comidas = ref([])
 
 onBeforeMount(async () => {
-  comidas.value = ComidaAssembler.toEntitiesFromResponse(await newsApiService.getArticles3());
+  comidas.value = toComidaEntitiesFromResponse(await comidasApiService.getDinnerMeals());
 
 });
 
