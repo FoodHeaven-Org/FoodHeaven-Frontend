@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="toolbar-container">
     <Toolbar class="custom-toolbar">
       
@@ -35,7 +35,7 @@
 import { useRouter } from 'vue-router';
 import Toolbar from 'primevue/toolbar';
 import Button from 'primevue/button';
-import Language from './language-switcher,component.vue';
+import Language from './language-switcher.component.vue';
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 
@@ -59,7 +59,7 @@ function goTo(page) {
   background-color: #ffffff;
   border-radius: 25px;
   width: 100%;
-  padding: 1px; /* 🔧 antes: 0.5rem 2rem */
+  padding: 1px; /* ðŸ”§ antes: 0.5rem 2rem */
   display: flex;
   align-items: center;
   justify-content: space-between;

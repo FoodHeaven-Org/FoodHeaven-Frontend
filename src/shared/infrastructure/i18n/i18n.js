@@ -1,6 +1,6 @@
-import { createI18n } from 'vue-i18n';
-import en from '@/component/en.js';
-import es from '@/component/es.js';
+﻿import { createI18n } from 'vue-i18n';
+import en from '@/shared/infrastructure/i18n/en.js';
+import es from '@/shared/infrastructure/i18n/es.js';
 
 const i18n = createI18n({
     legacy: false,

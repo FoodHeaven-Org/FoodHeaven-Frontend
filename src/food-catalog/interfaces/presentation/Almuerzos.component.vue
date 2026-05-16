@@ -1,8 +1,8 @@
-<script setup>
-import CardAlmuerzosComponent from "@/comida/presentation/inicio/presentation/CardAlmuerzos.component.vue";
+﻿<script setup>
+import CardAlmuerzosComponent from "@/food-catalog/interfaces/presentation/CardAlmuerzos.component.vue";
 import {defineProps} from "vue";
-import {ComidaAssembler} from "@/comida/presentation/inicio/application/comidaAssembler.js";
-import {ComidasApiService} from "@/comida/presentation/inicio/application/comidas-api.service.js";
+import {ComidaAssembler} from "@/food-catalog/application/internal/comidaAssembler.js";
+import {ComidasApiService} from "@/food-catalog/application/internal/comidas-api.service.js";
 import {onBeforeMount, ref} from "vue";
 import { useI18n } from 'vue-i18n';
 

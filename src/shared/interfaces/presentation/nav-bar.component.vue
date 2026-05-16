@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <nav class="navbar navbar-expand-lg fixed-top">
     <div class="container-xxl">
       <a class="navbar-brand me-auto" href="#">
@@ -6,7 +6,7 @@
         <span class="text-food">Food</span><span class="text-heaven">Heaven</span>
       </a>
 
-      <!-- Menú lateral -->
+      <!-- MenÃº lateral -->
       <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
         <div class="offcanvas-header">
           <a class="navbar-brand" href="#">
@@ -22,7 +22,7 @@
             <li class="nav-item"><a class="nav-link mx-lg-2" href="#servicios">{{ $t('homePage.service') }}</a></li>
             <li class="nav-item"><a class="nav-link mx-lg-2" href="#comofunciona">{{ $t('homePage.works') }}</a></li>
             <li class="nav-item"><a class="nav-link mx-lg-2" href="#precios">{{ $t('homePage.price') }}</a></li>
-            <li class="nav-item"><a class="nav-link mx-lg-2" href="#reseñas">{{ $t('homePage.review') }}</a></li>
+            <li class="nav-item"><a class="nav-link mx-lg-2" href="#reseÃ±as">{{ $t('homePage.review') }}</a></li>
             <li class="nav-item"><a class="nav-link mx-lg-2" href="#contactanos">{{ $t('homePage.contact') }}</a></li>
           </ul>
           <div class="d-lg-none text-center mt-3">
@@ -31,13 +31,13 @@
         </div>
       </div>
 
-      <!-- Botón login + Language alineados a la derecha -->
+      <!-- BotÃ³n login + Language alineados a la derecha -->
       <div class="d-none d-lg-flex align-items-center ms-auto gap-3">
         <router-link to="/login" class="btn btn-outline-success rounded-pill">{{ $t('homePage.log') }}</router-link>
         <Language />
       </div>
 
-      <!-- Botón menú hamburguesa -->
+      <!-- BotÃ³n menÃº hamburguesa -->
       <button
           class="navbar-toggler pe-0"
           type="button"
@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import Language from "@/comida/presentation/language-switcher,component.vue";
+import Language from "@/shared/interfaces/presentation/language-switcher.component.vue";
 
 export default {
   name: 'NavbarComponent',

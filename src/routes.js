@@ -1,11 +1,11 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
-import HomeView from '@/shared/presentation/home-view.page.vue'
-import CuentaView from '@/comida/presentation/cuenta/presentation/PerfilComponent.vue'
-import FoodHeavenView from '@/comida/presentation/foodheaven-view.page.vue'
-import CalendarioView from '@/comida/presentation/calendario/presentation/calendario-view.page.vue'
-import LoginView from '@/security/presentation/login/login-view.page.vue'// Nueva vista para cambiar plan
-import InicioView from '@/comida/presentation/inicio/presentation/Inicio.page.vue'
-import RegisterView from '@/security/presentation/register/register-view.page.vue'
+﻿import { createRouter, createWebHashHistory } from 'vue-router'
+import HomeView from '@/shared/interfaces/presentation/home-view.page.vue'
+import CuentaView from '@/account/interfaces/presentation/profile.page.vue'
+import FoodHeavenView from '@/shared/interfaces/presentation/authenticated-shell.page.vue'
+import CalendarioView from '@/meal-plans/interfaces/presentation/calendario-view.page.vue'
+import LoginView from '@/security/interfaces/presentation/login/login-view.page.vue'// Nueva vista para cambiar plan
+import InicioView from '@/food-catalog/interfaces/presentation/Inicio.page.vue'
+import RegisterView from '@/security/interfaces/presentation/register/register-view.page.vue'
 
 const routes = [
     {

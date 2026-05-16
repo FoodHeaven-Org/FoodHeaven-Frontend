@@ -1,8 +1,8 @@
-<script setup>
-import pv_header from "@/comida/presentation/inicio/presentation/Header.component.vue";
-import pv_desayunos from "@/comida/presentation/inicio/presentation/Desayunos.component.vue";
-import pv_almuerzos from "@/comida/presentation/inicio/presentation/Almuerzos.component.vue"
-import pv_cenas from "@/comida/presentation/inicio/presentation/Cenas.component.vue";
+﻿<script setup>
+import pv_header from "@/food-catalog/interfaces/presentation/Header.component.vue";
+import pv_desayunos from "@/food-catalog/interfaces/presentation/Desayunos.component.vue";
+import pv_almuerzos from "@/food-catalog/interfaces/presentation/Almuerzos.component.vue"
+import pv_cenas from "@/food-catalog/interfaces/presentation/Cenas.component.vue";
 
 </script>
 

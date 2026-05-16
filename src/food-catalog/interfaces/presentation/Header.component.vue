@@ -1,5 +1,5 @@
-<script setup>
-import pv_cuadro from "@/comida/presentation/inicio/presentation/Cuadro.component.vue";
+﻿<script setup>
+import pv_cuadro from "@/food-catalog/interfaces/presentation/Cuadro.component.vue";
 import { ref } from 'vue';
 
 import { useI18n } from 'vue-i18n';

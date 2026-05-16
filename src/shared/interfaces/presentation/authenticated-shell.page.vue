@@ -1,5 +1,5 @@
-<script setup>
-import ToolbarComponent from '@/comida/presentation/tool-bar.component.vue';
+﻿<script setup>
+import ToolbarComponent from '@/shared/interfaces/presentation/authenticated-toolbar.component.vue';
 </script>
 
 <template>

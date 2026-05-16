@@ -1,4 +1,4 @@
-import {Comida} from "@/comida/presentation/inicio/domain/comida.entity.js"
+﻿import {Comida} from "@/food-catalog/domain/model/entities/comida.entity.js"
 
 export class ComidaAssembler {
 
