@@ -6,6 +6,8 @@ import PvCenas from '@/food-catalog/interfaces/presentation/Cenas.component.vue'
 import { computed, onBeforeMount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { AccountApiService } from '@/account/application/internal/account-api.service.js'
+import { ComidasApiService } from '@/food-catalog/application/internal/comidas-api.service.js'
+import { toComidaEntitiesFromResponse } from '@/food-catalog/application/internal/comida-resource.transform.js'
 import { MealPlanApiService } from '@/meal-plans/application/internal/meal-plan-api.service.js'
 import {
   createEmptyMealSlots,
@@ -21,6 +23,7 @@ import { getSubscriptionPlan } from '@/security/domain/model/valueobjects/subscr
 
 const { t } = useI18n()
 const accountApiService = new AccountApiService()
+const comidasApiService = new ComidasApiService()
 const mealPlanApiService = new MealPlanApiService()
 const { monday, nextMonday, todayIndex } = getCurrentWeekRange()
 
@@ -33,6 +36,7 @@ const statusMessage = ref('')
 const errorMessage = ref('')
 const subscriptionPlan = ref(getSubscriptionPlan('Full'))
 const blockedMealTypeId = ref(null)
+const mealsAvailable = ref(0)
 
 const selectedMealsByType = computed(() => ({
   1: mealSlots.value[getMealSlotIndex(1, selectedDay.value)],
@@ -53,11 +57,13 @@ async function loadCurrentWeekPlan() {
   errorMessage.value = ''
 
   try {
-    const [plans, profile] = await Promise.all([
+    const [plans, profile, mealsResponse] = await Promise.all([
       mealPlanApiService.getCurrentUserMealPlans(),
-      accountApiService.getCurrentProfile()
+      accountApiService.getCurrentProfile(),
+      comidasApiService.getAllMeals()
     ])
     subscriptionPlan.value = getSubscriptionPlan(profile.subscription)
+    mealsAvailable.value = toComidaEntitiesFromResponse(mealsResponse).length
 
     const currentPlan = findPlanForWeek(plans, monday, nextMonday)
 
@@ -146,7 +152,7 @@ async function persistCurrentPlan() {
 <template>
   <PvHeader
       :selected-day="selectedDay"
-      :meals-available="12"
+      :meals-available="mealsAvailable"
       @day-selected="selectedDay = $event"
   />
 
