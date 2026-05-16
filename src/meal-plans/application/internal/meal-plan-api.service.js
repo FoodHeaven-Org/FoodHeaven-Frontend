@@ -34,4 +34,19 @@ export class MealPlanApiService {
 
         return response.data
     }
+
+    async updateWeeklyMealPlan(planId, { fechaInicio, fechaFin, listaComidas }) {
+        const userId = getCurrentUserId()
+
+        if (!userId) {
+            throw new Error('There is no authenticated user in the current session.')
+        }
+
+        await apiClient.put(`/PlanComida/${planId}`, {
+            idUsuario: userId,
+            fechaInicio,
+            fechaFin,
+            listaComidas
+        })
+    }
 }
