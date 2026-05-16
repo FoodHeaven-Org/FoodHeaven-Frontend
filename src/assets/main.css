@@ -1,0 +1,564 @@
+:root {
+  --first-color: #307d33;
+
+  --second-color: #53c758;
+}
+
+* {
+  font-family: "Poppins", sans-serif;
+}
+
+.background {
+  background-color: white;
+}
+
+.btn-outline-light {
+  background-color: var(
+          --first-color
+  ) !important;
+  border-color: var(--first-color) !important;
+  color: #fff !important;
+}
+
+.btn-outline-light:hover {
+  background-color: var(
+          --second-color
+  ) !important;
+  border-color: var(--second-color) !important;
+  color: #fff !important;
+}
+
+.bg-primary {
+  background-color: var(--second-color) !important;
+}
+
+.card-dark {
+  background-color: black;
+  border: 1px solid white;
+  color: white;
+}
+
+.container h1 {
+  color: var(--first-color);
+}
+
+.container h2 {
+  color: var(--second-color);
+}
+
+.container p {
+  color: white;
+}
+
+.form-label {
+  color: var(--second-color);
+}
+
+.hero-section {
+  /*background-image: url();  en minúsculas */
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.hero-section::before {
+  background-color: rgba(0, 0, 0, 0.6);
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.hero-section .container {
+  height: 100vh;
+  z-index: 1;
+  position: relative;
+}
+
+.hero-section h3 {
+  font-size: 80px;
+  font-weight: 700;
+  color: white;
+  text-align: center;
+}
+
+.hero-section p {
+  font-size: 1rem;
+  font-weight: 400;
+  color: white;
+  text-align: center;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.hero-section a {
+  font-size: 20px;
+}
+
+.signin-button:hover {
+  background-color: var(--second-color);
+}
+
+.login-button {
+  background-color: var(--first-color);
+  color: white;
+  font-size: 14px;
+  padding: 8px 20px;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: 0.3s background-color;
+}
+
+.login-button:hover {
+  background-color: var(--second-color);
+}
+
+.navbar {
+  background-color: white;
+  height: 80px;
+  margin: 20px;
+  border-radius: 16px;
+  padding: 0.5rem;
+}
+
+.navbar-brand {
+  font-weight: 300;
+  font-size: 24px;
+}
+
+.navbar-toggler {
+  border: none;
+  font-size: 1.25rem;
+  --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23307d33' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+
+.navbar-toggler:hover {
+  --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%2353c758' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+
+.navbar-toggler:focus,
+.btn-close:focus {
+  box-shadow: none;
+  outline: none;
+}
+
+.nav-link {
+  color: black;
+  font-weight: 500;
+  position: relative;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--second-color);
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+}
+
+.precio-card {
+  border-radius: 50px;
+  padding: 6rem;
+  height: 100%;
+  transition: transform 0.3s ease-in-out;
+}
+
+.precio-card:hover {
+  transform: scale(1.03);
+}
+
+.signin-button {
+  background-color: var(--first-color);
+  color: white;
+  font-size: 30px;
+  padding: 15px 25px;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: 0.3s background-color;
+}
+
+.signin-button:hover {
+  background-color: var(--second-color);
+}
+
+.text-food {
+  color: var(--first-color);
+}
+
+.text-heaven {
+  color: black;
+}
+
+@media (min-width: 576px) {
+}
+
+@media (min-width: 768px) {
+}
+
+@media (min-width: 992px) {
+  .nav-link::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background-color: var(--first-color);
+    visibility: hidden;
+    transition: 0.3s ease-in-out;
+  }
+
+  .nav-link:hover::before,
+  .nav-link.active::before {
+    width: 100%;
+    visibility: visible;
+  }
+
+
+}
+
+
+
+@media (min-width: 1200px) {
+
+}
+
+@media (min-width: 1400px) {
+}
+
+.mision p,
+.quien p {
+  color: gray;
+}
+
+.servicio p {
+  color: gray;
+}
+
+.servicio {
+  border-radius: 20px;
+  padding: 20px;
+}
+
+.precio-f li {
+  color: gray;
+}
+
+.precio-f h3 {
+  color: black;
+}
+
+.texto-reseña p {
+  color: black;
+}
+.bg-gray {
+  background-color: gray;
+}
+
+.footer {
+  /*background-image: url(); en minúsculas */
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+#acerca {
+  position: relative;
+  overflow: hidden;
+  width: 70%;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+  border-radius: 40px;
+  margin-top: 20px;
+}
+
+#acerca .fondo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+#acerca .container {
+  position: relative;
+  z-index: 1;
+  padding: 5rem 1rem;
+}
+
+#acerca {
+  border-radius: 200px;
+  padding: 2rem;
+  margin: 2rem auto;
+  width: 90%;
+  max-width: 1200px;
+}
+
+.acerca-contenido {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.acerca-img,
+.acerca-texto {
+  flex: 1 1 50%;
+  padding: 1rem;
+  text-align: center;
+}
+
+.acerca-img img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 20px;
+}
+
+.acerca-texto {
+  color: black;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.acerca-texto p {
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+.portada-button {
+  text-decoration: none;
+  border-radius: 20px;
+  background-color: var(--first-color);
+  color: white;
+  transition: 0.3s background-color;
+  padding: 10px 20px;
+}
+
+.portada-button:hover {
+  background-color: var(--second-color);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .acerca-contenido {
+    flex-direction: column;
+  }
+
+  .acerca-img {
+    display: none; /* esto oculta el lomo saltado en el responsive cuando sea pequeño */
+  }
+
+  .acerca-texto {
+    flex: 1 1 100%;
+  }
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.hero-subtitle {
+  font-size: 40px;
+  font-weight: 300;
+  margin-bottom: 1.5rem;
+}
+
+.hero-button {
+  font-size: 0.9rem;
+  padding: 8px 20px;
+  color: white;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: 0.3s background-color;
+}
+
+.hero-button:hover {
+  background-color: var(--second-color);
+  color: white;
+}
+
+.precio-card {
+  border-radius: 30px;
+  padding: 40px 25px;
+  height: 100%;
+  transition: transform 0.3s ease-in-out;
+}
+
+.precio-card:hover {
+  transform: scale(1.03);
+}
+
+.precio-card .card-title {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.precio-card .price {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.precio-f ul {
+  max-width: 220px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.precio-f ul li {
+  text-align: left;
+  word-wrap: break-word;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 576px) {
+  .precio-card {
+    padding: 25px 15px;
+  }
+
+  .precio-card .card-title {
+    font-size: 1.1rem;
+  }
+
+  .precio-card .price {
+    font-size: 1.1rem;
+  }
+}
+
+/* General Responsive Utilities */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Hero Section Adaptability */
+.hero-section h3 {
+  font-size: 4rem;
+}
+.hero-section p {
+  font-size: 1rem;
+}
+@media (max-width: 768px) {
+  .hero-section h3 {
+    font-size: 2.5rem;
+  }
+  .hero-section p {
+    font-size: 0.9rem;
+    padding: 0 1rem;
+    text-align: center;
+  }
+}
+
+/* Card Services Responsive */
+.servicio .card-title {
+  font-size: 1.3rem;
+}
+.servicio .card-text {
+  font-size: 1rem;
+}
+@media (max-width: 576px) {
+  .servicio .card-title {
+    font-size: 1.1rem;
+  }
+  .servicio .card-text {
+    font-size: 0.9rem;
+  }
+}
+
+/* Precios Cards */
+@media (max-width: 768px) {
+  .precio-card {
+    padding: 2rem;
+  }
+}
+
+/* Footer: stack columns in small screens */
+@media (max-width: 768px) {
+  .footer .row {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
+button,
+.signin-button,
+.portada-button,
+.login-button {
+  width: auto;
+  max-width: 100%;
+  font-size: 1rem;
+}
+@media (max-width: 576px) {
+  .signin-button,
+  .portada-button {
+    font-size: 1rem;
+    padding: 10px 15px;
+  }
+}
+.container {
+  padding: 0 1rem;
+}
+
+.login-section {
+  min-height: 100vh;
+  background-color: white;
+  padding: 2rem;
+}
+
+.login-box {
+  background-color: #f9f9f9;
+  max-width: 400px;
+  width: 100%;
+  border-radius: 20px;
+}
+
+.login-box h2 {
+  color: var(--first-color);
+}
+
+.login-box .form-control {
+  border-radius: 10px;
+}
+
+.login-box .form-label {
+  color: var(--second-color);
+}
+
+.login-box .signin-button {
+  background-color: var(--first-color);
+  color: white;
+  padding: 10px;
+  border-radius: 50px;
+  font-weight: 500;
+  transition: 0.3s background-color;
+}
+
+.login-box .signin-button:hover {
+  background-color: var(--second-color);
+}
+
+.login-box .adv {
+  font-size: small;
+  color: rgb(180, 13, 13);
+  font-weight: bold;
+}
+
+@media (max-width: 991px){
+  .login-button {
+    display: none !important;
+  }
+}
