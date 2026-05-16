@@ -6,6 +6,11 @@
 
       <form @submit.prevent="handleRegister">
         <div class="form-grid">
+          <div class="form-group full-width">
+            <label for="fullName">{{ $t('account.name') }}</label>
+            <input id="fullName" type="text" v-model="fullName" class="input-field" required />
+          </div>
+
           <div class="form-group">
             <label for="email">{{ $t('register.email') }}</label>
             <input id="email" type="email" v-model="email" class="input-field" required />
@@ -63,6 +68,7 @@ const { t } = useI18n()
 const router = useRouter()
 const authApiService = new AuthApiService()
 
+const fullName = ref('')
 const email = ref('')
 const password = ref('')
 const subscription = ref('Full')
@@ -80,18 +86,19 @@ const handleRegister = async () => {
 
   const parsedPhone = Number(String(phone.value).replace(/\D/g, ''))
 
-  if (!email.value || !password.value || !subscription.value || !parsedPhone || !city.value) {
-    errorMessage.value = t('login.errorRequired')
+  if (!fullName.value || !email.value || !password.value || !subscription.value || !parsedPhone || !city.value) {
+    errorMessage.value = t('register.errorRequired')
     return
   }
 
   if (password.value.length < 6) {
-    errorMessage.value = t('login.errorLength')
+    errorMessage.value = t('register.errorLength')
     return
   }
 
   try {
     await authApiService.signUp({
+      fullName: fullName.value.trim(),
       username: email.value,
       password: password.value,
       subscription: subscription.value,
