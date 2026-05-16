@@ -19,12 +19,11 @@ const isSavingPlan = ref(false)
 const statusMessage = ref('')
 const errorMessage = ref('')
 const tabs = [
-  { key: 'profile', labelKey: 'settings.personalTitle' },
-  { key: 'plan', labelKey: 'settings.changePlanTitle' },
-  { key: 'security', labelKey: 'settings.passwordTitle' }
+  { key: 'profile', labelKey: 'settings.dataSecurityTitle' },
+  { key: 'plan', labelKey: 'settings.changePlanTitle' }
 ]
 const requestedTab = String(route.query.tab ?? 'profile')
-const activeTab = ref(tabs.some(tab => tab.key === requestedTab) ? requestedTab : 'profile')
+const activeTab = ref(resolveTab(requestedTab))
 
 const profileForm = ref({
   fullName: '',
@@ -159,9 +158,15 @@ async function savePlan() {
 }
 
 watch(() => route.query.tab, (tab) => {
-  const nextTab = String(tab ?? 'profile')
-  activeTab.value = tabs.some(item => item.key === nextTab) ? nextTab : 'profile'
+  activeTab.value = resolveTab(tab)
 })
+
+function resolveTab(tab) {
+  const nextTab = String(tab ?? 'profile')
+  if (nextTab === 'security') return 'profile'
+
+  return tabs.some(item => item.key === nextTab) ? nextTab : 'profile'
+}
 </script>
 
 <template>
@@ -186,46 +191,48 @@ watch(() => route.query.tab, (tab) => {
     </div>
 
     <div v-if="!isLoading" class="settings-grid">
-      <form v-if="activeTab === 'profile'" class="settings-card single-card" @submit.prevent="saveProfile">
-        <h2>{{ $t('settings.personalTitle') }}</h2>
-        <label for="fullName">{{ $t('account.name') }}</label>
-        <input id="fullName" v-model="profileForm.fullName" type="text" />
+      <template v-if="activeTab === 'profile'">
+        <form class="settings-card single-card" @submit.prevent="saveProfile">
+          <h2>{{ $t('settings.personalTitle') }}</h2>
+          <label for="fullName">{{ $t('account.name') }}</label>
+          <input id="fullName" v-model="profileForm.fullName" type="text" />
 
-        <label for="username">{{ $t('account.email') }}</label>
-        <input id="username" v-model="profileForm.username" type="email" />
+          <label for="username">{{ $t('account.email') }}</label>
+          <input id="username" v-model="profileForm.username" type="email" />
 
-        <label for="phone">{{ $t('account.phone') }}</label>
-        <input id="phone" v-model="profileForm.phone" type="tel" />
+          <label for="phone">{{ $t('account.phone') }}</label>
+          <input id="phone" v-model="profileForm.phone" type="tel" />
 
-        <label for="city">{{ $t('account.city') }}</label>
-        <input id="city" v-model="profileForm.city" type="text" />
+          <label for="city">{{ $t('account.city') }}</label>
+          <input id="city" v-model="profileForm.city" type="text" />
 
-        <label for="address">{{ $t('account.address') }}</label>
-        <input id="address" v-model="profileForm.address" type="text" />
+          <label for="address">{{ $t('account.address') }}</label>
+          <input id="address" v-model="profileForm.address" type="text" />
 
-        <label for="paymentMethod">{{ $t('account.paymentMethod') }}</label>
-        <select id="paymentMethod" v-model="profileForm.paymentMethod">
-          <option value="Card">{{ $t('settings.paymentCard') }}</option>
-          <option value="Yape">{{ $t('settings.paymentYape') }}</option>
-          <option value="Cash">{{ $t('settings.paymentCash') }}</option>
-        </select>
+          <label for="paymentMethod">{{ $t('account.paymentMethod') }}</label>
+          <select id="paymentMethod" v-model="profileForm.paymentMethod">
+            <option value="Card">{{ $t('settings.paymentCard') }}</option>
+            <option value="Yape">{{ $t('settings.paymentYape') }}</option>
+            <option value="Cash">{{ $t('settings.paymentCash') }}</option>
+          </select>
 
-        <button type="submit" :disabled="isSavingProfile">{{ $t('settings.saveProfile') }}</button>
-      </form>
+          <button type="submit" :disabled="isSavingProfile">{{ $t('settings.saveProfile') }}</button>
+        </form>
 
-      <form v-if="activeTab === 'security'" class="settings-card single-card" @submit.prevent="savePassword">
-        <h2>{{ $t('settings.passwordTitle') }}</h2>
-        <label for="currentPassword">{{ $t('settings.currentPassword') }}</label>
-        <input id="currentPassword" v-model="passwordForm.currentPassword" type="password" />
+        <form class="settings-card single-card" @submit.prevent="savePassword">
+          <h2>{{ $t('settings.passwordTitle') }}</h2>
+          <label for="currentPassword">{{ $t('settings.currentPassword') }}</label>
+          <input id="currentPassword" v-model="passwordForm.currentPassword" type="password" />
 
-        <label for="newPassword">{{ $t('settings.newPassword') }}</label>
-        <input id="newPassword" v-model="passwordForm.newPassword" type="password" />
+          <label for="newPassword">{{ $t('settings.newPassword') }}</label>
+          <input id="newPassword" v-model="passwordForm.newPassword" type="password" />
 
-        <label for="confirmPassword">{{ $t('settings.confirmPassword') }}</label>
-        <input id="confirmPassword" v-model="passwordForm.confirmPassword" type="password" />
+          <label for="confirmPassword">{{ $t('settings.confirmPassword') }}</label>
+          <input id="confirmPassword" v-model="passwordForm.confirmPassword" type="password" />
 
-        <button type="submit" :disabled="isSavingPassword">{{ $t('settings.savePassword') }}</button>
-      </form>
+          <button type="submit" :disabled="isSavingPassword">{{ $t('settings.savePassword') }}</button>
+        </form>
+      </template>
 
       <article v-if="activeTab === 'plan'" class="settings-card single-card plan-card">
         <h2>{{ $t('settings.changePlanTitle') }}</h2>
