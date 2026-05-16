@@ -1,15 +1,25 @@
-﻿import axios from 'axios'
+import { apiClient } from '@/shared/infrastructure/http/api-client.js'
 
 export class ComidasApiService {
+    async getMealsByType(typeId) {
+        return apiClient.get('/Comida', {
+            params: { id_tipo_comida: typeId }
+        })
+    }
+
+    async getAllMeals() {
+        return apiClient.get('/Comida')
+    }
+
     async getBreakfastMeals() {
-        return axios.get('https://6824f9c70f0188d7e72b99b7.mockapi.io/comida?id_tipo_comida=1')
+        return this.getMealsByType(1)
     }
 
     async getLunchMeals() {
-        return axios.get('https://6824f9c70f0188d7e72b99b7.mockapi.io/comida?id_tipo_comida=2')
+        return this.getMealsByType(2)
     }
 
     async getDinnerMeals() {
-        return axios.get('https://6824f9c70f0188d7e72b99b7.mockapi.io/comida?id_tipo_comida=3')
+        return this.getMealsByType(3)
     }
 }
