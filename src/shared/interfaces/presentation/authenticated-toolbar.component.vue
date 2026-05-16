@@ -18,6 +18,7 @@
           <Button :label="$t('toolbar.home')" text class="nav-button" @click="goTo('inicio')" />
           <Button :label="$t('toolbar.calendar')" text class="nav-button" @click="goTo('calendario')" />
           <Button :label="$t('toolbar.account')" text class="nav-button" @click="goTo('cuenta')" />
+          <Button :label="$t('toolbar.settings')" text class="nav-button" @click="goTo('configuracion')" />
         </div>
       </template>
 
@@ -36,8 +37,6 @@ import { useRouter } from 'vue-router';
 import Toolbar from 'primevue/toolbar';
 import Button from 'primevue/button';
 import Language from './language-switcher.component.vue';
-import { useI18n } from 'vue-i18n';
-const { t } = useI18n();
 
 const router = useRouter();
 

@@ -77,7 +77,7 @@ onBeforeMount(async () => {
     datosComida.value = buildCalendarMeals(getPlanMeals(activePlan), mealById)
   } catch (error) {
     console.error(error)
-    errorMessage.value = 'Unable to load your weekly meal plan.'
+    errorMessage.value = t('calendar.loadError')
   } finally {
     isLoading.value = false
   }
@@ -125,10 +125,10 @@ function buildCalendarMeals(mealIds, mealById) {
 
 <template>
   <div class="p-4">
-    <p v-if="isLoading" class="status-message">Loading meal plan...</p>
+    <p v-if="isLoading" class="status-message">{{ t('calendar.loading') }}</p>
     <p v-else-if="errorMessage" class="error-message">{{ errorMessage }}</p>
     <div v-else-if="!hasActivePlan" class="empty-state">
-      <p class="status-message">No meal plan is scheduled for this week.</p>
+      <p class="status-message">{{ t('calendar.noPlan') }}</p>
       <RouterLink class="home-link" :to="{ name: 'Inicio' }">{{ $t('calendar.goHome') }}</RouterLink>
     </div>
 

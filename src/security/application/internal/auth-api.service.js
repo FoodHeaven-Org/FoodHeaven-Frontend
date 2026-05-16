@@ -18,8 +18,9 @@ export class AuthApiService {
         return token
     }
 
-    async signUp({ username, password, subscription, phone, city }) {
+    async signUp({ fullName, username, password, subscription, phone, city }) {
         const response = await apiClient.post('/User/sign-up', {
+            fullName,
             username,
             password,
             subscription,
@@ -68,6 +69,7 @@ export function getSessionUser() {
     return {
         id: getCurrentUserId(),
         username: payload[NAME_CLAIM] ?? payload.name ?? '',
+        fullName: payload.fullName ?? '',
         subscription: payload[ROLE_CLAIM] ?? payload.role ?? '',
         phone: payload.phone ?? '',
         city: payload.city ?? ''

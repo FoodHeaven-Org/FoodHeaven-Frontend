@@ -5,6 +5,7 @@ import CalendarioView from '@/meal-plans/interfaces/presentation/calendario-view
 import LoginView from '@/security/interfaces/presentation/login/login-view.page.vue'
 import InicioView from '@/food-catalog/interfaces/presentation/Inicio.page.vue'
 import RegisterView from '@/security/interfaces/presentation/register/register-view.page.vue'
+import SettingsView from '@/settings/interfaces/presentation/settings.page.vue'
 
 const routes = [
     {
@@ -40,6 +41,11 @@ const routes = [
                 path: 'cuenta',
                 name: 'Cuenta',
                 component: CuentaView,
+            },
+            {
+                path: 'configuracion',
+                name: 'Configuracion',
+                component: SettingsView,
             }
         ]
     }
