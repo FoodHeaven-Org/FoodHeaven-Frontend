@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onBeforeMount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 import Language from '@/shared/interfaces/presentation/language-switcher.component.vue'
 import { AccountApiService } from '@/account/application/internal/account-api.service.js'
 import {
@@ -9,6 +10,7 @@ import {
 } from '@/security/domain/model/valueobjects/subscription-plan.valueobject.js'
 
 const { t } = useI18n()
+const route = useRoute()
 const accountApiService = new AccountApiService()
 
 const isLoading = ref(true)
@@ -17,14 +19,14 @@ const isSavingPassword = ref(false)
 const isSavingPlan = ref(false)
 const statusMessage = ref('')
 const errorMessage = ref('')
-const activeTab = ref('profile')
-
 const tabs = [
   { key: 'profile', labelKey: 'settings.personalTitle' },
   { key: 'plan', labelKey: 'settings.planTitle' },
   { key: 'security', labelKey: 'settings.passwordTitle' },
   { key: 'language', labelKey: 'settings.languageTitle' }
 ]
+const requestedTab = String(route.query.tab ?? 'profile')
+const activeTab = ref(tabs.some(tab => tab.key === requestedTab) ? requestedTab : 'profile')
 
 const profileForm = ref({
   fullName: '',

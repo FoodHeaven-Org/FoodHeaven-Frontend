@@ -42,8 +42,8 @@ function formatPhone(phone) {
   return phone ? `+${phone}` : 'Not provided'
 }
 
-function goToSettings() {
-  router.push({ name: 'Configuracion' })
+function goToSettings(tab = 'profile') {
+  router.push({ name: 'Configuracion', query: { tab } })
 }
 
 async function deleteAccount() {
@@ -76,7 +76,7 @@ async function deleteAccount() {
     <template v-else-if="profile">
       <div class="buttons">
         <Button class="yellow" :label="subscriptionLabel" />
-        <Button class="cyan" :label="$t('plan.change')" @click="goToSettings" />
+        <Button class="cyan" :label="$t('plan.change')" @click="goToSettings('plan')" />
       </div>
 
       <div class="personal-data">
@@ -90,7 +90,7 @@ async function deleteAccount() {
         <a>{{ profile.city }}</a>
         <p>{{ $t('account.subscription') }}</p>
         <a>{{ subscriptionLabel }}</a>
-        <Button class="config" :label="$t('account.config')" @click="goToSettings" />
+        <Button class="config" :label="$t('account.config')" @click="goToSettings('profile')" />
         <Button class="delete" :disabled="isDeleting" :label="$t('account.delete')" @click="deleteAccount" />
       </div>
     </template>
