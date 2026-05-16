@@ -25,6 +25,7 @@
       <template #end>
         <div class="end-toolbar">
           <Language />
+          <Button :label="$t('toolbar.logout')" text class="logout-button" @click="logout" />
         </div>
       </template>
     </Toolbar>
@@ -36,11 +37,17 @@ import { useRouter } from 'vue-router';
 import Toolbar from 'primevue/toolbar';
 import Button from 'primevue/button';
 import Language from './language-switcher.component.vue';
+import { clearSession } from '@/security/application/internal/auth-api.service.js';
 
 const router = useRouter();
 
 function goTo(page) {
   router.push(`/foodheaven/${page}`);
+}
+
+function logout() {
+  clearSession();
+  router.push({ name: 'Login' });
 }
 </script>
 
@@ -115,5 +122,14 @@ function goTo(page) {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.logout-button {
+  color: #000000;
+  font-weight: 700;
+}
+
+.logout-button:hover {
+  color: #b42318;
 }
 </style>

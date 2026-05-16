@@ -80,7 +80,8 @@ export default {
         home: "Home",
         calendar: "Calendar",
         account: "Account",
-        settings: "Settings"
+        settings: "Settings",
+        logout: "Log out"
     },
     calendar: {
         title: "Weekly Calendar",
@@ -207,7 +208,10 @@ export default {
         district: "District",
         address: "Address",
         subscription: "Subscription",
-        config: "Settings"
+        config: "Settings",
+        delete: "Delete account",
+        deleteConfirm: "This will delete your account and meal plans. Do you want to continue?",
+        deleteError: "Unable to delete your account."
     },
     settings: {
         title: "Settings",

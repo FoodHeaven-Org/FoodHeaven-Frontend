@@ -3,6 +3,7 @@ import { computed, onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { AccountApiService } from '@/account/application/internal/account-api.service.js'
 import { getSubscriptionPlan } from '@/security/domain/model/valueobjects/subscription-plan.valueobject.js'
+import { clearSession } from '@/security/application/internal/auth-api.service.js'
 import { useI18n } from 'vue-i18n'
 
 const accountApiService = new AccountApiService()
@@ -10,6 +11,7 @@ const router = useRouter()
 const { t } = useI18n()
 const profile = ref(null)
 const isLoading = ref(true)
+const isDeleting = ref(false)
 const errorMessage = ref('')
 
 const displayName = computed(() => {
@@ -52,6 +54,24 @@ function toDisplayName(value) {
 function goToSettings() {
   router.push({ name: 'Configuracion' })
 }
+
+async function deleteAccount() {
+  if (!window.confirm(t('account.deleteConfirm'))) return
+
+  isDeleting.value = true
+  errorMessage.value = ''
+
+  try {
+    await accountApiService.deleteCurrentAccount()
+    clearSession()
+    await router.push({ name: 'Login' })
+  } catch (error) {
+    console.error(error)
+    errorMessage.value = error.response?.data?.message ?? t('account.deleteError')
+  } finally {
+    isDeleting.value = false
+  }
+}
 </script>
 
 <template>
@@ -80,6 +100,7 @@ function goToSettings() {
         <p>{{ $t('account.subscription') }}</p>
         <a>{{ subscriptionLabel }}</a>
         <Button class="config" :label="$t('account.config')" @click="goToSettings" />
+        <Button class="delete" :disabled="isDeleting" :label="$t('account.delete')" @click="deleteAccount" />
       </div>
     </template>
   </section>
@@ -140,7 +161,13 @@ Button {
 .config {
   background: #000000;
   padding: 10px;
-  margin: 2rem auto;
+  margin: 2rem auto 0;
+}
+
+.delete {
+  background: #b42318;
+  padding: 10px;
+  margin: 1rem auto 2rem;
 }
 
 .status-message,

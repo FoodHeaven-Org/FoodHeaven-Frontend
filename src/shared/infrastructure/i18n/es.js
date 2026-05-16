@@ -76,7 +76,8 @@ export default {
         home: "Inicio",
         calendar: "Calendario",
         account: "Cuenta",
-        settings: "Configuracion"
+        settings: "Configuracion",
+        logout: "Cerrar sesion"
     },
     calendar: {
         title: "Calendario Semanal",
@@ -204,7 +205,10 @@ export default {
         district: "Distrito",
         address: "Dirección",
         subscription: "Suscripcion",
-        config: "Configuracion"
+        config: "Configuracion",
+        delete: "Borrar cuenta",
+        deleteConfirm: "Esta accion borrara tu cuenta y tus planes. Deseas continuar?",
+        deleteError: "No se pudo borrar tu cuenta."
     },
     settings: {
         title: "Configuracion",
