@@ -179,6 +179,20 @@ export default {
     subscription: {
         expires: "Tu suscripción vence en 45 días"
     },
+    subscriptionPlans: {
+        essential: {
+            name: "Plan Esencial",
+            description: "1 comida por dia. Ideal si solo quieres cubrir una comida principal."
+        },
+        balance: {
+            name: "Plan Balance",
+            description: "2 comidas por dia. Pensado para combinar desayuno, almuerzo o cena."
+        },
+        full: {
+            name: "Plan Full",
+            description: "3 comidas por dia. Cubre desayuno, almuerzo y cena."
+        }
+    },
     account: {
         name: "Nombre",
         email: "Correo",

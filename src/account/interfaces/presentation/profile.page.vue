@@ -2,9 +2,12 @@
 import { computed, onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { AccountApiService } from '@/account/application/internal/account-api.service.js'
+import { getSubscriptionPlan } from '@/security/domain/model/valueobjects/subscription-plan.valueobject.js'
+import { useI18n } from 'vue-i18n'
 
 const accountApiService = new AccountApiService()
 const router = useRouter()
+const { t } = useI18n()
 const profile = ref(null)
 const isLoading = ref(true)
 const errorMessage = ref('')
@@ -17,6 +20,12 @@ const displayName = computed(() => {
   const fallbackName = username.includes('@') ? username.split('@')[0] : username
   return toDisplayName(fallbackName)
 })
+
+const subscriptionPlan = computed(() => getSubscriptionPlan(profile.value?.subscription ?? profile.value?.Subscription))
+
+const subscriptionLabel = computed(() => profile.value
+    ? `${t(subscriptionPlan.value.nameKey)} - S/ ${subscriptionPlan.value.monthlyPrice}`
+    : '')
 
 onBeforeMount(async () => {
   try {
@@ -55,8 +64,8 @@ function goToSettings() {
 
     <template v-else-if="profile">
       <div class="buttons">
-        <Button class="yellow" :label="profile.subscription" />
-        <Button class="cyan" :label="$t('plan.change')" />
+        <Button class="yellow" :label="subscriptionLabel" />
+        <Button class="cyan" :label="$t('plan.change')" @click="goToSettings" />
       </div>
 
       <div class="personal-data">
@@ -69,7 +78,7 @@ function goToSettings() {
         <p>{{ $t('account.city') }}</p>
         <a>{{ profile.city }}</a>
         <p>{{ $t('account.subscription') }}</p>
-        <a>{{ profile.subscription }}</a>
+        <a>{{ subscriptionLabel }}</a>
         <Button class="config" :label="$t('account.config')" @click="goToSettings" />
       </div>
     </template>

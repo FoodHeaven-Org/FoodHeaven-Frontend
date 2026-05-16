@@ -182,6 +182,20 @@ export default {
     subscription: {
         expires: "Your subscription expires in 45 days"
     },
+    subscriptionPlans: {
+        essential: {
+            name: "Essential Plan",
+            description: "1 meal per day. Useful if you only want to cover one main meal."
+        },
+        balance: {
+            name: "Balance Plan",
+            description: "2 meals per day. Built for combining breakfast, lunch, or dinner."
+        },
+        full: {
+            name: "Full Plan",
+            description: "3 meals per day. Covers breakfast, lunch, and dinner."
+        }
+    },
     account: {
         name: "Name",
         email: "Email",
