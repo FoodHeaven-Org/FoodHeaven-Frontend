@@ -62,6 +62,7 @@ export default {
         review3: "Marketing Manager",
         reviewText3: "My job is demanding, and I always find it difficult to stay healthy. FoodHeaven helps me create a personalized, nutritious, and quick menu. It's everything I needed!",
         name: "Name",
+        defaultName: "FoodHeaven user",
         email: "Email",
         phone: "Phone Number",
         follow: "Follow us",
@@ -80,7 +81,8 @@ export default {
         home: "Home",
         calendar: "Calendar",
         account: "Account",
-        settings: "Settings"
+        settings: "Settings",
+        logout: "Log out"
     },
     calendar: {
         title: "Weekly Calendar",
@@ -207,7 +209,10 @@ export default {
         district: "District",
         address: "Address",
         subscription: "Subscription",
-        config: "Settings"
+        config: "Settings",
+        delete: "Delete account",
+        deleteConfirm: "This will delete your account and meal plans. Do you want to continue?",
+        deleteError: "Unable to delete your account."
     },
     settings: {
         title: "Settings",

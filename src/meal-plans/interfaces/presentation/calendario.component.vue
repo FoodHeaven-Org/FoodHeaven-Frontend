@@ -4,6 +4,7 @@ import { computed, onBeforeMount, ref, watch } from 'vue'
 import { MealPlanApiService } from '@/meal-plans/application/internal/meal-plan-api.service.js'
 import { ComidasApiService } from '@/food-catalog/application/internal/comidas-api.service.js'
 import { toComidaEntitiesFromResponse } from '@/food-catalog/application/internal/comida-resource.transform.js'
+import { localizeMeal } from '@/food-catalog/domain/model/valueobjects/meal-translation.valueobject.js'
 import {
   findPlanForWeek,
   getCurrentWeekRange,
@@ -52,7 +53,8 @@ watch(() => locale.value, () => {
 })
 
 const emptyMeal = { nombre: '-', descripcion: '', calorias: 0 }
-const datosComida = ref(createEmptyWeek())
+const selectedMealIds = ref([])
+const mealById = ref(new Map())
 const isLoading = ref(true)
 const errorMessage = ref('')
 const hasActivePlan = ref(false)
@@ -65,7 +67,7 @@ onBeforeMount(async () => {
     ])
 
     const meals = toComidaEntitiesFromResponse(mealsResponse)
-    const mealById = new Map(meals.map(meal => [meal.id, meal]))
+    mealById.value = new Map(meals.map(meal => [meal.id, meal]))
     const activePlan = findPlanForWeek(mealPlans, monday, nextMonday)
 
     if (!activePlan) {
@@ -74,7 +76,7 @@ onBeforeMount(async () => {
     }
 
     hasActivePlan.value = true
-    datosComida.value = buildCalendarMeals(getPlanMeals(activePlan), mealById)
+    selectedMealIds.value = getPlanMeals(activePlan)
   } catch (error) {
     console.error(error)
     errorMessage.value = t('calendar.loadError')
@@ -101,7 +103,9 @@ function createEmptyWeek() {
   ]
 }
 
-function buildCalendarMeals(mealIds, mealById) {
+const datosComida = computed(() => buildCalendarMeals(selectedMealIds.value, mealById.value, locale.value))
+
+function buildCalendarMeals(mealIds, mealById, currentLocale) {
   const calendarMeals = createEmptyWeek()
 
   for (let mealTypeIndex = 0; mealTypeIndex < 3; mealTypeIndex++) {
@@ -110,11 +114,12 @@ function buildCalendarMeals(mealIds, mealById) {
       const meal = mealById.get(mealId)
 
       if (!meal) continue
+      const localizedMeal = localizeMeal(meal, currentLocale)
 
       calendarMeals[mealTypeIndex][dayIndex] = {
-        nombre: meal.nombre,
-        descripcion: meal.complemento,
-        calorias: meal.nutriente
+        nombre: localizedMeal.nombre,
+        descripcion: localizedMeal.complemento,
+        calorias: localizedMeal.nutriente
       }
     }
   }

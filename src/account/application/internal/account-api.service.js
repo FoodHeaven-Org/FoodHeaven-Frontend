@@ -54,4 +54,14 @@ export class AccountApiService {
             newPassword
         })
     }
+
+    async deleteCurrentAccount() {
+        const userId = getCurrentUserId()
+
+        if (!userId) {
+            throw new Error('There is no authenticated user in the current session.')
+        }
+
+        await apiClient.delete(`/User/${userId}`)
+    }
 }
