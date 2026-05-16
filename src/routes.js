@@ -1,27 +1,25 @@
-﻿import { createRouter, createWebHashHistory } from 'vue-router'
-import HomeView from '@/shared/interfaces/presentation/home-view.page.vue'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import CuentaView from '@/account/interfaces/presentation/profile.page.vue'
 import FoodHeavenView from '@/shared/interfaces/presentation/authenticated-shell.page.vue'
 import CalendarioView from '@/meal-plans/interfaces/presentation/calendario-view.page.vue'
-import LoginView from '@/security/interfaces/presentation/login/login-view.page.vue'// Nueva vista para cambiar plan
+import LoginView from '@/security/interfaces/presentation/login/login-view.page.vue'
 import InicioView from '@/food-catalog/interfaces/presentation/Inicio.page.vue'
 import RegisterView from '@/security/interfaces/presentation/register/register-view.page.vue'
 
 const routes = [
     {
         path: '/',
-        name: 'Home',
-        component: HomeView
+        redirect: '/login'
     },
     {
         path: '/login',
         name: 'Login',
-        component: LoginView, // Este es el componente Login que has creado
+        component: LoginView,
     },
     {
         path: '/register',
         name: 'Register',
-        component: RegisterView, // Este es el componente Login que has creado
+        component: RegisterView,
     },
     {
         path: '/foodheaven',
@@ -29,17 +27,17 @@ const routes = [
         component: FoodHeavenView,
         children: [
             {
-                path: 'inicio', // Ruta padre
+                path: 'inicio',
                 name: 'Inicio',
                 component: InicioView,
             },
             {
-                path: 'calendario', // Ruta padre
+                path: 'calendario',
                 name: 'Calendario',
                 component: CalendarioView,
             },
             {
-                path: 'cuenta', // Ruta padre
+                path: 'cuenta',
                 name: 'Cuenta',
                 component: CuentaView,
             }
