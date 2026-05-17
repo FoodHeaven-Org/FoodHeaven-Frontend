@@ -1,10 +1,35 @@
 <script setup>
 import { useI18n } from 'vue-i18n';
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
+
+const props = defineProps({
+  variant: {
+    type: String,
+    default: 'pill',
+    validator: (value) => ['pill', 'compact'].includes(value)
+  }
+});
 
 const { locale } = useI18n();
-const languages = ['en', 'es'];
+const STORAGE_KEY = 'foodheaven.locale';
+
+const languages = [
+  { code: 'en', label: 'EN', name: 'English' },
+  { code: 'es', label: 'ES', name: 'Español' }
+];
+
 const currentLocale = computed(() => locale.value);
+
+watch(currentLocale, (next) => {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, next);
+  } catch (error) {
+    /* ignore */
+  }
+  if (typeof document !== 'undefined') {
+    document.documentElement.setAttribute('lang', next);
+  }
+});
 
 function setLanguage(lang) {
   locale.value = lang;
@@ -12,39 +37,64 @@ function setLanguage(lang) {
 </script>
 
 <template>
-  <div class="selector">
+  <div class="lang-switcher" :class="`lang-switcher--${props.variant}`" role="group" aria-label="Language selector">
     <button
         v-for="lang in languages"
-        :key="lang"
-        :class="['lang-btn', { active: currentLocale === lang }]"
-        @click="setLanguage(lang)"
+        :key="lang.code"
+        type="button"
+        :class="['lang-btn', { active: currentLocale === lang.code }]"
+        :aria-pressed="currentLocale === lang.code"
+        :title="lang.name"
+        @click="setLanguage(lang.code)"
     >
-      {{ lang.toUpperCase() }}
+      <span>{{ lang.label }}</span>
     </button>
   </div>
 </template>
 
 <style scoped>
-.selector {
-  display: flex;
-  gap: 0.5rem;
-  margin-left: 1rem;
+.lang-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+}
+
+.lang-switcher--compact {
+  padding: 3px;
 }
 
 .lang-btn {
-  padding: 0.4rem 1rem;
+  appearance: none;
   border: none;
-  border-radius: 999px;
+  background: transparent;
   cursor: pointer;
-  background-color: white;
-  color: #000;
-  text-transform: uppercase;
-  transition: background-color 0.3s, color 0.3s;
-  border: 1px solid #000;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-text-soft);
+  transition: background var(--duration-fast) ease,
+              color var(--duration-fast) ease,
+              box-shadow var(--duration-fast) ease;
+}
+
+.lang-switcher--compact .lang-btn {
+  padding: 4px 10px;
+  font-size: 0.72rem;
+}
+
+.lang-btn:hover {
+  color: var(--color-text);
 }
 
 .lang-btn.active {
-  background-color: #4CAF50;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-xs);
 }
 </style>

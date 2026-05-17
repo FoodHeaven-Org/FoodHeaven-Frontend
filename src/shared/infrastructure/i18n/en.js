@@ -11,11 +11,7 @@ export default {
         register: "Register",
         textHero: "Eat well, without overthinking. FoodHeaven does it for you.",
         textHero2: "Your week, your meals. Smart eating with FoodHeaven.",
-        textAbout: "FoodHeaven is a web platform that transforms the way you\n" +
-            "organize your weekly meals. Choose from a wide variety of\n" +
-            "breakfast, lunch, and dinner options, customized to your\n" +
-            "preferences, nutritional goals, and lifestyle. Simplify\n" +
-            "your routine, eat better, and enjoy every bite.",
+        textAbout: "FoodHeaven is a web platform that transforms the way you organize your weekly meals. Choose from a wide variety of breakfast, lunch, and dinner options, customized to your preferences, nutritional goals, and lifestyle. Simplify your routine, eat better, and enjoy every bite.",
         plan: "Weekly Planning",
         textService: "Organize your weekly meals according to your nutritional needs and personal preferences.",
         plan2: "Custom Suppliers",
@@ -53,8 +49,8 @@ export default {
         planText6: "Includes breakfast, lunch and dinner",
         planText7: "Priority customer support",
         choose: "Choose plan",
-        terms: "This is the base price, prices may vary depending on the selection of dishes.",
-        terms2: "There is the possibility of a dinner and breakfast plan at the same price as the \"Early\" plan.",
+        terms: "This is the base price; prices may vary depending on dish selection.",
+        terms2: "A dinner + breakfast plan is available at the same price as the \"Early\" plan.",
         review1: "Web Developer",
         reviewText: "As a time-poor professional, FoodHeaven has allowed me to organize my meals quickly and healthily, without worrying about planning. It's perfect for those of us with busy schedules!",
         review2: "Family Guy",
@@ -82,114 +78,152 @@ export default {
         calendar: "Calendar",
         account: "Account",
         settings: "Settings",
-        logout: "Log out"
+        logout: "Log out",
+        menu: "Menu",
+        closeMenu: "Close menu",
+        openMenu: "Open menu"
+    },
+    theme: {
+        toggle: "Switch theme",
+        light: "Light mode",
+        dark: "Dark mode",
+        system: "System"
+    },
+    language: {
+        label: "Language",
+        en: "English",
+        es: "Spanish"
+    },
+    common: {
+        loading: "Loading...",
+        retry: "Try again",
+        save: "Save",
+        cancel: "Cancel",
+        close: "Close",
+        back: "Back",
+        edit: "Edit",
+        confirm: "Confirm",
+        search: "Search"
     },
     calendar: {
         title: "Weekly Calendar",
-        subtitle: "In this section, you can view your meals for each day",
+        subtitle: "Review the meals you have scheduled for each day this week.",
         breakfast: "Breakfast",
         lunch: "Lunch",
         dinner: "Dinner",
-        totalCalories: "Total calories:",
-        totalWeekCalories: "Total weekly calories:",
+        totalCalories: "Daily total",
+        totalWeekCalories: "Weekly total",
         confirmButton: "Save plan",
-        monday: "mon",
-        tuesday: "tue",
-        wednesday: "wed",
-        thursday: "thu",
-        friday: "fri",
-        saturday: "sat",
-        sunday: "sun",
+        monday: "Mon",
+        tuesday: "Tue",
+        wednesday: "Wed",
+        thursday: "Thu",
+        friday: "Fri",
+        saturday: "Sat",
+        sunday: "Sun",
         confirmText1: "Do you want to save this weekly plan?",
         confirmText2: "Your weekly plan has been saved successfully.",
-        policyNote: "This calendar repeats every week until you update it. For a change to apply to the current week, update it at least 1 day in advance; if you modify the same day, the change will apply starting next week.",
+        policyNote: "This plan repeats every week until you update it. For a change to apply to the current week, update it at least 1 day in advance; if you modify the same day, the change will apply from next week.",
         loading: "Loading your weekly plan...",
-        noPlan: "You do not have a meal plan scheduled for this week yet.",
+        noPlan: "You haven't set a meal plan for this week yet.",
         loadError: "Unable to load your weekly meal plan.",
         goHome: "Go to home",
         yes: "Yes",
-        no: "No"
+        no: "No",
+        today: "Today",
+        empty: "No meal",
+        weekOf: "Week of"
     },
     login: {
-        title: "Login",
-        subtitle: "Sign in with your preferred social network",
-        email: "Enter your email address",
+        title: "Welcome back",
+        subtitle: "Sign in to plan your week with FoodHeaven.",
+        email: "Email address",
+        emailPlaceholder: "you@example.com",
         password: "Password",
-        button: "Login",
-        forgot: "Can't log in?",
+        passwordPlaceholder: "Your password",
+        button: "Sign in",
+        forgot: "Can't sign in?",
         forgotLink: "Forgot password",
         registerText: "Don't have an account?",
         or: "or",
-        registerLink: "Register"
+        registerLink: "Create one",
+        showPassword: "Show password",
+        hidePassword: "Hide password",
+        errorRequired: "Please complete all fields.",
+        errorInvalid: "Invalid credentials. Please try again.",
+        tagline: "Smart eating, planned for you."
     },
     header: {
         title: "A menu designed for you",
         span: "schedule your meal",
-        paragraph1: "Explore our menu ",
+        paragraph1: "Explore our menu",
         paragraph2: "and place your orders quickly on our platform!"
     },
-
     cuadro: {
         title: "Meals available",
-        text: "Choose one breakfast, lunch, and dinner for the selected day. Your choices are saved to the calendar.",
+        text: "Choose one breakfast, lunch and dinner for the selected day. Your choices are saved to the calendar automatically.",
         dia1: "Monday",
         dia2: "Tuesday",
         dia3: "Wednesday",
         dia4: "Thursday",
         dia5: "Friday",
         dia6: "Saturday",
-        dia7: "Sunday",
+        dia7: "Sunday"
     },
     planner: {
         choose: "Choose",
-        selected: "Selected",
+        selected: "Chosen",
         remove: "Remove",
         planBlocked: "Plan limit",
-        slotsSelected: "meals selected",
+        slotsSelected: "meals selected this week",
         planLimit: "{meals} meal(s) per day",
-        limitReached: "Your current plan allows up to {meals} meal(s) per day. Remove one meal from this day or change your plan.",
+        limitReached: "Your current plan allows up to {meals} meal(s) per day. Remove a meal from this day or upgrade your plan.",
         loadingPlan: "Loading your weekly plan...",
-        saved: "Meal saved in your weekly calendar.",
+        saved: "Meal saved to your weekly calendar.",
         loadError: "Unable to load your weekly plan. Please sign in again.",
-        saveError: "Unable to save this meal."
+        saveError: "Unable to save this meal.",
+        progress: "Weekly progress",
+        viewCalendar: "View calendar"
     },
     nutrition: {
         calories: "Cal",
-        protein: "Prot",
-        carbs: "Carb",
-        fat: "Fat"
+        protein: "Protein",
+        carbs: "Carbs",
+        fat: "Fat",
+        kcal: "kcal",
+        grams: "g"
     },
     configuracion: {
-        conf: "Configuration"
+        conf: "Settings"
     },
-    cuenta:{
+    cuenta: {
         title: "Account",
-        foto: "Change Photo",
-        datos: "Personal Data",
-        infodata: "FoodHeaven uses your information to verify your identity and protect our community",
-        correo: "Mail",
-        numero: "Cellphone Number",
-        direccion: "Address",
+        foto: "Change photo",
+        datos: "Personal data",
+        infodata: "FoodHeaven uses your information to verify your identity and protect our community.",
+        correo: "Email",
+        numero: "Phone number",
+        direccion: "Address"
     },
     pswsecu: {
-        title: "Password and Security",
-        descripcion: "Manage your passwords securely",
-        cambiar: "Change Password",
-        autenti: "Two-step authentication",
+        title: "Password and security",
+        descripcion: "Manage your passwords securely.",
+        cambiar: "Change password",
+        autenti: "Two-step authentication"
     },
     sus: {
-        title: "Suscriptions",
-        descripcion: "Manage your subscriptions",
+        title: "Subscriptions",
+        descripcion: "Manage your subscriptions.",
         administrar: "Manage",
-        verplan: "View Plan",
-        suscri: "Cancel Subscription",
-        last: "If you can still access your subscription until 08/25",
+        verplan: "View plan",
+        suscri: "Cancel subscription",
+        last: "If you cancel now, you can still access your subscription until 08/25."
     },
-
-    welcome: "Welcome,",
+    welcome: "Welcome",
     plan: {
         full: "Plan: Full",
-        change: "Change Plan"
+        change: "Change plan",
+        current: "Current plan"
     },
     subscription: {
         expires: "Your subscription expires in 45 days"
@@ -197,11 +231,11 @@ export default {
     subscriptionPlans: {
         essential: {
             name: "Essential Plan",
-            description: "1 meal per day. Useful if you only want to cover one main meal."
+            description: "1 meal per day. Ideal if you only want to cover one main meal."
         },
         balance: {
             name: "Balance Plan",
-            description: "2 meals per day. Built for combining breakfast, lunch, or dinner."
+            description: "2 meals per day. Designed to combine breakfast, lunch, or dinner."
         },
         full: {
             name: "Full Plan",
@@ -210,6 +244,7 @@ export default {
     },
     account: {
         name: "Name",
+        defaultName: "FoodHeaven user",
         email: "Email",
         phone: "Phone",
         city: "City",
@@ -218,61 +253,70 @@ export default {
         paymentMethod: "Payment method",
         subscription: "Subscription",
         config: "Settings",
-        editProfile: "Edit data",
+        editProfile: "Edit profile",
         security: "Security",
         dataSecurity: "Data and security",
         notProvided: "Not provided",
         delete: "Delete account",
         deleteConfirm: "This will delete your account and meal plans. Do you want to continue?",
-        deleteError: "Unable to delete your account."
+        deleteError: "Unable to delete your account.",
+        loading: "Loading account...",
+        memberSince: "Member"
     },
     settings: {
-        title: "Account",
+        title: "Account Settings",
         subtitle: "Manage your data, security, payment method, and plan.",
         loading: "Loading account...",
         loadError: "Unable to load your account.",
-        requiredError: "Complete all required fields.",
-        dataSecurityTitle: "Data and security",
+        requiredError: "Please complete all required fields.",
+        dataSecurityTitle: "Profile & Security",
         personalTitle: "Personal data and payment",
-        saveProfile: "Save data",
-        profileSaved: "Data updated successfully.",
-        profileError: "Unable to update your data.",
+        saveProfile: "Save changes",
+        profileSaved: "Profile updated successfully.",
+        profileError: "Unable to update your profile.",
         passwordTitle: "Change password",
         currentPassword: "Current password",
         newPassword: "New password",
-        confirmPassword: "Confirm password",
-        savePassword: "Change password",
+        confirmPassword: "Confirm new password",
+        savePassword: "Update password",
         passwordSaved: "Password updated successfully.",
         passwordError: "Unable to change your password.",
-        passwordLengthError: "The new password must have at least 6 characters.",
+        passwordLengthError: "The new password must be at least 6 characters.",
         passwordMatchError: "Passwords do not match.",
         planTitle: "Change plan",
-        changePlanTitle: "Change plan",
-        planDescription: "Choose how many meals per day you can schedule in your calendar.",
+        changePlanTitle: "Subscription Plan",
+        planDescription: "Choose how many meals per day you can schedule on your calendar.",
         selectedPlanRule: "This plan allows up to {meals} meal(s) per day.",
         savePlan: "Save plan",
         planSaved: "Plan updated successfully.",
         planError: "Unable to update your plan.",
-        paymentCard: "Credit or debit card",
+        paymentCard: "Credit / debit card",
         paymentYape: "Yape",
-        paymentCash: "Pay on delivery"
+        paymentCash: "Pay on delivery",
+        preferencesTitle: "Preferences",
+        themeLabel: "Theme",
+        languageLabel: "Language",
+        mealsPerDay: "meals per day"
     },
     register: {
-        title: "Register",
-        subtitle: "Register with your preferred social network",
-        email: "Enter your email address",
+        title: "Create your account",
+        subtitle: "Join FoodHeaven and start planning your meals.",
+        email: "Email address",
         password: "Password",
-        button: "Create Account",
+        button: "Create account",
         already: "Already have an account?",
-        login: "Login",
+        login: "Sign in",
         errorRequired: "All fields are required.",
         errorLength: "Password must be at least 6 characters.",
         success: "Registration successful.",
-        or: "or"
+        or: "or",
+        step1: "Account",
+        step2: "Profile",
+        step3: "Payment"
     },
     title: {
         desayuno: "Breakfasts",
         almuerzo: "Lunches",
-        cena: "Dinners",
+        cena: "Dinners"
     }
 };

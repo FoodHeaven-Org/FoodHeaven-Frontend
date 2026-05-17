@@ -1,0 +1,370 @@
+/* =====================================================================
+   FoodHeaven Design System
+   Cozy / casual food-app feel. Warm cream backgrounds in light mode,
+   warm cocoa tones in dark mode (no cold blue-blacks, no neon vibes).
+   Keeps the original green palette and Poppins typography.
+   ===================================================================== */
+
+:root {
+  /* ---------- Brand colors (preserved from original palette) ---------- */
+  --fh-green-900: #1b5e20;
+  --fh-green-800: #2e7d32;        /* primary - was hardcoded everywhere */
+  --fh-green-700: #307d33;        /* legacy --first-color */
+  --fh-green-600: #2f9e44;
+  --fh-green-500: #45ce45;
+  --fh-green-450: #53c758;        /* legacy --second-color */
+  --fh-green-400: #53b453;
+  --fh-green-300: #2ecc71;
+  --fh-green-100: #c6f6d5;
+  --fh-green-50:  #eaf5ea;
+
+  --fh-yellow:    #f2b134;
+  --fh-cyan:      #6bafcf;
+  --fh-red:       #c0392b;
+  --fh-red-soft:  #fbecea;
+
+  /* Legacy aliases kept so untouched code keeps working */
+  --first-color:  var(--fh-green-700);
+  --second-color: var(--fh-green-450);
+
+  /* ---------- LIGHT theme (warm + fresh) ---------- */
+  --color-bg:           #faf8f3;   /* warm cream, not stark white */
+  --color-bg-soft:      #fffdf8;
+  --color-surface:      #ffffff;
+  --color-surface-2:    #f3eee2;   /* warm light tan */
+  --color-surface-alt:  #ebe5d4;
+  --color-overlay:      rgba(40, 32, 22, 0.45);
+
+  --color-text:         #1f1b14;   /* warm near-black */
+  --color-text-muted:   #4a4234;
+  --color-text-soft:    #7d735f;
+  --color-text-inverse: #ffffff;
+
+  --color-border:       #ece6d7;
+  --color-border-strong:#d4cbb6;
+  --color-divider:      rgba(31, 27, 20, 0.08);
+
+  --color-primary:        var(--fh-green-800);
+  --color-primary-strong: var(--fh-green-900);
+  --color-primary-soft:   var(--fh-green-50);
+  --color-accent:         var(--fh-green-450);
+  --color-accent-strong:  var(--fh-green-600);
+
+  --color-success:        var(--fh-green-800);
+  --color-success-soft:   var(--fh-green-50);
+  --color-danger:         var(--fh-red);
+  --color-danger-soft:    var(--fh-red-soft);
+  --color-warning:        var(--fh-yellow);
+  --color-info:           var(--fh-cyan);
+
+  /* ---------- Elevation (soft, cozy shadows) ---------- */
+  --shadow-xs: 0 1px 2px rgba(70, 56, 34, 0.06);
+  --shadow-sm: 0 2px 8px rgba(70, 56, 34, 0.08);
+  --shadow-md: 0 10px 22px rgba(70, 56, 34, 0.09);
+  --shadow-lg: 0 22px 38px rgba(70, 56, 34, 0.12);
+  --shadow-brand: 0 10px 24px rgba(46, 125, 50, 0.22);
+
+  /* ---------- Spacing scale ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ---------- Radii ---------- */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-pill: 999px;
+
+  /* ---------- Layout ---------- */
+  --container-max: 1200px;
+  --container-narrow: 880px;
+  --header-height: 86px;
+
+  /* ---------- Motion ---------- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-base: 220ms;
+  --duration-slow: 320ms;
+
+  color-scheme: light;
+}
+
+/* ---------- DARK theme (natural sage, calm dining room at night) ---------- */
+:root[data-theme='dark'] {
+  /* Sage-tinted neutral darks. NOT cocoa-brown (felt too literal),
+     NOT cold blue-black (felt like gaming), but a quiet natural dark
+     with a whisper of olive — like a candle-lit dining room. */
+  --color-bg:           #15181a;       /* very dark, almost-neutral with a hint of olive-gray */
+  --color-bg-soft:      #1a1e1f;
+  --color-surface:      #1f2324;       /* panels */
+  --color-surface-2:    #272b2c;       /* subtle elevation */
+  --color-surface-alt:  #2f3334;
+  --color-overlay:      rgba(0, 0, 0, 0.55);
+
+  --color-text:         #e9eae4;       /* warm off-white, easy on the eyes */
+  --color-text-muted:   #aeb1a8;
+  --color-text-soft:    #80847d;
+  --color-text-inverse: #15181a;
+
+  --color-border:       #2a2e2f;
+  --color-border-strong:#3a3f40;
+  --color-divider:      rgba(233, 234, 228, 0.07);
+
+  /* Use the more olive green-600 as primary in dark mode — keeps brand
+     recognition but reads as "natural / forest" instead of "neon lime". */
+  --color-primary:        var(--fh-green-600);   /* #2f9e44 */
+  --color-primary-strong: var(--fh-green-500);
+  --color-primary-soft:   rgba(83, 199, 88, 0.10);
+  --color-accent:         var(--fh-green-450);
+  --color-accent-strong:  var(--fh-green-600);
+
+  --color-success:        var(--fh-green-600);
+  --color-success-soft:   rgba(83, 199, 88, 0.10);
+  --color-danger:         #e07a6c;
+  --color-danger-soft:    rgba(224, 122, 108, 0.12);
+  --color-warning:        #f2b134;
+
+  /* Soft, low-contrast shadows. No green glow. */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.38);
+  --shadow-md: 0 10px 22px rgba(0, 0, 0, 0.42);
+  --shadow-lg: 0 22px 38px rgba(0, 0, 0, 0.5);
+  --shadow-brand: 0 4px 14px rgba(0, 0, 0, 0.4);  /* no green glow anymore */
+
+  color-scheme: dark;
+}
+
+/* ---------- Base resets ---------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Poppins', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  transition: background-color var(--duration-base) var(--ease-out),
+              color var(--duration-base) var(--ease-out);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  line-height: 1.55;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--duration-fast) ease;
+}
+
+a:hover { color: var(--color-primary-strong); }
+
+button {
+  font-family: inherit;
+}
+
+input, select, textarea {
+  font-family: inherit;
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+::selection {
+  background: var(--color-primary-soft);
+  color: var(--color-text);
+}
+
+/* Scrollbar polish (soft) */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
+*::-webkit-scrollbar-track { background: transparent; }
+
+/* ---------- Utility classes ---------- */
+.fh-container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--space-5);
+}
+
+.fh-container--narrow {
+  max-width: var(--container-narrow);
+}
+
+.fh-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  transition: box-shadow var(--duration-base) var(--ease-out),
+              transform var(--duration-base) var(--ease-out),
+              border-color var(--duration-base) var(--ease-out);
+}
+
+.fh-stack { display: flex; flex-direction: column; gap: var(--space-4); }
+.fh-row { display: flex; align-items: center; gap: var(--space-3); }
+.fh-grow { flex: 1; }
+
+.fh-input,
+.fh-select,
+.fh-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  font-size: 0.98rem;
+  color: var(--color-text);
+  transition: border-color var(--duration-fast) ease,
+              box-shadow var(--duration-fast) ease,
+              background var(--duration-fast) ease;
+}
+
+.fh-input:hover,
+.fh-select:hover,
+.fh-textarea:hover {
+  border-color: var(--color-primary);
+}
+
+.fh-input:focus,
+.fh-select:focus,
+.fh-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-primary-soft);
+}
+
+.fh-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 10px 22px;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: 0.98rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--duration-fast) ease,
+              color var(--duration-fast) ease,
+              border-color var(--duration-fast) ease,
+              transform var(--duration-fast) ease,
+              box-shadow var(--duration-fast) ease;
+}
+
+.fh-btn:active { transform: translateY(1px); }
+.fh-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.fh-btn--primary {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-brand);
+}
+.fh-btn--primary:hover { background: var(--color-primary-strong); }
+
+.fh-btn--ghost {
+  background: transparent;
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
+}
+.fh-btn--ghost:hover {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.fh-btn--danger {
+  background: var(--color-danger);
+  color: #fff;
+}
+.fh-btn--danger:hover { filter: brightness(0.92); }
+
+.fh-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.fh-skeleton {
+  background: linear-gradient(90deg,
+              var(--color-surface-2) 0%,
+              var(--color-surface-alt) 50%,
+              var(--color-surface-2) 100%);
+  background-size: 200% 100%;
+  animation: fh-skeleton 1.4s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes fh-skeleton {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* fade-in for page transitions */
+.fh-fade-enter-active, .fh-fade-leave-active {
+  transition: opacity var(--duration-base) ease;
+}
+.fh-fade-enter-from, .fh-fade-leave-to { opacity: 0; }
+
+/* ---------- PrimeVue overrides for dark mode ---------- */
+:root[data-theme='dark'] .p-card,
+:root[data-theme='dark'] .p-toolbar,
+:root[data-theme='dark'] .p-button {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+:root[data-theme='dark'] .p-card .p-card-body,
+:root[data-theme='dark'] .p-card .p-card-content {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+/* Hide vue devtools artifacts */
+#__vue-devtools-container__,
+#vue-devtools-anchor,
+.vue-devtools__anchor,
+[data-vue-devtools],
+vite-plugin-vue-devtools {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

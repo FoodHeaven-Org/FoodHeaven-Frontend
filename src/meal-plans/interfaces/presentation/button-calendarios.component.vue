@@ -13,12 +13,8 @@ function confirmarAccion() {
     message: t('calendar.confirmText1'),
     acceptLabel: t('calendar.yes'),
     rejectLabel: t('calendar.no'),
-    accept: () => {
-      confirmationDone() // Muestra el segundo confirm dialog
-    },
-    reject: () => {
-      console.log('Acción cancelada')
-    }
+    accept: () => confirmationDone(),
+    reject: () => {}
   })
 }
 
@@ -27,22 +23,27 @@ function confirmationDone() {
     group: 'done',
     message: t('calendar.confirmText2'),
     acceptLabel: t('calendar.goHome'),
-    accept: () => {
-      router.push({ name: 'Inicio' })
-    }
+    accept: () => router.push({ name: 'Inicio' })
   })
 }
 </script>
 
 <template>
-  <div class="flex-center">
+  <div class="calendar-actions fh-container">
     <ConfirmDialog group="headless">
       <template #container="{ message, acceptCallback, rejectCallback }">
-        <div class="confirmDialog">
-          <p class="mensaje">{{ message.message }}</p>
-          <div class="acciones">
-            <button class="aceptar" @click="acceptCallback">{{ message.acceptLabel }}</button>
-            <button class="rechazar" @click="rejectCallback" v-if="message.rejectLabel">{{ message.rejectLabel }}</button>
+        <div class="fh-dialog">
+          <div class="fh-dialog__icon">
+            <i class="pi pi-question-circle"></i>
+          </div>
+          <p class="fh-dialog__message">{{ message.message }}</p>
+          <div class="fh-dialog__actions">
+            <button class="fh-btn fh-btn--ghost" type="button" @click="rejectCallback" v-if="message.rejectLabel">
+              {{ message.rejectLabel }}
+            </button>
+            <button class="fh-btn fh-btn--primary" type="button" @click="acceptCallback">
+              {{ message.acceptLabel }}
+            </button>
           </div>
         </div>
       </template>
@@ -50,96 +51,89 @@ function confirmationDone() {
 
     <ConfirmDialog group="done">
       <template #container="{ message, acceptCallback }">
-        <div class="confirmDialog">
-          <p class="mensaje">{{ message.message }}</p>
-          <div class="acciones">
-            <button class="rechazar" @click="acceptCallback">{{ message.acceptLabel }}</button>
+        <div class="fh-dialog">
+          <div class="fh-dialog__icon fh-dialog__icon--success">
+            <i class="pi pi-check-circle"></i>
+          </div>
+          <p class="fh-dialog__message">{{ message.message }}</p>
+          <div class="fh-dialog__actions">
+            <button class="fh-btn fh-btn--primary" type="button" @click="acceptCallback">
+              {{ message.acceptLabel }}
+            </button>
           </div>
         </div>
       </template>
     </ConfirmDialog>
 
-    <Button @click="confirmarAccion" :label="$t('calendar.confirmButton')" class="boton-verde" />
+    <button class="fh-btn fh-btn--primary calendar-actions__save" type="button" @click="confirmarAccion">
+      <i class="pi pi-save"></i>
+      {{ $t('calendar.confirmButton') }}
+    </button>
   </div>
 </template>
 
 <style>
-button.boton-verde {
-  margin: 0 0 10px;
-  background-color: #53C758;
-  color: white;
-  border: none;
-  width: 30%;
-  border-radius: 15px;
-  padding: 10px;
-  cursor: pointer;
-  font-family: Poppins;
-
-}
-
-button.boton-verde:hover {
-  background-color: #c6f6d5 !important;
-}
-
-.flex-center {
+.calendar-actions {
   display: flex;
   justify-content: center;
+  padding: var(--space-3) var(--space-5) var(--space-8);
 }
 
-.confirmDialog {
+.calendar-actions__save {
+  min-width: 240px;
+  padding: 14px 36px;
+  font-size: 1rem;
+}
 
-  background-color: white;
-  border-radius: 16px;
-  border: 2px solid #53C758;
-  padding: 30px 60px;
+.fh-dialog {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  padding: 36px 38px;
   text-align: center;
+  max-width: 460px;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
 }
 
-.confirmDialog .mensaje {
-  font-family: Poppins;
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 30px;
-  color: #53C758;
+.fh-dialog__icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
 }
 
-.confirmDialog .acciones {
+.fh-dialog__icon--success {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.fh-dialog__message {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.4;
+}
+
+.fh-dialog__actions {
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 14px;
   flex-wrap: wrap;
+  margin-top: 4px;
 }
 
-button.aceptar,
-button.rechazar {
-
-  border: none;
-  border-radius: 12px;
-  padding: 16px 32px;
-  font-family: Poppins;
-  font-size: 20px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-button.aceptar {
-  background-color: white;
-  color: black;
-  border: 2px solid black;
-}
-
-button.aceptar:hover {
-  background-color: #f0f0f0;
-}
-
-button.rechazar {
-  background-color: #000000;
-  color: white;
-  border: 2px solid #000000;
-}
-
-button.rechazar:hover {
-  background-color: #333333;
-  border-color: #333333;
+.fh-dialog__actions .fh-btn {
+  min-width: 120px;
 }
 </style>

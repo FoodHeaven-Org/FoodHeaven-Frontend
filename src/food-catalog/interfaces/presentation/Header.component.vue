@@ -19,90 +19,141 @@ const dayLabels = computed(() => [
   t('cuadro.dia6'),
   t('cuadro.dia7')
 ])
+
+const shortDayLabels = computed(() => [
+  t('calendar.monday'),
+  t('calendar.tuesday'),
+  t('calendar.wednesday'),
+  t('calendar.thursday'),
+  t('calendar.friday'),
+  t('calendar.saturday'),
+  t('calendar.sunday')
+])
 </script>
 
 <template>
-  <h1>{{ $t('header.title') }}</h1>
-  <p>{{ $t('header.paragraph1') }} <span>{{ $t('header.span') }}</span> {{ $t('header.paragraph2') }}</p>
+  <section class="catalog-hero fh-container">
+    <div class="catalog-hero__intro">
+      <h1 class="catalog-hero__title">{{ $t('header.title') }}</h1>
+      <p class="catalog-hero__lead">
+        {{ $t('header.paragraph1') }}
+        <strong>{{ $t('header.span') }}</strong>
+        {{ $t('header.paragraph2') }}
+      </p>
+    </div>
 
-  <div class="contenedor-header">
     <PvCuadro :count="mealsAvailable" />
-  </div>
+  </section>
 
-  <div class="contenedor-fechas">
-    <Button
+  <section class="day-picker fh-container fh-container--narrow" aria-label="Day picker">
+    <button
         v-for="(label, index) in dayLabels"
         :key="index"
-        :label="label"
-        class="contenedor_dia"
+        type="button"
+        class="day-picker__chip"
         :class="{ activo: props.selectedDay === index }"
+        :aria-pressed="props.selectedDay === index"
         @click="emit('day-selected', index)"
-    />
-  </div>
+    >
+      <span class="day-picker__short">{{ shortDayLabels[index] }}</span>
+      <span class="day-picker__full">{{ label }}</span>
+    </button>
+  </section>
 </template>
 
 <style scoped>
-h1 {
-  margin: 20px;
-  text-align: center;
-  font-size: 40px;
+.catalog-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 1fr);
+  gap: var(--space-8);
+  align-items: center;
+  padding-block: var(--space-6) var(--space-3);
 }
 
-p {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-span {
-  font-weight: bold;
-}
-
-.contenedor-header {
+.catalog-hero__intro {
   display: flex;
-  justify-content: center;
-  min-height: 240px;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
-.contenedor-fechas {
+.catalog-hero__title {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+}
+
+.catalog-hero__lead {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}
+
+.catalog-hero__lead strong {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.day-picker {
   display: flex;
-  max-width: 900px;
-  margin: 0 auto;
-  justify-content: space-between;
-  gap: 1rem;
   flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: center;
+  padding-block: var(--space-2) var(--space-3);
 }
 
-.contenedor-fechas .contenedor_dia {
-  text-decoration: none;
-  color: black;
-  border: 1px solid black;
-  padding: 15px 20px;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-  background-color: white;
+.day-picker__chip {
+  appearance: none;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding: 11px 22px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 0.94rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background var(--duration-fast) ease,
+              border-color var(--duration-fast) ease,
+              color var(--duration-fast) ease,
+              box-shadow var(--duration-fast) ease,
+              transform var(--duration-fast) ease;
 }
 
-.contenedor-fechas .contenedor_dia:hover {
-  background-color: #45ce45;
-  border-color: #45ce45;
-  color: white;
+.day-picker__chip:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 
-.activo {
-  background-color: #2ecc71 !important;
-  color: white !important;
-  font-weight: bold;
-  border-color: #2ecc71 !important;
+.day-picker__chip.activo {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-brand);
 }
 
-@media (max-width: 680px) {
-  h1 {
-    font-size: 32px;
+.day-picker__short { display: none; }
+
+@media (max-width: 880px) {
+  .catalog-hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: var(--space-5);
   }
+}
 
-  .contenedor-fechas {
-    justify-content: center;
-    padding: 0 20px;
+@media (max-width: 640px) {
+  .day-picker__chip {
+    padding: 10px 14px;
+    font-size: 0.88rem;
   }
+  .day-picker__short { display: inline; }
+  .day-picker__full  { display: none; }
 }
 </style>
