@@ -1,47 +1,100 @@
 <template>
-  <div class="login-container">
-    <div class="login-content">
-      <h2 class="login-title">{{ $t('login.title') }}</h2>
-      <p class="login-subtitle">{{ $t('login.subtitle') }}</p>
-
-      <form @submit.prevent="handleLogin">
-        <div class="form-group">
-          <label for="email">{{ $t('login.email') }}</label>
-          <input id="email" type="email" v-model="email" class="input-field" required />
+  <div class="login-shell">
+    <section class="login-panel">
+      <div class="login-panel__inner">
+        <div class="login-header">
+          <h1 class="login-title">{{ $t('login.title') }}</h1>
+          <p class="login-subtitle">{{ $t('login.subtitle') }}</p>
         </div>
 
-        <div class="form-group">
-          <label for="password">{{ $t('login.password') }}</label>
-          <div class="password-container">
-            <input id="password" :type="showPassword ? 'text' : 'password'" v-model="password" class="input-field" required minlength="6" />
-            <i :class="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'" @click="togglePasswordVisibility"></i>
+        <form class="login-form" @submit.prevent="handleLogin" novalidate>
+          <div class="form-field">
+            <label for="email">{{ $t('login.email') }}</label>
+            <div class="input-wrapper">
+              <i class="pi pi-envelope input-wrapper__icon" aria-hidden="true"></i>
+              <input
+                  id="email"
+                  type="email"
+                  v-model="email"
+                  class="fh-input has-icon"
+                  :placeholder="$t('login.emailPlaceholder')"
+                  autocomplete="email"
+                  required
+              />
+            </div>
           </div>
-        </div>
 
-        <p v-if="errorMessage" class="form-error">{{ errorMessage }}</p>
-        <button class="login-button" type="submit">{{ $t('login.button') }}</button>
-      </form>
+          <div class="form-field">
+            <label for="password">{{ $t('login.password') }}</label>
+            <div class="input-wrapper">
+              <i class="pi pi-lock input-wrapper__icon" aria-hidden="true"></i>
+              <input
+                  id="password"
+                  :type="showPassword ? 'text' : 'password'"
+                  v-model="password"
+                  class="fh-input has-icon has-trailing"
+                  :placeholder="$t('login.passwordPlaceholder')"
+                  autocomplete="current-password"
+                  required
+                  minlength="6"
+              />
+              <button
+                  type="button"
+                  class="input-wrapper__trailing"
+                  :aria-label="showPassword ? $t('login.hidePassword') : $t('login.showPassword')"
+                  @click="togglePasswordVisibility"
+              >
+                <i :class="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+              </button>
+            </div>
+          </div>
 
-      <div class="extra-links">
-        <RouterLink :to="{ name: 'Register' }" class="register">
-          {{ $t('login.registerText') }} <span>{{ $t('login.registerLink') }}</span>
-        </RouterLink>
+          <p v-if="errorMessage" class="form-error" role="alert">
+            <i class="pi pi-exclamation-circle"></i>
+            {{ errorMessage }}
+          </p>
+
+          <button class="fh-btn fh-btn--primary login-submit" type="submit" :disabled="isSubmitting">
+            <i v-if="isSubmitting" class="pi pi-spin pi-spinner"></i>
+            <span>{{ $t('login.button') }}</span>
+          </button>
+        </form>
+
+        <p class="extra-link">
+          {{ $t('login.registerText') }}
+          <RouterLink :to="{ name: 'Register' }">{{ $t('login.registerLink') }}</RouterLink>
+        </p>
       </div>
-    </div>
-    <div class="login-image"></div>
+    </section>
+
+    <aside class="login-hero" aria-hidden="true">
+      <div class="login-hero__overlay"></div>
+      <div class="login-hero__content">
+        <h2>{{ $t('login.tagline') }}</h2>
+        <p>{{ $t('homePage.textHero') }}</p>
+        <ul class="login-hero__list">
+          <li><i class="pi pi-check-circle"></i>{{ $t('homePage.plan') }}</li>
+          <li><i class="pi pi-check-circle"></i>{{ $t('homePage.plan3') }}</li>
+          <li><i class="pi pi-check-circle"></i>{{ $t('homePage.plan4') }}</li>
+        </ul>
+      </div>
+    </aside>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { AuthApiService } from '@/security/application/internal/auth-api.service.js'
 
+const { t } = useI18n()
 const authApiService = new AuthApiService()
 const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
 const errorMessage = ref('')
+const isSubmitting = ref(false)
 const router = useRouter()
 
 const togglePasswordVisibility = () => {
@@ -52,134 +105,240 @@ const handleLogin = async () => {
   errorMessage.value = ''
 
   if (!email.value || !password.value) {
-    errorMessage.value = 'Please complete all fields.'
+    errorMessage.value = t('login.errorRequired')
     return
   }
 
+  isSubmitting.value = true
   try {
     await authApiService.login({ username: email.value, password: password.value })
     await router.push({ name: 'Inicio' })
   } catch (error) {
     console.error(error)
-    errorMessage.value = 'Invalid credentials or unavailable backend.'
+    errorMessage.value = t('login.errorInvalid')
+  } finally {
+    isSubmitting.value = false
   }
 }
 </script>
 
 <style scoped>
-.login-container {
-  display: flex;
+.login-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
   min-height: 100vh;
   width: 100%;
 }
 
-.login-content {
-  flex: 1;
+.login-panel {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  padding: 3rem 4rem;
-  max-width: 700px;
-  margin-left: 80px;
+  padding: 96px 64px 56px;
+  background: var(--color-bg);
+}
+
+.login-panel__inner {
+  width: 100%;
+  max-width: 440px;
+}
+
+.login-header {
+  margin-bottom: 28px;
 }
 
 .login-title {
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 8px;
+  line-height: 1.15;
 }
 
-.form-group label {
-  margin-bottom: 0.25rem;
+.login-subtitle {
+  color: var(--color-text-muted);
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.form-field label {
   display: block;
-  font-size: 1.1rem;
+  margin-bottom: 8px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--color-text);
 }
 
-.input-field {
-  width: 100%;
-  padding: 8px 14px;
-  border: 1px solid black;
-  border-radius: 25px;
-  margin-bottom: 1.5rem;
-  font-size: 1.1rem;
-}
-
-.login-button {
-  background-color: white;
-  color: black;
-  padding: 8px 20px;
-  width: 40%;
-  border: 1px solid #000;
-  border-radius: 25px;
-  cursor: pointer;
-  font-size: 1.1rem;
-  font-weight: bold;
-  align-self: center;
-  display: block;
-  margin: 1rem auto;
-}
-
-.login-button:hover {
-  background: #2e7d32;
-  color: white;
-}
-
-.login-image {
-  flex: 1;
-  background: url('https://i.imgur.com/6BeFx2n.jpeg') no-repeat center/cover;
-  clip-path: circle(95% at right center);
-  min-height: 100vh;
-}
-
-.extra-links {
-  margin-top: 1rem;
-  text-align: center;
-  font-size: 0.9rem;
-}
-
-.extra-links a {
-  color: black;
-  text-decoration: none;
-}
-
-.extra-links span {
-  color: #53C758;
-  text-decoration: none;
-  cursor: pointer;
-  transition: color 0.3s;
-}
-
-.extra-links span:hover {
-  text-decoration: underline;
-}
-
-.password-container {
+.input-wrapper {
   position: relative;
 }
 
-.password-container i {
+.input-wrapper__icon {
   position: absolute;
-  right: 15px;
-  top: 12px;
-  font-size: 1.2rem;
-  color: black;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-soft);
+  font-size: 0.95rem;
+  pointer-events: none;
+}
+
+.has-icon {
+  padding-left: 44px;
+}
+
+.has-trailing {
+  padding-right: 44px;
+}
+
+.input-wrapper__trailing {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--color-text-soft);
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--duration-fast) ease, color var(--duration-fast) ease;
+}
+
+.input-wrapper__trailing:hover {
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 
 .form-error {
-  color: #b42318;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
   font-weight: 600;
-  text-align: center;
 }
 
-@media (max-width: 900px) {
-  .login-image {
+.login-submit {
+  width: 100%;
+  padding: 14px 22px;
+  font-size: 1rem;
+  margin-top: 6px;
+}
+
+.extra-link {
+  margin-top: 24px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.94rem;
+}
+
+.extra-link a {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.extra-link a:hover {
+  color: var(--color-primary-strong);
+  text-decoration: underline;
+}
+
+.login-hero {
+  position: relative;
+  overflow: hidden;
+  background-image:
+      linear-gradient(135deg, rgba(27, 94, 32, 0.55) 0%, rgba(46, 125, 50, 0.35) 100%),
+      url('https://i.imgur.com/6BeFx2n.jpeg');
+  background-size: cover;
+  background-position: center;
+  color: white;
+}
+
+.login-hero__content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  padding: 64px;
+  max-width: 520px;
+}
+
+.login-hero__content h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.login-hero__content p {
+  font-size: 1.1rem;
+  margin: 0;
+  opacity: 0.95;
+  line-height: 1.55;
+}
+
+.login-hero__list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.login-hero__list li {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.login-hero__list i {
+  color: #c6f6d5;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 980px) {
+  .login-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .login-hero {
     display: none;
   }
 
-  .login-content {
-    margin-left: 0;
-    max-width: 100%;
-    padding: 2rem;
+  .login-panel {
+    padding: 110px 32px 48px;
+  }
+}
+
+@media (max-width: 520px) {
+  .login-panel {
+    padding: 100px 20px 40px;
+  }
+
+  .login-title {
+    font-size: 1.9rem;
   }
 }
 </style>
