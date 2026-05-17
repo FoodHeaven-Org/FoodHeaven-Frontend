@@ -36,7 +36,11 @@ const profileForm = ref({
   phone: '',
   city: '',
   address: '',
-  paymentMethod: 'Card'
+  deliveryAddresses: [],
+  paymentCard: null,
+  cardNumber: '',
+  cardExpiration: '',
+  cardCvv: ''
 })
 
 const passwordForm = ref({
@@ -73,7 +77,11 @@ async function loadProfile() {
       phone: String(profile.phone ?? ''),
       city: profile.city ?? '',
       address: profile.address ?? '',
-      paymentMethod: profile.paymentMethod || 'Card'
+      deliveryAddresses: normalizeDeliveryAddresses(profile),
+      paymentCard: profile.paymentCard ?? null,
+      cardNumber: '',
+      cardExpiration: '',
+      cardCvv: ''
     }
     selectedPlan.value = getSubscriptionPlan(profile.subscription).code
   } catch (error) {
@@ -82,6 +90,103 @@ async function loadProfile() {
   } finally {
     isLoading.value = false
   }
+}
+
+function createEmptyAddress() {
+  return {
+    label: t('settings.locationDefaultLabel'),
+    addressLine: '',
+    latitude: null,
+    longitude: null,
+    isDefault: false,
+    isLocating: false
+  }
+}
+
+function normalizeDeliveryAddresses(profile) {
+  const addresses = profile.deliveryAddresses ?? profile.DeliveryAddresses ?? []
+
+  if (addresses.length > 0) {
+    return addresses.map((address, index) => ({
+      label: address.label ?? address.Label ?? t('settings.locationDefaultLabel'),
+      addressLine: address.addressLine ?? address.AddressLine ?? '',
+      latitude: address.latitude ?? address.Latitude ?? null,
+      longitude: address.longitude ?? address.Longitude ?? null,
+      isDefault: address.isDefault ?? address.IsDefault ?? index === 0,
+      isLocating: false
+    }))
+  }
+
+  return [{
+    label: t('settings.locationDefaultLabel'),
+    addressLine: profile.address ?? '',
+    latitude: null,
+    longitude: null,
+    isDefault: true,
+    isLocating: false
+  }]
+}
+
+function addDeliveryAddress() {
+  profileForm.value.deliveryAddresses.push(createEmptyAddress())
+}
+
+function removeDeliveryAddress(index) {
+  if (profileForm.value.deliveryAddresses.length === 1) return
+
+  const wasDefault = profileForm.value.deliveryAddresses[index]?.isDefault
+  profileForm.value.deliveryAddresses.splice(index, 1)
+
+  if (wasDefault && profileForm.value.deliveryAddresses.length > 0) {
+    profileForm.value.deliveryAddresses[0].isDefault = true
+  }
+}
+
+function setDefaultAddress(index) {
+  profileForm.value.deliveryAddresses = profileForm.value.deliveryAddresses.map((address, currentIndex) => ({
+    ...address,
+    isDefault: currentIndex === index
+  }))
+}
+
+function mapPreviewUrl(address) {
+  const coordinates = address.latitude && address.longitude
+      ? `${address.latitude},${address.longitude}`
+      : ''
+  const query = coordinates || address.addressLine
+
+  if (!query) return ''
+
+  return `https://www.google.com/maps?q=${encodeURIComponent(query)}&output=embed`
+}
+
+function detectAddressLocation(index) {
+  clearMessages()
+
+  if (!navigator.geolocation) {
+    errorMessage.value = t('settings.locationUnavailable')
+    return
+  }
+
+  const address = profileForm.value.deliveryAddresses[index]
+  if (!address) return
+
+  address.isLocating = true
+  navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        address.latitude = Number(coords.latitude.toFixed(6))
+        address.longitude = Number(coords.longitude.toFixed(6))
+        if (!address.addressLine) {
+          address.addressLine = `${address.latitude}, ${address.longitude}`
+        }
+        address.isLocating = false
+      },
+      () => {
+        errorMessage.value = t('settings.locationUnavailable')
+        address.isLocating = false
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+  )
 }
 
 function clearMessages() {
@@ -94,9 +199,26 @@ async function saveProfile() {
   isSavingProfile.value = true
 
   const parsedPhone = Number(String(profileForm.value.phone).replace(/\D/g, ''))
+  const deliveryAddresses = profileForm.value.deliveryAddresses
+      .filter(address => address.addressLine?.trim())
+      .map((address, index) => ({
+        label: address.label || t('settings.locationDefaultLabel'),
+        addressLine: address.addressLine.trim(),
+        latitude: address.latitude,
+        longitude: address.longitude,
+        isDefault: address.isDefault || index === 0
+      }))
+  const defaultAddress = deliveryAddresses.find(address => address.isDefault) ?? deliveryAddresses[0]
+  const hasCardUpdate = Boolean(profileForm.value.cardNumber || profileForm.value.cardExpiration || profileForm.value.cardCvv)
 
-  if (!profileForm.value.fullName || !profileForm.value.username || !parsedPhone || !profileForm.value.city || !profileForm.value.address || !profileForm.value.paymentMethod) {
+  if (!profileForm.value.fullName || !profileForm.value.username || !parsedPhone || !profileForm.value.city || !defaultAddress) {
     errorMessage.value = t('settings.requiredError')
+    isSavingProfile.value = false
+    return
+  }
+
+  if (hasCardUpdate && (!profileForm.value.cardNumber || !profileForm.value.cardExpiration || !profileForm.value.cardCvv)) {
+    errorMessage.value = t('settings.cardRequiredError')
     isSavingProfile.value = false
     return
   }
@@ -107,9 +229,15 @@ async function saveProfile() {
       username: profileForm.value.username,
       phone: parsedPhone,
       city: profileForm.value.city,
-      address: profileForm.value.address,
-      paymentMethod: profileForm.value.paymentMethod
+      address: defaultAddress.addressLine,
+      deliveryAddresses,
+      cardNumber: hasCardUpdate ? profileForm.value.cardNumber : undefined,
+      cardExpiration: hasCardUpdate ? profileForm.value.cardExpiration : undefined,
+      cardCvv: hasCardUpdate ? profileForm.value.cardCvv : undefined
     })
+    profileForm.value.cardNumber = ''
+    profileForm.value.cardExpiration = ''
+    profileForm.value.cardCvv = ''
     statusMessage.value = t('settings.profileSaved')
   } catch (error) {
     console.error(error)
@@ -233,19 +361,86 @@ async function savePlan() {
               <input v-model="profileForm.city" class="fh-input" type="text" />
             </label>
 
-            <label class="settings-field settings-field--wide">
-              <span>{{ $t('account.address') }}</span>
-              <input v-model="profileForm.address" class="fh-input" type="text" />
-            </label>
+            <section class="settings-field settings-field--wide locations-panel">
+              <header class="locations-panel__header">
+                <div>
+                  <span>{{ $t('settings.deliveryLocations') }}</span>
+                  <p>{{ $t('settings.deliveryLocationsHelp') }}</p>
+                </div>
+                <button class="fh-btn fh-btn--ghost" type="button" @click="addDeliveryAddress">
+                  <i class="pi pi-plus"></i>
+                  <span>{{ $t('settings.addLocation') }}</span>
+                </button>
+              </header>
 
-            <label class="settings-field settings-field--wide">
-              <span>{{ $t('account.paymentMethod') }}</span>
-              <select v-model="profileForm.paymentMethod" class="fh-select">
-                <option value="Card">{{ $t('settings.paymentCard') }}</option>
-                <option value="Yape">{{ $t('settings.paymentYape') }}</option>
-                <option value="Cash">{{ $t('settings.paymentCash') }}</option>
-              </select>
-            </label>
+              <article
+                  v-for="(address, index) in profileForm.deliveryAddresses"
+                  :key="index"
+                  class="location-card"
+              >
+                <div class="location-card__fields">
+                  <label class="settings-field">
+                    <span>{{ $t('settings.locationLabel') }}</span>
+                    <input v-model="address.label" class="fh-input" type="text" />
+                  </label>
+
+                  <label class="settings-field">
+                    <span>{{ $t('account.address') }}</span>
+                    <input v-model="address.addressLine" class="fh-input" type="text" />
+                  </label>
+                </div>
+
+                <div class="location-card__actions">
+                  <button class="fh-btn fh-btn--ghost" type="button" @click="setDefaultAddress(index)">
+                    <i :class="address.isDefault ? 'pi pi-check-circle' : 'pi pi-circle'"></i>
+                    <span>{{ address.isDefault ? $t('settings.defaultLocation') : $t('settings.makeDefaultLocation') }}</span>
+                  </button>
+                  <button class="fh-btn fh-btn--ghost" type="button" :disabled="address.isLocating" @click="detectAddressLocation(index)">
+                    <i v-if="address.isLocating" class="pi pi-spin pi-spinner"></i>
+                    <i v-else class="pi pi-map-marker"></i>
+                    <span>{{ $t('settings.useCurrentLocation') }}</span>
+                  </button>
+                  <button class="fh-btn fh-btn--danger" type="button" :disabled="profileForm.deliveryAddresses.length === 1" @click="removeDeliveryAddress(index)">
+                    <i class="pi pi-trash"></i>
+                    <span>{{ $t('common.delete') }}</span>
+                  </button>
+                </div>
+
+                <div v-if="mapPreviewUrl(address)" class="location-card__map">
+                  <iframe
+                      :src="mapPreviewUrl(address)"
+                      loading="lazy"
+                      referrerpolicy="no-referrer-when-downgrade"
+                      :title="$t('settings.mapPreview')"
+                  ></iframe>
+                </div>
+              </article>
+            </section>
+
+            <section class="settings-field settings-field--wide payment-panel">
+              <span>{{ $t('settings.paymentCardTitle') }}</span>
+              <p v-if="profileForm.paymentCard?.displayName" class="payment-panel__current">
+                {{ $t('settings.currentPaymentCard') }}: {{ profileForm.paymentCard.displayName }}
+              </p>
+              <p class="payment-panel__note">{{ $t('settings.cardSafetyNote') }}</p>
+
+              <div class="payment-panel__grid">
+                <label class="settings-field">
+                  <span>{{ $t('settings.cardNumber') }}</span>
+                  <input v-model="profileForm.cardNumber" class="fh-input" type="text" inputmode="numeric" autocomplete="cc-number" />
+                </label>
+
+                <label class="settings-field">
+                  <span>{{ $t('settings.cardExpiration') }}</span>
+                  <input v-model="profileForm.cardExpiration" class="fh-input" type="text" placeholder="MM/YY" autocomplete="cc-exp" />
+                </label>
+
+                <label class="settings-field">
+                  <span>{{ $t('settings.cardCvv') }}</span>
+                  <input v-model="profileForm.cardCvv" class="fh-input" type="password" inputmode="numeric" autocomplete="cc-csc" />
+                </label>
+              </div>
+            </section>
           </div>
 
           <button class="fh-btn fh-btn--primary settings-card__submit" type="submit" :disabled="isSavingProfile">
@@ -504,6 +699,78 @@ async function savePlan() {
   grid-column: 1 / -1;
 }
 
+.locations-panel,
+.payment-panel {
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+}
+
+.locations-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.locations-panel__header p,
+.payment-panel__note,
+.payment-panel__current {
+  margin: 4px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.location-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.location-card + .location-card {
+  margin-top: 12px;
+}
+
+.location-card__fields,
+.payment-panel__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+  gap: 12px;
+}
+
+.payment-panel__grid {
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr) minmax(0, 0.6fr);
+  margin-top: 12px;
+}
+
+.location-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.location-card__map {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  aspect-ratio: 16 / 6;
+  background: var(--color-surface-2);
+}
+
+.location-card__map iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
 .settings-card__submit {
   align-self: flex-start;
   padding: 12px 22px;
@@ -679,7 +946,9 @@ async function savePlan() {
   .settings-grid,
   .plans-grid,
   .prefs-panel,
-  .settings-grid__fields {
+  .settings-grid__fields,
+  .location-card__fields,
+  .payment-panel__grid {
     grid-template-columns: 1fr;
   }
 
