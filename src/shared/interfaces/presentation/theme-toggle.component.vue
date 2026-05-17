@@ -40,8 +40,8 @@ const ariaLabel = computed(() => isDark.value ? t('theme.light') : t('theme.dark
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 8px;
+  justify-content: center;
+  padding: 0;
   transition: background var(--duration-base) ease,
               border-color var(--duration-base) ease;
 }
@@ -51,22 +51,31 @@ const ariaLabel = computed(() => isDark.value ? t('theme.light') : t('theme.dark
 }
 
 .theme-toggle__icon {
-  position: relative;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 2;
   font-size: 0.72rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 14px;
-  height: 14px;
+  width: 22px;
+  height: 22px;
   pointer-events: none;
 }
 
+.theme-toggle__icon i {
+  display: block;
+  line-height: 1;
+}
+
 .theme-toggle__icon--sun {
+  left: 3px;
   color: var(--fh-yellow);
 }
 
 .theme-toggle__icon--moon {
+  right: 3px;
   color: var(--color-text-soft);
 }
 

@@ -264,8 +264,8 @@ const handleLogin = async () => {
   position: relative;
   overflow: hidden;
   background-image:
-      linear-gradient(135deg, rgba(27, 94, 32, 0.55) 0%, rgba(46, 125, 50, 0.35) 100%),
-      url('https://i.imgur.com/6BeFx2n.jpeg');
+      linear-gradient(135deg, rgba(7, 11, 8, 0.72) 0%, rgba(31, 27, 20, 0.42) 100%),
+      url('/imgLoginRegister.jpg');
   background-size: cover;
   background-position: center;
   color: white;

@@ -9,8 +9,7 @@ export class Comida {
         carbo = 0,
         grasa = 0,
         translations = {},
-        id_tipo_comida = 0,
-        es_especial = 0
+        id_tipo_comida = 0
     }) {
         this.id = id_comida
         this.id_comida = id_comida
@@ -23,7 +22,6 @@ export class Comida {
         this.complemento = complemento
         this.translations = translations
         this.id_tipo_comida = id_tipo_comida
-        this.es_especial = es_especial
     }
 
     getLocalized(locale) {

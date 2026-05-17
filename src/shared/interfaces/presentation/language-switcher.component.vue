@@ -59,8 +59,16 @@ function setLanguage(lang) {
   gap: 4px;
   padding: 4px;
   background: var(--color-surface-2);
-  border: 1px solid var(--color-border);
+  border: 2px solid var(--color-border-strong);
   border-radius: var(--radius-pill);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-surface) 72%, transparent);
+  transition: border-color var(--duration-fast) ease,
+              box-shadow var(--duration-fast) ease;
+}
+
+.lang-switcher:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
 }
 
 .lang-switcher--compact {
@@ -68,8 +76,9 @@ function setLanguage(lang) {
 }
 
 .lang-btn {
+  position: relative;
   appearance: none;
-  border: none;
+  border: 1px solid transparent;
   background: transparent;
   cursor: pointer;
   padding: 6px 14px;
@@ -80,7 +89,9 @@ function setLanguage(lang) {
   color: var(--color-text-soft);
   transition: background var(--duration-fast) ease,
               color var(--duration-fast) ease,
-              box-shadow var(--duration-fast) ease;
+              border-color var(--duration-fast) ease,
+              box-shadow var(--duration-fast) ease,
+              transform var(--duration-fast) var(--ease-out);
 }
 
 .lang-switcher--compact .lang-btn {
@@ -90,11 +101,20 @@ function setLanguage(lang) {
 
 .lang-btn:hover {
   color: var(--color-text);
+  transform: translateY(-1px);
 }
 
 .lang-btn.active {
   background: var(--color-primary);
+  border-color: color-mix(in srgb, var(--color-primary-strong) 70%, white);
   color: var(--color-text-inverse);
-  box-shadow: var(--shadow-xs);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--color-primary) 28%, transparent);
+  animation: lang-pop 180ms var(--ease-out);
+  transform: translateY(0);
+}
+
+@keyframes lang-pop {
+  0% { transform: scale(0.94); }
+  100% { transform: scale(1); }
 }
 </style>
