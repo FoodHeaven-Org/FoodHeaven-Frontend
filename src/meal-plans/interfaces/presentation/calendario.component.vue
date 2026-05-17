@@ -24,34 +24,47 @@ const dias = computed(() => [
   t('calendar.sunday')
 ])
 
-const comidas = computed(() => [
+const mealTypeLabels = computed(() => [
   t('calendar.breakfast'),
   t('calendar.lunch'),
   t('calendar.dinner')
 ])
 
 const { monday, nextMonday, todayIndex } = getCurrentWeekRange()
-const mesActual = new Date().toLocaleString('es-ES', { month: 'short' }).replace('.', '')
-const mesFormateado = mesActual.charAt(0).toUpperCase() + mesActual.slice(1) + '.'
 
-const fechasSemana = ref([])
-for (let i = 0; i < 7; i++) {
-  const fecha = new Date(monday)
-  fecha.setDate(monday.getDate() + i)
-  fechasSemana.value.push({
-    dia: dias.value[i],
-    numero: fecha.getDate(),
-    esHoy: i === todayIndex
-  })
-}
+const monthFormatter = computed(() => new Intl.DateTimeFormat(locale.value === 'es' ? 'es-ES' : 'en-US', {
+  month: 'long',
+  year: 'numeric'
+}))
 
-watch(() => locale.value, () => {
-  fechasSemana.value.forEach((fecha, i) => {
-    fecha.dia = dias.value[i]
-  })
+const monthLabel = computed(() => {
+  const text = monthFormatter.value.format(monday)
+  return text.charAt(0).toUpperCase() + text.slice(1)
 })
 
-const emptyMeal = { nombre: '-', descripcion: '', calorias: 0 }
+const fechasSemana = ref([])
+
+function buildWeekDates() {
+  const out = []
+  for (let i = 0; i < 7; i++) {
+    const fecha = new Date(monday)
+    fecha.setDate(monday.getDate() + i)
+    out.push({
+      dia: dias.value[i],
+      numero: fecha.getDate(),
+      esHoy: i === todayIndex
+    })
+  }
+  return out
+}
+
+fechasSemana.value = buildWeekDates()
+
+watch(() => locale.value, () => {
+  fechasSemana.value = buildWeekDates()
+})
+
+const emptyMeal = { nombre: '', descripcion: '', calorias: 0 }
 const selectedMealIds = ref([])
 const mealById = ref(new Map())
 const isLoading = ref(true)
@@ -128,163 +141,382 @@ function buildCalendarMeals(mealIds, mealById, currentLocale) {
 </script>
 
 <template>
-  <div class="p-4">
-    <p v-if="isLoading" class="status-message">{{ t('calendar.loading') }}</p>
-    <p v-else-if="errorMessage" class="error-message">{{ errorMessage }}</p>
-    <div v-else-if="!hasActivePlan" class="empty-state">
-      <p class="status-message">{{ t('calendar.noPlan') }}</p>
-      <RouterLink class="home-link" :to="{ name: 'Inicio' }">{{ $t('calendar.goHome') }}</RouterLink>
+  <div class="calendar-board fh-container">
+    <div v-if="isLoading" class="calendar-board__loading">
+      <i class="pi pi-spin pi-spinner"></i>
+      <span>{{ t('calendar.loading') }}</span>
     </div>
 
-    <table v-else>
-      <thead class="table-header">
-      <tr>
-        <th><h1>{{ mesFormateado }}</h1></th>
-        <th v-for="(fecha, i) in fechasSemana" :key="i">
-          <h2 class="day-table">
-            {{ fecha.dia }}
-            <p :class="fecha.esHoy ? 'highlight-day-circle' : ''">
-              {{ fecha.numero }}
-            </p>
-          </h2>
-        </th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-for="(comida, i) in comidas" :key="i">
-        <td><h2>{{ comida }}</h2></td>
-        <td
-            v-for="(fecha, j) in fechasSemana"
-            :key="j"
-            :class="fecha.esHoy ? 'highlight-day' : ''"
+    <p v-else-if="errorMessage" class="calendar-board__error">
+      {{ errorMessage }}
+    </p>
+
+    <div v-else-if="!hasActivePlan" class="calendar-empty fh-card">
+      <h2>{{ t('calendar.noPlan') }}</h2>
+      <RouterLink class="fh-btn fh-btn--primary" :to="{ name: 'Inicio' }">
+        {{ t('calendar.goHome') }}
+      </RouterLink>
+    </div>
+
+    <div v-else class="calendar-board__inner">
+      <div class="calendar-board__month-row">
+        <div class="calendar-board__month">
+          <span>{{ monthLabel }}</span>
+        </div>
+        <div class="calendar-board__weekly-total">
+          <span class="label">{{ t('calendar.totalWeekCalories') }}</span>
+          <strong>{{ caloriasSemana }} <em>kcal</em></strong>
+        </div>
+      </div>
+
+      <div class="calendar-grid">
+        <div class="calendar-grid__row calendar-grid__row--head">
+          <div class="calendar-grid__cell calendar-grid__cell--corner"></div>
+          <div
+              v-for="(fecha, i) in fechasSemana"
+              :key="i"
+              class="calendar-grid__cell calendar-grid__head"
+              :class="{ today: fecha.esHoy }"
+          >
+            <span class="calendar-grid__day-label">{{ fecha.dia }}</span>
+            <span class="calendar-grid__day-number" :class="{ today: fecha.esHoy }">{{ fecha.numero }}</span>
+          </div>
+        </div>
+
+        <div
+            v-for="(mealType, i) in mealTypeLabels"
+            :key="i"
+            class="calendar-grid__row"
         >
-          <h3>{{ datosComida[i][j].nombre }}</h3>
-          <p>{{ datosComida[i][j].descripcion }}</p>
-        </td>
-      </tr>
-      <tr class="calories-table">
-        <td class="empty-space"></td>
-        <td
-            v-for="(fecha, j) in fechasSemana"
-            :key="j"
-            :class="fecha.esHoy ? 'highlight-day' : ''"
-        >
-          <h3>{{ t('calendar.totalCalories') }}</h3>
-          <p>{{ caloriasPorDia[j] }} kcal</p>
-        </td>
-      </tr>
-      </tbody>
-      <tfoot class="table-footer">
-      <tr>
-        <td class="empty-space"></td>
-        <td colspan="7">
-          <h3>{{ t('calendar.totalWeekCalories') }}</h3>
-          <p>{{ caloriasSemana }} kcal</p>
-        </td>
-      </tr>
-      </tfoot>
-    </table>
+          <div class="calendar-grid__cell calendar-grid__cell--label">
+            <h3>{{ mealType }}</h3>
+          </div>
+          <div
+              v-for="(fecha, j) in fechasSemana"
+              :key="j"
+              class="calendar-grid__cell calendar-grid__meal"
+              :class="{ today: fecha.esHoy, empty: !datosComida[i][j].nombre }"
+          >
+            <template v-if="datosComida[i][j].nombre">
+              <p class="calendar-grid__meal-name">{{ datosComida[i][j].nombre }}</p>
+              <p class="calendar-grid__meal-desc">{{ datosComida[i][j].descripcion }}</p>
+              <span class="calendar-grid__meal-cal">{{ datosComida[i][j].calorias }} kcal</span>
+            </template>
+            <span v-else class="calendar-grid__meal-empty">—</span>
+          </div>
+        </div>
+
+        <div class="calendar-grid__row calendar-grid__row--total">
+          <div class="calendar-grid__cell calendar-grid__cell--label">
+            <h3>{{ t('calendar.totalCalories') }}</h3>
+          </div>
+          <div
+              v-for="(fecha, j) in fechasSemana"
+              :key="j"
+              class="calendar-grid__cell calendar-grid__total"
+              :class="{ today: fecha.esHoy }"
+          >
+            <strong>{{ caloriasPorDia[j] }}</strong>
+            <span>kcal</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
-h2,h3,p{
-  text-align: center;
-  margin: auto 0;
-}
-
-table{
-  border-collapse: collapse;
-  margin: 20px auto;
-}
-
-th, td {
-  border: 1px solid black;
-  border-collapse: collapse;
-  padding: 32px 12px;
-}
-
-h2{
-  font-weight: normal;
-}
-
-h3{
-  line-height: 28px;
-}
-
-.day-table{
+.calendar-board {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.calendar-board__loading,
+.calendar-board__error {
+  display: flex;
   align-items: center;
-  gap: 6px;
-}
-
-.p-4{
-  color: black;
-}
-
-.calories-table td, .calories-table th, .calories-table p, .calories-table h3{
-  padding: 0 4px;
-  margin: 4px;
-}
-
-.table-footer td, .table-footer th, .table-footer p, .table-footer h3{
-  padding: 1px;
-  margin: 4px;
-}
-
-.table-header td, .table-header th, .table-header p, .table-header h2{
-  padding: 1px;
-  margin: 1px;
-}
-
-td.empty-space {
-  border: none;
-  background: transparent;
-  padding: 0;
-}
-
-.highlight-day-circle {
-  background-color: #53C758;
-  color: white;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-}
-
-.highlight-day {
-  color: #53C758;
-}
-
-.status-message,
-.error-message {
-  margin: 2rem auto;
-  text-align: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px;
   font-weight: 600;
+  font-size: 1rem;
 }
 
-.error-message {
-  color: #b42318;
+.calendar-board__error {
+  color: var(--color-danger);
 }
 
-.empty-state {
+.calendar-empty {
+  margin: 30px auto 0;
+  padding: 36px 28px;
+  max-width: 480px;
+  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 18px;
 }
 
-.home-link {
-  border: 1px solid #2e7d32;
-  border-radius: 10px;
-  color: #2e7d32;
+.calendar-empty h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.calendar-board__inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.calendar-board__month-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.calendar-board__month {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.calendar-board__weekly-total {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 8px 18px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-brand);
+}
+
+.calendar-board__weekly-total .label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.9;
+}
+
+.calendar-board__weekly-total strong {
+  font-size: 1.15rem;
   font-weight: 700;
-  padding: 10px 20px;
-  text-decoration: none;
 }
 
-.home-link:hover {
-  background: #2e7d32;
-  color: white;
+.calendar-board__weekly-total em {
+  font-style: normal;
+  font-size: 0.8rem;
+  opacity: 0.9;
+  margin-left: 4px;
+}
+
+/* Grid */
+.calendar-grid {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-xs);
+}
+
+.calendar-grid__row {
+  display: grid;
+  grid-template-columns: 130px repeat(7, minmax(0, 1fr));
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.calendar-grid__row:last-child {
+  border-bottom: none;
+}
+
+.calendar-grid__row--head,
+.calendar-grid__row--total {
+  background: var(--color-surface-2);
+}
+
+.calendar-grid__cell {
+  padding: 14px 12px;
+  border-right: 1px solid var(--color-divider);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 110px;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.calendar-grid__cell:last-child {
+  border-right: none;
+}
+
+.calendar-grid__cell--corner {
+  background: var(--color-surface-2);
+  min-height: 0;
+  padding: 12px;
+}
+
+.calendar-grid__head {
+  gap: 4px;
+  padding: 12px;
+  min-height: 80px;
+}
+
+.calendar-grid__day-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.calendar-grid__day-number {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+}
+
+.calendar-grid__day-number.today {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-brand);
+}
+
+.calendar-grid__head.today {
+  background: var(--color-primary-soft);
+}
+
+.calendar-grid__cell--label {
+  background: var(--color-surface-2);
+  justify-content: center;
+  padding: 14px 18px;
+  text-align: left;
+  align-items: flex-start;
+}
+
+.calendar-grid__cell--label h3 {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.calendar-grid__meal {
+  align-items: stretch;
+  text-align: center;
+  gap: 6px;
+  justify-content: flex-start;
+  padding: 16px 12px 14px;
+}
+
+.calendar-grid__meal.today {
+  background: color-mix(in srgb, var(--color-primary-soft) 60%, transparent);
+}
+
+.calendar-grid__meal-name {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.25;
+}
+
+.calendar-grid__meal-desc {
+  margin: 0;
+  font-size: 0.76rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+  /* Show the full description — no clamp, no overflow hidden.
+     The row will grow to fit the longest text. */
+  white-space: normal;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.calendar-grid__meal-cal {
+  margin-top: auto;
+  display: inline-flex;
+  align-self: center;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.calendar-grid__meal-empty {
+  color: var(--color-text-soft);
+  font-size: 1.4rem;
+}
+
+.calendar-grid__meal.empty {
+  background: repeating-linear-gradient(
+      135deg,
+      transparent 0,
+      transparent 8px,
+      var(--color-surface-2) 8px,
+      var(--color-surface-2) 9px
+  );
+  opacity: 0.55;
+}
+
+.calendar-grid__total {
+  gap: 0;
+}
+
+.calendar-grid__total strong {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.calendar-grid__total span {
+  font-size: 0.72rem;
+  color: var(--color-text-soft);
+}
+
+.calendar-grid__total.today {
+  background: var(--color-primary-soft);
+}
+
+@media (max-width: 1100px) {
+  /* As the cells get narrower we let the user scroll horizontally
+     instead of hiding the description (which the user wants visible). */
+  .calendar-board {
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+
+  .calendar-board__inner {
+    min-width: 980px;
+  }
+}
+
+@media (max-width: 600px) {
+  .calendar-board__inner {
+    min-width: 880px;
+  }
+
+  .calendar-grid__meal-name {
+    font-size: 0.86rem;
+  }
 }
 </style>

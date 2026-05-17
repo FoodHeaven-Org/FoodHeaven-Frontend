@@ -2,53 +2,70 @@
 import Calendario from "./calendario.component.vue"
 import Boton from "./button-calendarios.component.vue"
 import { useI18n } from 'vue-i18n';
-const { t  } = useI18n();
+const { t } = useI18n();
 </script>
 
 <template>
-  <h1 class="titulo">{{ $t('calendar.title') }}</h1>
-  <h2 class="subtitulo">{{$t('calendar.subtitle')}}</h2>
-  <p class="policy-note">{{ $t('calendar.policyNote') }}</p>
-  <hr class="margin-top"/>
-  <Calendario/>
+  <section class="calendar-page">
+    <header class="calendar-page__header fh-container fh-container--narrow">
+      <h1 class="calendar-page__title">{{ t('calendar.title') }}</h1>
+      <p class="calendar-page__subtitle">{{ t('calendar.subtitle') }}</p>
+      <p class="calendar-page__policy">
+        {{ t('calendar.policyNote') }}
+      </p>
+    </header>
 
-  <Boton />
+    <Calendario />
+    <Boton />
+  </section>
 </template>
 
 <style scoped>
-.margin-top{
-  margin-bottom: 40px;
+.calendar-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding-top: var(--space-8);
 }
 
-hr{
-  margin: 0 10rem;
-}
-
-.titulo {
-  color: black;
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin: 65px 0 0;
+.calendar-page__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-
-
+  gap: var(--space-3);
 }
 
-.subtitulo {
-  font-size: 1.2rem;
-  font-weight: normal;
-  color: black;
-  margin: 10px 0 20px;
-  text-align: center;
+.calendar-page__title {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
 }
 
-.policy-note {
-  max-width: 900px;
-  margin: 0 auto 22px;
-  color: #2e7d32;
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.5;
-  text-align: center;
+.calendar-page__subtitle {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--color-text-muted);
+}
+
+.calendar-page__policy {
+  margin: var(--space-3) 0 0;
+  padding: 14px 18px;
+  background: var(--color-primary-soft);
+  border-radius: var(--radius-md);
+  color: var(--color-primary-strong);
+  font-size: 0.92rem;
+  font-weight: 500;
+  text-align: left;
+  line-height: 1.55;
+  max-width: 760px;
+}
+
+:root[data-theme='dark'] .calendar-page__policy {
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-primary) 15%, transparent);
 }
 </style>
