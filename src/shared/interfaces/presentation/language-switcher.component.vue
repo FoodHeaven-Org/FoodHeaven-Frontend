@@ -19,6 +19,7 @@ const languages = [
 ];
 
 const currentLocale = computed(() => locale.value);
+const isSpanish = computed(() => currentLocale.value === 'es');
 
 watch(currentLocale, (next) => {
   try {
@@ -37,84 +38,109 @@ function setLanguage(lang) {
 </script>
 
 <template>
-  <div class="lang-switcher" :class="`lang-switcher--${props.variant}`" role="group" aria-label="Language selector">
+  <div
+      class="lang-toggle"
+      :class="[`lang-toggle--${props.variant}`, { 'is-es': isSpanish }]"
+      role="group"
+      aria-label="Language selector"
+  >
     <button
         v-for="lang in languages"
         :key="lang.code"
         type="button"
-        :class="['lang-btn', { active: currentLocale === lang.code }]"
+        class="lang-toggle__option"
+        :class="{ active: currentLocale === lang.code }"
         :aria-pressed="currentLocale === lang.code"
         :title="lang.name"
         @click="setLanguage(lang.code)"
     >
-      <span>{{ lang.label }}</span>
+      {{ lang.label }}
     </button>
+    <span class="lang-toggle__thumb" aria-hidden="true"></span>
   </div>
 </template>
 
 <style scoped>
-.lang-switcher {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px;
-  background: var(--color-surface-2);
-  border: 2px solid var(--color-border-strong);
+.lang-toggle {
+  position: relative;
+  width: 76px;
+  height: 30px;
   border-radius: var(--radius-pill);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-surface) 72%, transparent);
-  transition: border-color var(--duration-fast) ease,
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface-2);
+  cursor: pointer;
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+  padding: 0 3px;
+  transition: background var(--duration-base) ease,
+              border-color var(--duration-base) ease,
               box-shadow var(--duration-fast) ease;
 }
 
-.lang-switcher:hover {
+.lang-toggle:hover {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px var(--color-primary-soft);
 }
 
-.lang-switcher--compact {
-  padding: 3px;
+.lang-toggle--compact {
+  width: 66px;
+  height: 28px;
 }
 
-.lang-btn {
+.lang-toggle__option {
   position: relative;
+  z-index: 2;
   appearance: none;
-  border: 1px solid transparent;
+  border: 0;
   background: transparent;
-  cursor: pointer;
-  padding: 6px 14px;
-  border-radius: var(--radius-pill);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
   color: var(--color-text-soft);
-  transition: background var(--duration-fast) ease,
-              color var(--duration-fast) ease,
-              border-color var(--duration-fast) ease,
-              box-shadow var(--duration-fast) ease,
+  cursor: pointer;
+  height: 24px;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--duration-fast) ease,
               transform var(--duration-fast) var(--ease-out);
 }
 
-.lang-switcher--compact .lang-btn {
-  padding: 4px 10px;
-  font-size: 0.72rem;
+.lang-toggle--compact .lang-toggle__option {
+  font-size: 0.68rem;
 }
 
-.lang-btn:hover {
-  color: var(--color-text);
+.lang-toggle__option:hover {
   transform: translateY(-1px);
 }
 
-.lang-btn.active {
-  background: var(--color-primary);
-  border-color: color-mix(in srgb, var(--color-primary-strong) 70%, white);
+.lang-toggle__option.active {
   color: var(--color-text-inverse);
-  box-shadow: 0 6px 16px color-mix(in srgb, var(--color-primary) 28%, transparent);
-  animation: lang-pop 180ms var(--ease-out);
   transform: translateY(0);
 }
 
-@keyframes lang-pop {
-  0% { transform: scale(0.94); }
-  100% { transform: scale(1); }
+.lang-toggle__thumb {
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  transform: translateY(-50%);
+  width: calc(50% - 3px);
+  height: 22px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+  transition: left var(--duration-base) var(--ease-out),
+              background var(--duration-base) ease;
+  z-index: 1;
+}
+
+.lang-toggle.is-es .lang-toggle__thumb {
+  left: calc(50%);
+}
+
+.lang-toggle--compact .lang-toggle__thumb {
+  height: 20px;
 }
 </style>
