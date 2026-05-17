@@ -250,7 +250,6 @@ export default {
         savePlan: "Guardar plan",
         planSaved: "Plan actualizado correctamente.",
         planError: "No se pudo actualizar tu plan.",
-        editPlan: "Editar plan",
         paymentCard: "Tarjeta de credito o debito",
         paymentYape: "Yape",
         paymentCash: "Pago contra entrega"

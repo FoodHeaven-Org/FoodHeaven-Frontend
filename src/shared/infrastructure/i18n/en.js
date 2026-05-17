@@ -253,7 +253,6 @@ export default {
         savePlan: "Save plan",
         planSaved: "Plan updated successfully.",
         planError: "Unable to update your plan.",
-        editPlan: "Edit plan",
         paymentCard: "Credit or debit card",
         paymentYape: "Yape",
         paymentCash: "Pay on delivery"
