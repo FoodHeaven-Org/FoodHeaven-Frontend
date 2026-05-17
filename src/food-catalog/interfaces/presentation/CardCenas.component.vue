@@ -1,6 +1,6 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const { t, locale } = useI18n()
 const emit = defineEmits(['select'])
@@ -13,6 +13,12 @@ const props = defineProps({
 })
 
 const displayedMeal = computed(() => props.comida.getLocalized(locale.value))
+const imageFailed = ref(false)
+
+watch(() => displayedMeal.value.url, () => {
+  imageFailed.value = false
+})
+
 const buttonLabel = computed(() => {
   if (props.isBlocked) return t('planner.planBlocked')
   if (props.selected) return t('planner.selected')
@@ -29,11 +35,12 @@ const buttonIcon = computed(() => {
   <article class="meal-card" :class="{ selected, blocked: isBlocked }">
     <div class="meal-card__media">
       <img
-          v-if="displayedMeal.url"
+          v-if="displayedMeal.url && !imageFailed"
           class="meal-card__image"
           :src="displayedMeal.url"
           :alt="displayedMeal.nombre"
           loading="lazy"
+          @error="imageFailed = true"
       />
       <div v-else class="meal-card__image meal-card__image--placeholder">
         <i class="pi pi-image"></i>
