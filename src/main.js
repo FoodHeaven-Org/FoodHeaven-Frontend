@@ -2,6 +2,7 @@ import './assets/main.css';
 
 import 'primeicons/primeicons.css';
 import i18n from './shared/infrastructure/i18n/i18n.js';
+import { useTheme } from './shared/application/theme.composable.js';
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './routes.js';
@@ -18,9 +19,14 @@ import {
     IconField,
     InputIcon,
     InputText,
-    Row, SplitButton
-} from "primevue";
-// Uso de componentes importantes:
+    Row,
+    SplitButton
+} from 'primevue';
+
+// Bootstrap theme so the document gets the correct data-theme attribute
+// before any component renders.
+useTheme();
+
 const app = createApp(App);
 app.use(router);
 app.use(PrimeVue);

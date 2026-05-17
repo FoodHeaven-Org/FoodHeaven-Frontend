@@ -1,26 +1,10 @@
-:root {
-  --first-color: #307d33;
-  --second-color: #53c758;
-}
+@import './theme.css';
 
+/* Legacy compatibility shim — keeps old class names working
+   while the new design tokens drive the styling. */
 * {
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
-}
-
-img {
-  max-width: 100%;
-  height: auto;
-}
-
-#__vue-devtools-container__,
-#vue-devtools-anchor,
-.vue-devtools__anchor,
-[data-vue-devtools],
-vite-plugin-vue-devtools {
-  display: none !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
 }
 
 .container {
