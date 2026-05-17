@@ -80,6 +80,27 @@
                   <i class="pi pi-home input-wrapper__icon" aria-hidden="true"></i>
                   <input id="address" type="text" v-model="address" class="fh-input has-icon" required />
                 </div>
+                <div class="location-actions">
+                  <input
+                      v-model="addressLabel"
+                      class="fh-input location-actions__label"
+                      type="text"
+                      :placeholder="$t('settings.locationLabelPlaceholder')"
+                  />
+                  <button class="fh-btn fh-btn--ghost" type="button" :disabled="isLocating" @click="detectLocation">
+                    <i v-if="isLocating" class="pi pi-spin pi-spinner"></i>
+                    <i v-else class="pi pi-map-marker"></i>
+                    <span>{{ $t('settings.useCurrentLocation') }}</span>
+                  </button>
+                </div>
+                <div v-if="mapPreviewUrl" class="map-preview">
+                  <iframe
+                      :src="mapPreviewUrl"
+                      loading="lazy"
+                      referrerpolicy="no-referrer-when-downgrade"
+                      :title="$t('settings.mapPreview')"
+                  ></iframe>
+                </div>
               </div>
             </div>
           </fieldset>
@@ -88,24 +109,31 @@
             <legend>{{ $t('account.paymentMethod') }} & {{ $t('account.subscription') }}</legend>
 
             <div class="field-grid">
-              <div class="form-field">
+              <div class="form-field wide-field">
                 <label for="subscription">{{ $t('account.subscription') }}</label>
                 <select id="subscription" v-model="subscription" class="fh-select" required>
                   <option v-for="plan in SUBSCRIPTION_PLANS" :key="plan.code" :value="plan.code">
-                    {{ t(plan.nameKey) }} — S/ {{ plan.monthlyPrice }}
+                    {{ t(plan.nameKey) }} - S/ {{ plan.monthlyPrice }}
                   </option>
                 </select>
               </div>
 
               <div class="form-field">
-                <label for="paymentMethod">{{ $t('account.paymentMethod') }}</label>
-                <select id="paymentMethod" v-model="paymentMethod" class="fh-select" required>
-                  <option value="Card">{{ $t('settings.paymentCard') }}</option>
-                  <option value="Yape">{{ $t('settings.paymentYape') }}</option>
-                  <option value="Cash">{{ $t('settings.paymentCash') }}</option>
-                </select>
+                <label for="cardNumber">{{ $t('settings.cardNumber') }}</label>
+                <input id="cardNumber" v-model="cardNumber" class="fh-input" type="text" inputmode="numeric" autocomplete="cc-number" required />
+              </div>
+
+              <div class="form-field">
+                <label for="cardExpiration">{{ $t('settings.cardExpiration') }}</label>
+                <input id="cardExpiration" v-model="cardExpiration" class="fh-input" type="text" placeholder="MM/YY" autocomplete="cc-exp" required />
+              </div>
+
+              <div class="form-field">
+                <label for="cardCvv">{{ $t('settings.cardCvv') }}</label>
+                <input id="cardCvv" v-model="cardCvv" class="fh-input" type="password" inputmode="numeric" autocomplete="cc-csc" required />
               </div>
             </div>
+            <p class="payment-note">{{ $t('settings.cardSafetyNote') }}</p>
           </fieldset>
 
           <p v-if="errorMessage" class="form-error" role="alert">
@@ -141,7 +169,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { AuthApiService } from '@/security/application/internal/auth-api.service.js'
@@ -158,13 +186,56 @@ const subscription = ref('Full')
 const phone = ref('')
 const city = ref('')
 const address = ref('')
-const paymentMethod = ref('Card')
+const addressLabel = ref('Casa')
+const latitude = ref(null)
+const longitude = ref(null)
+const cardNumber = ref('')
+const cardCvv = ref('')
+const cardExpiration = ref('')
 const showPassword = ref(false)
 const errorMessage = ref('')
 const isSubmitting = ref(false)
+const isLocating = ref(false)
+
+const mapPreviewUrl = computed(() => {
+  const coordinates = latitude.value && longitude.value
+      ? `${latitude.value},${longitude.value}`
+      : ''
+  const query = coordinates || address.value
+
+  if (!query) return ''
+
+  return `https://www.google.com/maps?q=${encodeURIComponent(query)}&output=embed`
+})
 
 const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value
+}
+
+const detectLocation = () => {
+  errorMessage.value = ''
+
+  if (!navigator.geolocation) {
+    errorMessage.value = t('settings.locationUnavailable')
+    return
+  }
+
+  isLocating.value = true
+  navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        latitude.value = Number(coords.latitude.toFixed(6))
+        longitude.value = Number(coords.longitude.toFixed(6))
+        if (!address.value) {
+          address.value = `${latitude.value}, ${longitude.value}`
+        }
+        isLocating.value = false
+      },
+      () => {
+        errorMessage.value = t('settings.locationUnavailable')
+        isLocating.value = false
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+  )
 }
 
 const handleRegister = async () => {
@@ -173,7 +244,7 @@ const handleRegister = async () => {
   const parsedPhone = Number(String(phone.value).replace(/\D/g, ''))
 
   if (!fullName.value || !email.value || !password.value || !subscription.value
-      || !parsedPhone || !city.value || !address.value || !paymentMethod.value) {
+      || !parsedPhone || !city.value || !address.value || !cardNumber.value || !cardCvv.value || !cardExpiration.value) {
     errorMessage.value = t('register.errorRequired')
     return
   }
@@ -193,7 +264,16 @@ const handleRegister = async () => {
       phone: parsedPhone,
       city: city.value,
       address: address.value,
-      paymentMethod: paymentMethod.value
+      deliveryAddresses: [{
+        label: addressLabel.value || 'Casa',
+        addressLine: address.value,
+        latitude: latitude.value,
+        longitude: longitude.value,
+        isDefault: true
+      }],
+      cardNumber: cardNumber.value,
+      cardCvv: cardCvv.value,
+      cardExpiration: cardExpiration.value
     })
     await router.push({ name: 'Login' })
   } catch (error) {
@@ -223,7 +303,7 @@ const handleRegister = async () => {
 
 .register-panel__inner {
   width: 100%;
-  max-width: 560px;
+  max-width: 600px;
 }
 
 .register-header {
@@ -322,6 +402,40 @@ const handleRegister = async () => {
 .input-wrapper__trailing:hover {
   color: var(--color-primary);
   background: var(--color-primary-soft);
+}
+
+.location-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.location-actions__label {
+  min-width: 0;
+}
+
+.map-preview {
+  margin-top: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface-2);
+  aspect-ratio: 16 / 7;
+}
+
+.map-preview iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.payment-note {
+  margin: 12px 0 0;
+  color: var(--color-text-soft);
+  font-size: 0.82rem;
+  line-height: 1.4;
 }
 
 .form-error {
@@ -430,7 +544,8 @@ const handleRegister = async () => {
 }
 
 @media (max-width: 640px) {
-  .field-grid {
+  .field-grid,
+  .location-actions {
     grid-template-columns: 1fr;
   }
 

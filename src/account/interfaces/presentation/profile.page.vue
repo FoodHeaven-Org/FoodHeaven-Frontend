@@ -24,6 +24,11 @@ const subscriptionPlan = computed(() => getSubscriptionPlan(profile.value?.subsc
 
 const subscriptionName = computed(() => profile.value ? t(subscriptionPlan.value.nameKey) : '')
 const subscriptionPrice = computed(() => profile.value ? `S/ ${subscriptionPlan.value.monthlyPrice}` : '')
+const deliveryAddresses = computed(() => profile.value?.deliveryAddresses ?? [])
+const paymentCardDisplay = computed(() => {
+  const card = profile.value?.paymentCard
+  return card?.displayName || profile.value?.paymentMethod || t('account.notProvided')
+})
 
 onBeforeMount(async () => {
   try {
@@ -72,7 +77,7 @@ const dataRows = computed(() => [
   { label: t('account.phone'),         value: formatPhone(profile.value?.phone) },
   { label: t('account.city'),          value: formatText(profile.value?.city) },
   { label: t('account.address'),       value: formatText(profile.value?.address) },
-  { label: t('account.paymentMethod'), value: formatText(profile.value?.paymentMethod) }
+  { label: t('account.paymentMethod'), value: paymentCardDisplay.value }
 ])
 </script>
 
@@ -121,6 +126,17 @@ const dataRows = computed(() => [
             <dd>{{ row.value }}</dd>
           </div>
         </dl>
+
+        <section v-if="deliveryAddresses.length" class="account-addresses">
+          <h3>{{ t('settings.deliveryLocations') }}</h3>
+          <ul>
+            <li v-for="address in deliveryAddresses" :key="`${address.label}-${address.addressLine}`">
+              <strong>{{ address.label }}</strong>
+              <span>{{ address.addressLine }}</span>
+              <em v-if="address.isDefault">{{ t('settings.defaultLocation') }}</em>
+            </li>
+          </ul>
+        </section>
       </article>
 
       <article class="account-card fh-card">
@@ -310,6 +326,58 @@ const dataRows = computed(() => [
   word-break: break-word;
 }
 
+.account-addresses {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.account-addresses h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.account-addresses ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.account-addresses li {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+}
+
+.account-addresses strong {
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
+
+.account-addresses span {
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
+}
+
+.account-addresses em {
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 4px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-style: normal;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 .account-card__actions {
   display: flex;
   gap: 12px;
@@ -333,5 +401,6 @@ const dataRows = computed(() => [
   .account-data { grid-template-columns: 1fr; }
   .account-data__row:nth-child(odd) { padding-right: 0; }
   .account-data__row:nth-child(even) { padding-left: 0; border-left: none; }
+  .account-addresses ul { grid-template-columns: 1fr; }
 }
 </style>

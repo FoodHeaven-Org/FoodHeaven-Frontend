@@ -18,7 +18,19 @@ export class AuthApiService {
         return token
     }
 
-    async signUp({ fullName, username, password, subscription, phone, city, address, paymentMethod }) {
+    async signUp({
+        fullName,
+        username,
+        password,
+        subscription,
+        phone,
+        city,
+        address,
+        deliveryAddresses,
+        cardNumber,
+        cardCvv,
+        cardExpiration
+    }) {
         const response = await apiClient.post('/User/sign-up', {
             fullName,
             username,
@@ -27,7 +39,10 @@ export class AuthApiService {
             phone,
             city,
             address,
-            paymentMethod
+            deliveryAddresses,
+            cardNumber,
+            cardCvv,
+            cardExpiration
         })
 
         return response.data
@@ -80,7 +95,11 @@ export function getSessionUser() {
         phone: payload.phone ?? '',
         city: payload.city ?? '',
         address: payload.address ?? '',
-        paymentMethod: payload.paymentMethod ?? ''
+        paymentCard: {
+            brand: payload.paymentCardBrand ?? '',
+            lastFour: payload.paymentCardLastFour ?? '',
+            expiration: payload.paymentCardExpiration ?? ''
+        }
     }
 }
 
