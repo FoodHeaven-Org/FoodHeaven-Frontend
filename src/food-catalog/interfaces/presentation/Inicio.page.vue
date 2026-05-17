@@ -46,6 +46,11 @@ const selectedMealsByType = computed(() => ({
 
 const selectedSlotsCount = computed(() => mealSlots.value.filter(mealId => mealId > 0).length)
 const weeklySlotsLimit = computed(() => subscriptionPlan.value.mealsPerDay * 7)
+const progressPercent = computed(() => {
+  const limit = weeklySlotsLimit.value
+  if (!limit) return 0
+  return Math.min(100, Math.round((selectedSlotsCount.value / limit) * 100))
+})
 const subscriptionPlanName = computed(() => t(subscriptionPlan.value.nameKey))
 
 onBeforeMount(async () => {
@@ -150,58 +155,173 @@ async function persistCurrentPlan() {
 </script>
 
 <template>
-  <PvHeader
-      :selected-day="selectedDay"
-      :meals-available="mealsAvailable"
-      @day-selected="selectedDay = $event"
-  />
+  <div class="inicio-page">
+    <PvHeader
+        :selected-day="selectedDay"
+        :meals-available="mealsAvailable"
+        @day-selected="selectedDay = $event"
+    />
 
-  <div class="planner-status">
-    <p v-if="isLoadingPlan">{{ $t('planner.loadingPlan') }}</p>
-    <p v-else>
-      {{ selectedSlotsCount }}/{{ weeklySlotsLimit }} {{ $t('planner.slotsSelected') }}
-      - {{ subscriptionPlanName }} ({{ $t('planner.planLimit', { meals: subscriptionPlan.mealsPerDay }) }})
-    </p>
-    <p v-if="statusMessage" class="success-message">{{ statusMessage }}</p>
-    <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+    <section class="planner-status fh-container fh-container--narrow">
+      <div class="planner-status__card" v-if="isLoadingPlan">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>{{ $t('planner.loadingPlan') }}</span>
+      </div>
+      <div class="planner-status__card" v-else>
+        <div class="planner-status__top">
+          <div class="planner-status__heading">
+            <span class="planner-status__label">{{ $t('planner.progress') }}</span>
+            <h3>{{ selectedSlotsCount }} / {{ weeklySlotsLimit }} {{ $t('planner.slotsSelected') }}</h3>
+          </div>
+          <span class="planner-status__plan">{{ subscriptionPlanName }}</span>
+        </div>
+        <div class="planner-status__bar" role="progressbar" :aria-valuenow="progressPercent" aria-valuemin="0" aria-valuemax="100">
+          <span class="planner-status__bar-fill" :style="{ width: progressPercent + '%' }"></span>
+        </div>
+        <p class="planner-status__meta">
+          {{ $t('planner.planLimit', { meals: subscriptionPlan.mealsPerDay }) }}
+        </p>
+      </div>
+
+      <transition name="fh-fade">
+        <p v-if="statusMessage" class="status-toast status-toast--success">
+          {{ statusMessage }}
+        </p>
+      </transition>
+      <transition name="fh-fade">
+        <p v-if="errorMessage" class="status-toast status-toast--error">
+          {{ errorMessage }}
+        </p>
+      </transition>
+    </section>
+
+    <PvDesayunos
+        :selected-day="selectedDay"
+        :selected-meal-id="selectedMealsByType[1]"
+        :is-saving="isSavingPlan"
+        :is-blocked="isMealTypeBlocked(1)"
+        @meal-selected="handleMealSelected"
+    />
+    <PvAlmuerzos
+        :selected-day="selectedDay"
+        :selected-meal-id="selectedMealsByType[2]"
+        :is-saving="isSavingPlan"
+        :is-blocked="isMealTypeBlocked(2)"
+        @meal-selected="handleMealSelected"
+    />
+    <PvCenas
+        :selected-day="selectedDay"
+        :selected-meal-id="selectedMealsByType[3]"
+        :is-saving="isSavingPlan"
+        :is-blocked="isMealTypeBlocked(3)"
+        @meal-selected="handleMealSelected"
+    />
   </div>
-
-  <PvDesayunos
-      :selected-day="selectedDay"
-      :selected-meal-id="selectedMealsByType[1]"
-      :is-saving="isSavingPlan"
-      :is-blocked="isMealTypeBlocked(1)"
-      @meal-selected="handleMealSelected"
-  />
-  <PvAlmuerzos
-      :selected-day="selectedDay"
-      :selected-meal-id="selectedMealsByType[2]"
-      :is-saving="isSavingPlan"
-      :is-blocked="isMealTypeBlocked(2)"
-      @meal-selected="handleMealSelected"
-  />
-  <PvCenas
-      :selected-day="selectedDay"
-      :selected-meal-id="selectedMealsByType[3]"
-      :is-saving="isSavingPlan"
-      :is-blocked="isMealTypeBlocked(3)"
-      @meal-selected="handleMealSelected"
-  />
 </template>
 
 <style scoped>
+.inicio-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding-top: var(--space-6);
+}
+
 .planner-status {
-  max-width: 900px;
-  margin: 24px auto 0;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.planner-status__card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  box-shadow: var(--shadow-xs);
+}
+
+.planner-status__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.planner-status__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.planner-status__label {
+  font-size: 0.75rem;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-soft);
 }
 
-.success-message {
-  color: #2e7d32;
+.planner-status__heading h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-text);
 }
 
-.error-message {
-  color: #b42318;
+.planner-status__plan {
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.planner-status__bar {
+  position: relative;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-alt);
+  overflow: hidden;
+}
+
+.planner-status__bar-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-primary) 100%);
+  border-radius: var(--radius-pill);
+  transition: width var(--duration-base) var(--ease-out);
+}
+
+.planner-status__meta {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-soft);
+}
+
+.status-toast {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.status-toast--success {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.status-toast--error {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
 }
 </style>
