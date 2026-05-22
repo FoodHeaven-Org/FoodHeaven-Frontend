@@ -28,10 +28,15 @@ const accountApiService = new AccountApiService()
 const comidasApiService = new ComidasApiService()
 const mealPlanApiService = new MealPlanApiService()
 const { monday, nextMonday, todayIndex } = getCurrentWeekRange()
+const nextWeekMonday = new Date(nextMonday)
+const followingMonday = new Date(nextWeekMonday)
+followingMonday.setDate(nextWeekMonday.getDate() + 7)
 
 const selectedDay = ref(todayIndex)
 const currentPlanId = ref(null)
+const nextWeekPlanId = ref(null)
 const mealSlots = ref(createEmptyMealSlots())
+const nextWeekMealSlots = ref(createEmptyMealSlots())
 const isLoadingPlan = ref(true)
 const isSavingPlan = ref(false)
 const statusMessage = ref('')
@@ -39,11 +44,15 @@ const errorMessage = ref('')
 const subscriptionPlan = ref(getSubscriptionPlan('Full'))
 const blockedMealTypeId = ref(null)
 const mealsAvailable = ref(0)
+const selectedDayAppliesNextWeek = computed(() => selectedDay.value <= todayIndex)
+const activeMealSlotsForSelectedDay = computed(() =>
+    selectedDayAppliesNextWeek.value ? nextWeekMealSlots.value : mealSlots.value
+)
 
 const selectedMealsByType = computed(() => ({
-  1: mealSlots.value[getMealSlotIndex(1, selectedDay.value)],
-  2: mealSlots.value[getMealSlotIndex(2, selectedDay.value)],
-  3: mealSlots.value[getMealSlotIndex(3, selectedDay.value)]
+  1: activeMealSlotsForSelectedDay.value[getMealSlotIndex(1, selectedDay.value)],
+  2: activeMealSlotsForSelectedDay.value[getMealSlotIndex(2, selectedDay.value)],
+  3: activeMealSlotsForSelectedDay.value[getMealSlotIndex(3, selectedDay.value)]
 }))
 
 const selectedSlotsCount = computed(() => mealSlots.value.filter(mealId => mealId > 0).length)
@@ -73,23 +82,46 @@ async function loadCurrentWeekPlan() {
     mealsAvailable.value = toComidaEntitiesFromResponse(mealsResponse).length
 
     const currentPlan = findPlanForWeek(plans, monday, nextMonday)
+    const nextWeekPlan = findPlanForWeek(plans, nextWeekMonday, followingMonday)
+    let currentWeekSlots = createEmptyMealSlots()
 
-    if (!currentPlan) return
+    if (currentPlan) {
+      currentPlanId.value = getPlanId(currentPlan)
+      const planMealSlots = getPlanMeals(currentPlan)
+      const trimmedMealSlots = trimMealSlotsToDailyLimit(planMealSlots, subscriptionPlan.value.mealsPerDay)
+      currentWeekSlots = trimmedMealSlots
+      mealSlots.value = trimmedMealSlots
 
-    currentPlanId.value = getPlanId(currentPlan)
-    const planMealSlots = getPlanMeals(currentPlan)
-    const trimmedMealSlots = trimMealSlotsToDailyLimit(planMealSlots, subscriptionPlan.value.mealsPerDay)
+      if (!areMealSlotsEqual(planMealSlots, trimmedMealSlots)) {
+        await mealPlanApiService.updateWeeklyMealPlan(currentPlanId.value, {
+          fechaInicio: toBackendDate(monday),
+          fechaFin: toBackendDate(nextMonday),
+          listaComidas: trimmedMealSlots
+        })
 
-    mealSlots.value = trimmedMealSlots
+        statusMessage.value = t('planner.adjustedToPlan')
+      }
+    } else {
+      currentPlanId.value = null
+      mealSlots.value = currentWeekSlots
+    }
 
-    if (!areMealSlotsEqual(planMealSlots, trimmedMealSlots)) {
-      await mealPlanApiService.updateWeeklyMealPlan(currentPlanId.value, {
-        fechaInicio: toBackendDate(monday),
-        fechaFin: toBackendDate(nextMonday),
-        listaComidas: trimmedMealSlots
-      })
+    if (nextWeekPlan) {
+      nextWeekPlanId.value = getPlanId(nextWeekPlan)
+      const planMealSlots = getPlanMeals(nextWeekPlan)
+      const trimmedMealSlots = trimMealSlotsToDailyLimit(planMealSlots, subscriptionPlan.value.mealsPerDay)
+      nextWeekMealSlots.value = trimmedMealSlots
 
-      statusMessage.value = t('planner.adjustedToPlan')
+      if (!areMealSlotsEqual(planMealSlots, trimmedMealSlots)) {
+        await mealPlanApiService.updateWeeklyMealPlan(nextWeekPlanId.value, {
+          fechaInicio: toBackendDate(nextWeekMonday),
+          fechaFin: toBackendDate(followingMonday),
+          listaComidas: trimmedMealSlots
+        })
+      }
+    } else {
+      nextWeekPlanId.value = null
+      nextWeekMealSlots.value = [...currentWeekSlots]
     }
   } catch (error) {
     console.error(error)
@@ -106,31 +138,40 @@ async function handleMealSelected({ mealTypeId, mealId }) {
   errorMessage.value = ''
   blockedMealTypeId.value = null
 
+  const targetMealSlots = activeMealSlotsForSelectedDay.value
   const slotIndex = getMealSlotIndex(mealTypeId, selectedDay.value)
-  const currentMealId = mealSlots.value[slotIndex]
+  const currentMealId = targetMealSlots[slotIndex]
   const nextMealId = currentMealId === mealId ? EMPTY_MEAL_SLOT : mealId
 
-  if (nextMealId > 0 && currentMealId <= 0 && getSelectedMealsForDay(selectedDay.value) >= subscriptionPlan.value.mealsPerDay) {
+  if (nextMealId > 0 && currentMealId <= 0 && getSelectedMealsForDay(selectedDay.value, targetMealSlots) >= subscriptionPlan.value.mealsPerDay) {
     blockedMealTypeId.value = mealTypeId
     errorMessage.value = t('planner.limitReached', { meals: subscriptionPlan.value.mealsPerDay })
     return
   }
 
-  const nextSlots = [...mealSlots.value]
+  const nextSlots = [...targetMealSlots]
   nextSlots[slotIndex] = nextMealId
-  mealSlots.value = nextSlots
 
+  if (selectedDayAppliesNextWeek.value) {
+    nextWeekMealSlots.value = nextSlots
+    await persistNextWeekPlan()
+    return
+  }
+
+  mealSlots.value = nextSlots
   await persistCurrentPlan()
 }
 
-function getSelectedMealsForDay(dayIndex) {
-  return [1, 2, 3].filter(mealTypeId => mealSlots.value[getMealSlotIndex(mealTypeId, dayIndex)] > 0).length
+function getSelectedMealsForDay(dayIndex, slots = mealSlots.value) {
+  return [1, 2, 3].filter(mealTypeId => slots[getMealSlotIndex(mealTypeId, dayIndex)] > 0).length
 }
 
 function isMealTypeBlocked(mealTypeId) {
+  const targetMealSlots = activeMealSlotsForSelectedDay.value
+
   return blockedMealTypeId.value === mealTypeId
       && selectedMealsByType.value[mealTypeId] <= 0
-      && getSelectedMealsForDay(selectedDay.value) >= subscriptionPlan.value.mealsPerDay
+      && getSelectedMealsForDay(selectedDay.value, targetMealSlots) >= subscriptionPlan.value.mealsPerDay
 }
 
 watch(selectedDay, () => {
@@ -158,6 +199,37 @@ async function persistCurrentPlan() {
     }
 
     statusMessage.value = t('planner.saved')
+  } catch (error) {
+    console.error(error)
+    errorMessage.value = error.response?.data?.detail
+        ?? error.response?.data?.message
+        ?? (typeof error.response?.data === 'string' ? error.response.data : t('planner.saveError'))
+  } finally {
+    isSavingPlan.value = false
+  }
+}
+
+async function persistNextWeekPlan() {
+  isSavingPlan.value = true
+  errorMessage.value = ''
+  statusMessage.value = ''
+
+  const payload = {
+    fechaInicio: toBackendDate(nextWeekMonday),
+    fechaFin: toBackendDate(followingMonday),
+    listaComidas: nextWeekMealSlots.value
+  }
+
+  try {
+    if (nextWeekPlanId.value) {
+      await mealPlanApiService.updateWeeklyMealPlan(nextWeekPlanId.value, payload)
+    } else {
+      const createdPlan = await mealPlanApiService.createWeeklyMealPlan(payload)
+      nextWeekPlanId.value = getPlanId(createdPlan)
+      nextWeekMealSlots.value = getPlanMeals(createdPlan)
+    }
+
+    statusMessage.value = t('planner.savedForNextWeek')
   } catch (error) {
     console.error(error)
     errorMessage.value = error.response?.data?.detail
@@ -195,6 +267,9 @@ async function persistCurrentPlan() {
         </div>
         <p class="planner-status__meta">
           {{ $t('planner.planLimit', { meals: subscriptionPlan.mealsPerDay }) }}
+          <span v-if="selectedDayAppliesNextWeek">
+            {{ $t('planner.nextWeekNotice') }}
+          </span>
         </p>
       </div>
 
@@ -317,6 +392,13 @@ async function persistCurrentPlan() {
   margin: 0;
   font-size: 0.85rem;
   color: var(--color-text-soft);
+}
+
+.planner-status__meta span {
+  display: block;
+  margin-top: 4px;
+  color: var(--color-primary);
+  font-weight: 600;
 }
 
 .status-toast {
