@@ -181,6 +181,7 @@ export default {
         limitReached: "Your current plan allows up to {meals} meal(s) per day. Remove a meal from this day or upgrade your plan.",
         loadingPlan: "Loading your weekly plan...",
         saved: "Meal saved to your weekly calendar.",
+        adjustedToPlan: "Your weekly calendar was adjusted to your current plan limit.",
         loadError: "Unable to load your weekly plan. Please sign in again.",
         saveError: "Unable to save this meal.",
         progress: "Weekly progress",

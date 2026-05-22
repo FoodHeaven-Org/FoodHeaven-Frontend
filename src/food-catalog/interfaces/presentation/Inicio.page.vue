@@ -10,6 +10,7 @@ import { ComidasApiService } from '@/food-catalog/application/internal/comidas-a
 import { toComidaEntitiesFromResponse } from '@/food-catalog/application/internal/comida-resource.transform.js'
 import { MealPlanApiService } from '@/meal-plans/application/internal/meal-plan-api.service.js'
 import {
+  areMealSlotsEqual,
   createEmptyMealSlots,
   EMPTY_MEAL_SLOT,
   findPlanForWeek,
@@ -17,7 +18,8 @@ import {
   getMealSlotIndex,
   getPlanId,
   getPlanMeals,
-  toBackendDate
+  toBackendDate,
+  trimMealSlotsToDailyLimit
 } from '@/meal-plans/application/internal/weekly-plan.helpers.js'
 import { getSubscriptionPlan } from '@/security/domain/model/valueobjects/subscription-plan.valueobject.js'
 
@@ -75,7 +77,20 @@ async function loadCurrentWeekPlan() {
     if (!currentPlan) return
 
     currentPlanId.value = getPlanId(currentPlan)
-    mealSlots.value = getPlanMeals(currentPlan)
+    const planMealSlots = getPlanMeals(currentPlan)
+    const trimmedMealSlots = trimMealSlotsToDailyLimit(planMealSlots, subscriptionPlan.value.mealsPerDay)
+
+    mealSlots.value = trimmedMealSlots
+
+    if (!areMealSlotsEqual(planMealSlots, trimmedMealSlots)) {
+      await mealPlanApiService.updateWeeklyMealPlan(currentPlanId.value, {
+        fechaInicio: toBackendDate(monday),
+        fechaFin: toBackendDate(nextMonday),
+        listaComidas: trimmedMealSlots
+      })
+
+      statusMessage.value = t('planner.adjustedToPlan')
+    }
   } catch (error) {
     console.error(error)
     errorMessage.value = t('planner.loadError')

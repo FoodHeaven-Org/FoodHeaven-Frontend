@@ -181,6 +181,7 @@ export default {
         limitReached: "Tu plan actual permite hasta {meals} comida(s) por día. Quita una comida de este día o cambia tu plan.",
         loadingPlan: "Cargando tu plan semanal...",
         saved: "Comida guardada en tu calendario semanal.",
+        adjustedToPlan: "Tu calendario semanal se ajustó al límite de tu plan actual.",
         loadError: "No se pudo cargar tu plan semanal. Inicia sesión nuevamente.",
         saveError: "No se pudo guardar esta comida.",
         progress: "Progreso semanal",
