@@ -152,7 +152,17 @@ export default {
         hidePassword: "Ocultar contraseña",
         errorRequired: "Completa todos los campos.",
         errorInvalid: "Credenciales inválidas. Vuelve a intentarlo.",
+        socialUnavailable: "El ingreso con {provider} aún no está disponible en esta versión local.",
         tagline: "Alimentación inteligente, planificada para ti."
+    },
+    forgotPassword: {
+        title: "Recuperar contraseña",
+        subtitle: "Ingresa tu correo y te guiaremos para volver a entrar a tu cuenta FoodHeaven.",
+        email: "Correo electrónico",
+        button: "Enviar instrucciones",
+        backToLogin: "Volver a iniciar sesión",
+        errorRequired: "Ingresa el correo vinculado a tu cuenta.",
+        success: "Si ese correo existe en FoodHeaven, las instrucciones de recuperación quedan listas para el flujo de correo."
     },
     header: {
         title: "Un menú diseñado para ti",
