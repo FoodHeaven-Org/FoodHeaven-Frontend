@@ -254,6 +254,21 @@ const handleRegister = async () => {
     return
   }
 
+  if (!isValidCardNumber(cardNumber.value)) {
+    errorMessage.value = t('register.errorInvalidCard')
+    return
+  }
+
+  if (!isValidExpiration(cardExpiration.value)) {
+    errorMessage.value = t('register.errorInvalidExpiration')
+    return
+  }
+
+  if (!isValidCvv(cardCvv.value)) {
+    errorMessage.value = t('register.errorInvalidCvv')
+    return
+  }
+
   isSubmitting.value = true
   try {
     await authApiService.signUp({
@@ -278,10 +293,77 @@ const handleRegister = async () => {
     await router.push({ name: 'Login' })
   } catch (error) {
     console.error(error)
-    errorMessage.value = error.response?.data?.message ?? 'Unable to register this user.'
+    errorMessage.value = getRegisterErrorMessage(error)
   } finally {
     isSubmitting.value = false
   }
+}
+
+function onlyDigits(value) {
+  return String(value ?? '').replace(/\D/g, '')
+}
+
+function isValidCardNumber(value) {
+  const digits = onlyDigits(value)
+
+  if (digits.length < 13 || digits.length > 19) return false
+
+  let sum = 0
+  let shouldDouble = false
+
+  for (let index = digits.length - 1; index >= 0; index--) {
+    let digit = Number(digits[index])
+
+    if (shouldDouble) {
+      digit *= 2
+      if (digit > 9) digit -= 9
+    }
+
+    sum += digit
+    shouldDouble = !shouldDouble
+  }
+
+  return sum % 10 === 0
+}
+
+function isValidExpiration(value) {
+  let digits = onlyDigits(value)
+
+  if (digits.length === 3) digits = `0${digits}`
+  if (digits.length !== 4 && digits.length !== 6) return false
+
+  const month = Number(digits.slice(0, 2))
+  const year = digits.length === 4
+      ? 2000 + Number(digits.slice(2))
+      : Number(digits.slice(2))
+
+  if (month < 1 || month > 12) return false
+
+  const lastValidDay = new Date(year, month, 0)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  return lastValidDay >= today
+}
+
+function isValidCvv(value) {
+  return /^\d{3,4}$/.test(onlyDigits(value))
+}
+
+function getRegisterErrorMessage(error) {
+  const data = error.response?.data
+
+  if (data?.message) return data.message
+
+  if (typeof data === 'string' && data.includes('Card number is not valid')) {
+    return t('register.errorInvalidCard')
+  }
+
+  if (typeof data === 'string' && data.trim()) {
+    return data.split('\n')[0]
+  }
+
+  return t('register.errorGeneric')
 }
 </script>
 
