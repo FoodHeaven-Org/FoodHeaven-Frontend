@@ -152,7 +152,17 @@ export default {
         hidePassword: "Hide password",
         errorRequired: "Please complete all fields.",
         errorInvalid: "Invalid credentials. Please try again.",
+        socialUnavailable: "{provider} sign-in is not available in this local version yet.",
         tagline: "Smart eating, planned for you."
+    },
+    forgotPassword: {
+        title: "Recover password",
+        subtitle: "Enter your email and we will guide you back into your FoodHeaven account.",
+        email: "Email address",
+        button: "Send recovery instructions",
+        backToLogin: "Back to sign in",
+        errorRequired: "Enter the email linked to your account.",
+        success: "If that email exists in FoodHeaven, password recovery instructions are ready for the email workflow."
     },
     header: {
         title: "A menu designed for you",

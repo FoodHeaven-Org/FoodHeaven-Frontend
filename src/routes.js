@@ -5,6 +5,7 @@ import CalendarioView from '@/meal-plans/interfaces/presentation/calendario-view
 import LoginView from '@/security/interfaces/presentation/login/login-view.page.vue'
 import InicioView from '@/food-catalog/interfaces/presentation/Inicio.page.vue'
 import RegisterView from '@/security/interfaces/presentation/register/register-view.page.vue'
+import ForgotPasswordView from '@/security/interfaces/presentation/forgot-password/forgot-password-view.page.vue'
 import SettingsView from '@/settings/interfaces/presentation/settings.page.vue'
 import { hasActiveSession } from '@/security/application/internal/auth-api.service.js'
 
@@ -23,6 +24,12 @@ const routes = [
         path: '/register',
         name: 'Register',
         component: RegisterView,
+        meta: { guestOnly: true }
+    },
+    {
+        path: '/forgot-password',
+        name: 'ForgotPassword',
+        component: ForgotPasswordView,
         meta: { guestOnly: true }
     },
     {
