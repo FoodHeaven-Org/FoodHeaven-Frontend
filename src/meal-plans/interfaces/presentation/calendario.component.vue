@@ -159,19 +159,11 @@ function buildCalendarMeals(mealIds, mealById, currentLocale) {
     </div>
 
     <div v-else class="calendar-board__inner">
-      <div class="calendar-board__month-row">
-        <div class="calendar-board__month">
-          <span>{{ monthLabel }}</span>
-        </div>
-        <div class="calendar-board__weekly-total">
-          <span class="label">{{ t('calendar.totalWeekCalories') }}</span>
-          <strong>{{ caloriasSemana }} <em>kcal</em></strong>
-        </div>
-      </div>
-
       <div class="calendar-grid">
         <div class="calendar-grid__row calendar-grid__row--head">
-          <div class="calendar-grid__cell calendar-grid__cell--corner"></div>
+          <div class="calendar-grid__cell calendar-grid__cell--corner">
+            <span>{{ monthLabel }}</span>
+          </div>
           <div
               v-for="(fecha, i) in fechasSemana"
               :key="i"
@@ -220,6 +212,11 @@ function buildCalendarMeals(mealIds, mealById, currentLocale) {
             <span>kcal</span>
           </div>
         </div>
+      </div>
+
+      <div class="calendar-board__weekly-total">
+        <span class="label">{{ t('calendar.totalWeekCalories') }}</span>
+        <strong>{{ caloriasSemana }} <em>kcal</em></strong>
       </div>
     </div>
   </div>
@@ -271,52 +268,35 @@ function buildCalendarMeals(mealIds, mealById, currentLocale) {
   gap: var(--space-4);
 }
 
-.calendar-board__month-row {
+.calendar-board__weekly-total {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  flex-wrap: wrap;
-}
-
-.calendar-board__month {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 18px;
-  border-radius: var(--radius-pill);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  color: var(--color-text);
-  font-weight: 600;
-}
-
-.calendar-board__weekly-total {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-end;
-  padding: 8px 18px;
-  border-radius: var(--radius-md);
-  background: var(--color-primary);
+  padding: 22px 28px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-strong) 100%);
   color: var(--color-text-inverse);
   box-shadow: var(--shadow-brand);
 }
 
 .calendar-board__weekly-total .label {
-  font-size: 0.7rem;
+  font-size: 0.82rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
+  font-weight: 700;
   opacity: 0.9;
 }
 
 .calendar-board__weekly-total strong {
-  font-size: 1.15rem;
+  font-size: 2rem;
   font-weight: 700;
+  line-height: 1;
 }
 
 .calendar-board__weekly-total em {
   font-style: normal;
-  font-size: 0.8rem;
+  font-size: 1rem;
   opacity: 0.9;
   margin-left: 4px;
 }
@@ -363,8 +343,13 @@ function buildCalendarMeals(mealIds, mealById, currentLocale) {
 
 .calendar-grid__cell--corner {
   background: var(--color-surface-2);
-  min-height: 0;
-  padding: 12px;
+  min-height: 80px;
+  padding: 12px 14px;
+  align-items: flex-start;
+  text-align: left;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .calendar-grid__head {
@@ -517,6 +502,11 @@ function buildCalendarMeals(mealIds, mealById, currentLocale) {
 
   .calendar-grid__meal-name {
     font-size: 0.86rem;
+  }
+
+  .calendar-board__weekly-total {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 </style>
