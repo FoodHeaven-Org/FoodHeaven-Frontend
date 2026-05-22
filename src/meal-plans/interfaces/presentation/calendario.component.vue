@@ -345,11 +345,12 @@ function buildCalendarMeals(mealIds, mealById, currentLocale) {
   background: var(--color-surface-2);
   min-height: 80px;
   padding: 12px 14px;
-  align-items: flex-start;
-  text-align: left;
+  align-items: center;
+  text-align: center;
   color: var(--color-text);
   font-size: 0.9rem;
   font-weight: 700;
+  line-height: 1.35;
 }
 
 .calendar-grid__head {
@@ -392,8 +393,8 @@ function buildCalendarMeals(mealIds, mealById, currentLocale) {
   background: var(--color-surface-2);
   justify-content: center;
   padding: 14px 18px;
-  text-align: left;
-  align-items: flex-start;
+  text-align: center;
+  align-items: center;
 }
 
 .calendar-grid__cell--label h3 {
@@ -401,6 +402,7 @@ function buildCalendarMeals(mealIds, mealById, currentLocale) {
   font-size: 0.98rem;
   font-weight: 700;
   color: var(--color-text);
+  line-height: 1.2;
 }
 
 .calendar-grid__meal {
