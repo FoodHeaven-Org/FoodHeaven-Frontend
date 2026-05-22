@@ -10,8 +10,9 @@ import {
 import { useTheme } from '@/shared/application/theme.composable.js'
 import LanguageSwitcher from '@/shared/interfaces/presentation/language-switcher.component.vue'
 import ThemeToggle from '@/shared/interfaces/presentation/theme-toggle.component.vue'
+import { resolveCurrentBrowserAddress } from '@/shared/infrastructure/location/browser-location.service.js'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const route = useRoute()
 const accountApiService = new AccountApiService()
 const { theme } = useTheme()
@@ -160,33 +161,25 @@ function mapPreviewUrl(address) {
   return `https://www.google.com/maps?q=${encodeURIComponent(query)}&output=embed`
 }
 
-function detectAddressLocation(index) {
+async function detectAddressLocation(index) {
   clearMessages()
-
-  if (!navigator.geolocation) {
-    errorMessage.value = t('settings.locationUnavailable')
-    return
-  }
 
   const address = profileForm.value.deliveryAddresses[index]
   if (!address) return
 
   address.isLocating = true
-  navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        address.latitude = Number(coords.latitude.toFixed(6))
-        address.longitude = Number(coords.longitude.toFixed(6))
-        if (!address.addressLine) {
-          address.addressLine = `${address.latitude}, ${address.longitude}`
-        }
-        address.isLocating = false
-      },
-      () => {
-        errorMessage.value = t('settings.locationUnavailable')
-        address.isLocating = false
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-  )
+
+  try {
+    const detectedLocation = await resolveCurrentBrowserAddress(locale.value)
+    address.latitude = detectedLocation.latitude
+    address.longitude = detectedLocation.longitude
+    address.addressLine = detectedLocation.addressLine
+  } catch (error) {
+    console.error(error)
+    errorMessage.value = t('settings.locationUnavailable')
+  } finally {
+    address.isLocating = false
+  }
 }
 
 function clearMessages() {
