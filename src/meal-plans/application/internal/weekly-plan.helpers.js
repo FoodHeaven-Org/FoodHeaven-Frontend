@@ -39,6 +39,34 @@ export function getMealSlotIndex(mealTypeId, dayIndex) {
     return ((mealTypeId - 1) * DAYS_IN_WEEK) + dayIndex
 }
 
+export function trimMealSlotsToDailyLimit(mealSlots, mealsPerDayLimit) {
+    if (mealSlots.length !== WEEKLY_MEAL_SLOTS) return mealSlots
+
+    const trimmedMealSlots = [...mealSlots]
+
+    for (let dayIndex = 0; dayIndex < DAYS_IN_WEEK; dayIndex++) {
+        let selectedMealsForDay = 0
+
+        for (let mealTypeIndex = 0; mealTypeIndex < MEALS_PER_DAY; mealTypeIndex++) {
+            const slotIndex = (mealTypeIndex * DAYS_IN_WEEK) + dayIndex
+            if (trimmedMealSlots[slotIndex] <= EMPTY_MEAL_SLOT) continue
+
+            selectedMealsForDay++
+            if (selectedMealsForDay > mealsPerDayLimit) {
+                trimmedMealSlots[slotIndex] = EMPTY_MEAL_SLOT
+            }
+        }
+    }
+
+    return trimmedMealSlots
+}
+
+export function areMealSlotsEqual(firstMealSlots, secondMealSlots) {
+    if (firstMealSlots.length !== secondMealSlots.length) return false
+
+    return firstMealSlots.every((mealId, index) => mealId === secondMealSlots[index])
+}
+
 export function findPlanForWeek(mealPlans, monday, nextMonday) {
     return mealPlans.find(plan => {
         const start = new Date(plan.fechaInicio ?? plan.FechaInicio)
