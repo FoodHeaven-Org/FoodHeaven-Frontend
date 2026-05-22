@@ -19,7 +19,8 @@ import {
   getPlanId,
   getPlanMeals,
   toBackendDate,
-  trimMealSlotsToDailyLimit
+  trimMealSlotsToDailyLimit,
+  trimMealSlotsToDailyLimitFromDay
 } from '@/meal-plans/application/internal/weekly-plan.helpers.js'
 import { getSubscriptionPlan } from '@/security/domain/model/valueobjects/subscription-plan.valueobject.js'
 
@@ -32,7 +33,8 @@ const nextWeekMonday = new Date(nextMonday)
 const followingMonday = new Date(nextWeekMonday)
 followingMonday.setDate(nextWeekMonday.getDate() + 7)
 
-const selectedDay = ref(todayIndex)
+const firstEditableDayIndex = todayIndex < 6 ? todayIndex + 1 : todayIndex
+const selectedDay = ref(firstEditableDayIndex)
 const currentPlanId = ref(null)
 const nextWeekPlanId = ref(null)
 const mealSlots = ref(createEmptyMealSlots())
@@ -55,14 +57,23 @@ const selectedMealsByType = computed(() => ({
   3: activeMealSlotsForSelectedDay.value[getMealSlotIndex(3, selectedDay.value)]
 }))
 
-const selectedSlotsCount = computed(() => mealSlots.value.filter(mealId => mealId > 0).length)
+const activeWeekMealSlots = computed(() =>
+    selectedDayAppliesNextWeek.value ? nextWeekMealSlots.value : mealSlots.value
+)
+const activeSelectedSlotsCount = computed(() => activeWeekMealSlots.value.filter(mealId => mealId > 0).length)
 const weeklySlotsLimit = computed(() => subscriptionPlan.value.mealsPerDay * 7)
 const progressPercent = computed(() => {
   const limit = weeklySlotsLimit.value
   if (!limit) return 0
-  return Math.min(100, Math.round((selectedSlotsCount.value / limit) * 100))
+  return Math.min(100, Math.round((activeSelectedSlotsCount.value / limit) * 100))
 })
 const subscriptionPlanName = computed(() => t(subscriptionPlan.value.nameKey))
+const progressLabel = computed(() =>
+    selectedDayAppliesNextWeek.value ? t('planner.nextWeekProgress') : t('planner.progress')
+)
+const slotsSelectedLabel = computed(() =>
+    selectedDayAppliesNextWeek.value ? t('planner.nextWeekSlotsSelected') : t('planner.slotsSelected')
+)
 
 onBeforeMount(async () => {
   await loadCurrentWeekPlan()
@@ -88,7 +99,11 @@ async function loadCurrentWeekPlan() {
     if (currentPlan) {
       currentPlanId.value = getPlanId(currentPlan)
       const planMealSlots = getPlanMeals(currentPlan)
-      const trimmedMealSlots = trimMealSlotsToDailyLimit(planMealSlots, subscriptionPlan.value.mealsPerDay)
+      const trimmedMealSlots = trimMealSlotsToDailyLimitFromDay(
+          planMealSlots,
+          subscriptionPlan.value.mealsPerDay,
+          todayIndex + 1
+      )
       currentWeekSlots = trimmedMealSlots
       mealSlots.value = trimmedMealSlots
 
@@ -121,7 +136,7 @@ async function loadCurrentWeekPlan() {
       }
     } else {
       nextWeekPlanId.value = null
-      nextWeekMealSlots.value = [...currentWeekSlots]
+      nextWeekMealSlots.value = trimMealSlotsToDailyLimit(currentWeekSlots, subscriptionPlan.value.mealsPerDay)
     }
   } catch (error) {
     console.error(error)
@@ -257,8 +272,8 @@ async function persistNextWeekPlan() {
       <div class="planner-status__card" v-else>
         <div class="planner-status__top">
           <div class="planner-status__heading">
-            <span class="planner-status__label">{{ $t('planner.progress') }}</span>
-            <h3>{{ selectedSlotsCount }} / {{ weeklySlotsLimit }} {{ $t('planner.slotsSelected') }}</h3>
+            <span class="planner-status__label">{{ progressLabel }}</span>
+            <h3>{{ activeSelectedSlotsCount }} / {{ weeklySlotsLimit }} {{ slotsSelectedLabel }}</h3>
           </div>
           <span class="planner-status__plan">{{ subscriptionPlanName }}</span>
         </div>

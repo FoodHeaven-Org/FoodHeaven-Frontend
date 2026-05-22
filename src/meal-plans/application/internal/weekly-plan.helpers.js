@@ -40,11 +40,17 @@ export function getMealSlotIndex(mealTypeId, dayIndex) {
 }
 
 export function trimMealSlotsToDailyLimit(mealSlots, mealsPerDayLimit) {
+    return trimMealSlotsToDailyLimitFromDay(mealSlots, mealsPerDayLimit, 0)
+}
+
+export function trimMealSlotsToDailyLimitFromDay(mealSlots, mealsPerDayLimit, firstDayIndex) {
     if (mealSlots.length !== WEEKLY_MEAL_SLOTS) return mealSlots
 
     const trimmedMealSlots = [...mealSlots]
 
     for (let dayIndex = 0; dayIndex < DAYS_IN_WEEK; dayIndex++) {
+        if (dayIndex < firstDayIndex) continue
+
         let selectedMealsForDay = 0
 
         for (let mealTypeIndex = 0; mealTypeIndex < MEALS_PER_DAY; mealTypeIndex++) {

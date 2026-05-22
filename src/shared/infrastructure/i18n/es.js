@@ -187,6 +187,7 @@ export default {
         remove: "Quitar",
         planBlocked: "Plan limitado",
         slotsSelected: "comidas elegidas esta semana",
+        nextWeekSlotsSelected: "comidas elegidas para la próxima semana",
         planLimit: "{meals} comida(s) por día",
         limitReached: "Tu plan actual permite hasta {meals} comida(s) por día. Quita una comida de este día o cambia tu plan.",
         loadingPlan: "Cargando tu plan semanal...",
@@ -197,6 +198,7 @@ export default {
         loadError: "No se pudo cargar tu plan semanal. Inicia sesión nuevamente.",
         saveError: "No se pudo guardar esta comida.",
         progress: "Progreso semanal",
+        nextWeekProgress: "Progreso de la próxima semana",
         viewCalendar: "Ver calendario"
     },
     nutrition: {
