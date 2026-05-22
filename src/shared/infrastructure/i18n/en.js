@@ -187,6 +187,7 @@ export default {
         remove: "Remove",
         planBlocked: "Plan limit",
         slotsSelected: "meals selected this week",
+        nextWeekSlotsSelected: "meals selected for next week",
         planLimit: "{meals} meal(s) per day",
         limitReached: "Your current plan allows up to {meals} meal(s) per day. Remove a meal from this day or upgrade your plan.",
         loadingPlan: "Loading your weekly plan...",
@@ -197,6 +198,7 @@ export default {
         loadError: "Unable to load your weekly plan. Please sign in again.",
         saveError: "Unable to save this meal.",
         progress: "Weekly progress",
+        nextWeekProgress: "Next week progress",
         viewCalendar: "View calendar"
     },
     nutrition: {
