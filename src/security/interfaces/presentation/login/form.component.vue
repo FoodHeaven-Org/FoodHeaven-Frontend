@@ -78,9 +78,7 @@
       </div>
     </section>
 
-    <aside class="login-hero" aria-hidden="true">
-      <div class="login-hero__image"></div>
-    </aside>
+    <aside class="login-hero" aria-hidden="true"></aside>
   </div>
 </template>
 
@@ -338,26 +336,13 @@ const handleLogin = async () => {
 
 .login-hero {
   position: relative;
+  overflow: hidden;
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background:
-      radial-gradient(circle at 20% 20%, var(--color-primary-soft), transparent 34%),
-      var(--color-bg);
-}
-
-.login-hero__image {
-  width: min(720px, 74vw);
-  aspect-ratio: 1;
-  border-radius: 50%;
   background-image:
-      linear-gradient(135deg, rgba(7, 11, 8, 0.18) 0%, rgba(31, 27, 20, 0.36) 100%),
+      linear-gradient(135deg, rgba(7, 11, 8, 0.55) 0%, rgba(31, 27, 20, 0.25) 100%),
       url('/imgLoginRegister.jpg');
   background-size: cover;
   background-position: center;
-  box-shadow: -22px 28px 80px rgba(31, 27, 20, 0.22);
-  transform: translateX(10%);
 }
 
 @media (max-width: 980px) {
