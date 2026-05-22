@@ -174,8 +174,9 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { AuthApiService } from '@/security/application/internal/auth-api.service.js'
 import { SUBSCRIPTION_PLANS } from '@/security/domain/model/valueobjects/subscription-plan.valueobject.js'
+import { resolveCurrentBrowserAddress } from '@/shared/infrastructure/location/browser-location.service.js'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const router = useRouter()
 const authApiService = new AuthApiService()
 
@@ -212,30 +213,22 @@ const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value
 }
 
-const detectLocation = () => {
+const detectLocation = async () => {
   errorMessage.value = ''
 
-  if (!navigator.geolocation) {
-    errorMessage.value = t('settings.locationUnavailable')
-    return
-  }
-
   isLocating.value = true
-  navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        latitude.value = Number(coords.latitude.toFixed(6))
-        longitude.value = Number(coords.longitude.toFixed(6))
-        if (!address.value) {
-          address.value = `${latitude.value}, ${longitude.value}`
-        }
-        isLocating.value = false
-      },
-      () => {
-        errorMessage.value = t('settings.locationUnavailable')
-        isLocating.value = false
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-  )
+
+  try {
+    const detectedLocation = await resolveCurrentBrowserAddress(locale.value)
+    latitude.value = detectedLocation.latitude
+    longitude.value = detectedLocation.longitude
+    address.value = detectedLocation.addressLine
+  } catch (error) {
+    console.error(error)
+    errorMessage.value = t('settings.locationUnavailable')
+  } finally {
+    isLocating.value = false
+  }
 }
 
 const handleRegister = async () => {
