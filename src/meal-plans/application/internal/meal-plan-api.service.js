@@ -18,35 +18,47 @@ export class MealPlanApiService {
         }
     }
 
-    async createWeeklyMealPlan({ fechaInicio, fechaFin, listaComidas }) {
+    async createWeeklyMealPlan({ fechaInicio, fechaFin, listaComidas, horariosEntrega }) {
         const userId = getCurrentUserId()
 
         if (!userId) {
             throw new Error('There is no authenticated user in the current session.')
         }
 
-        const response = await apiClient.post('/PlanComida', {
+        const payload = {
             idUsuario: userId,
             fechaInicio,
             fechaFin,
             listaComidas
-        })
+        }
+
+        if (horariosEntrega) {
+            payload.horariosEntrega = horariosEntrega
+        }
+
+        const response = await apiClient.post('/PlanComida', payload)
 
         return response.data
     }
 
-    async updateWeeklyMealPlan(planId, { fechaInicio, fechaFin, listaComidas }) {
+    async updateWeeklyMealPlan(planId, { fechaInicio, fechaFin, listaComidas, horariosEntrega }) {
         const userId = getCurrentUserId()
 
         if (!userId) {
             throw new Error('There is no authenticated user in the current session.')
         }
 
-        await apiClient.put(`/PlanComida/${planId}`, {
+        const payload = {
             idUsuario: userId,
             fechaInicio,
             fechaFin,
             listaComidas
-        })
+        }
+
+        if (horariosEntrega) {
+            payload.horariosEntrega = horariosEntrega
+        }
+
+        await apiClient.put(`/PlanComida/${planId}`, payload)
     }
 }

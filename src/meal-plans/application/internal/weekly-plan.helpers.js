@@ -2,9 +2,21 @@ export const EMPTY_MEAL_SLOT = 0
 export const DAYS_IN_WEEK = 7
 export const MEALS_PER_DAY = 3
 export const WEEKLY_MEAL_SLOTS = DAYS_IN_WEEK * MEALS_PER_DAY
+export const DEFAULT_DELIVERY_SCHEDULES_BY_MEAL_TYPE = {
+    1: '07:00-09:00',
+    2: '12:00-14:00',
+    3: '19:00-21:00'
+}
 
 export function createEmptyMealSlots() {
     return Array.from({ length: WEEKLY_MEAL_SLOTS }, () => EMPTY_MEAL_SLOT)
+}
+
+export function createDefaultDeliverySchedules() {
+    return Array.from({ length: WEEKLY_MEAL_SLOTS }, (_, slotIndex) => {
+        const mealTypeId = Math.floor(slotIndex / DAYS_IN_WEEK) + 1
+        return DEFAULT_DELIVERY_SCHEDULES_BY_MEAL_TYPE[mealTypeId]
+    })
 }
 
 export function getCurrentWeekRange(date = new Date()) {
@@ -33,6 +45,19 @@ export function getPlanMeals(plan) {
     })
 
     return slots
+}
+
+export function getPlanDeliverySchedules(plan) {
+    const schedules = plan?.horariosEntrega ?? plan?.HorariosEntrega ?? []
+    const defaults = createDefaultDeliverySchedules()
+
+    schedules.slice(0, WEEKLY_MEAL_SLOTS).forEach((schedule, index) => {
+        if (typeof schedule === 'string' && schedule.trim()) {
+            defaults[index] = schedule.trim()
+        }
+    })
+
+    return defaults
 }
 
 export function getMealSlotIndex(mealTypeId, dayIndex) {

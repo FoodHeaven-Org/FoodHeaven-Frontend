@@ -1,8 +1,14 @@
 <script setup>
 import Calendario from "./calendario.component.vue"
 import Boton from "./button-calendarios.component.vue"
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
+const calendarRef = ref(null)
+
+async function saveCalendarPlan() {
+  await calendarRef.value?.saveDeliverySchedules()
+}
 </script>
 
 <template>
@@ -15,8 +21,8 @@ const { t } = useI18n();
       </p>
     </header>
 
-    <Calendario />
-    <Boton />
+    <Calendario ref="calendarRef" />
+    <Boton :save-action="saveCalendarPlan" />
   </section>
 </template>
 
