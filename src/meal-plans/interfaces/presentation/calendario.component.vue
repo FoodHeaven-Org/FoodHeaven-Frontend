@@ -431,6 +431,9 @@ defineExpose({
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  width: min(1680px, calc(100vw - 48px));
+  max-width: none;
+  padding-inline: 0;
 }
 
 .calendar-board__loading,
@@ -535,7 +538,7 @@ defineExpose({
 
 .calendar-grid__row {
   display: grid;
-  grid-template-columns: 130px repeat(7, minmax(0, 1fr));
+  grid-template-columns: 150px repeat(7, minmax(150px, 1fr));
   border-bottom: 1px solid var(--color-divider);
 }
 
@@ -549,7 +552,7 @@ defineExpose({
 }
 
 .calendar-grid__cell {
-  padding: 14px 12px;
+  padding: 16px 14px;
   border-right: 1px solid var(--color-divider);
   display: flex;
   flex-direction: column;
@@ -567,7 +570,7 @@ defineExpose({
 .calendar-grid__cell--corner {
   background: var(--color-surface-2);
   min-height: 80px;
-  padding: 12px 14px;
+  padding: 14px 16px;
   align-items: center;
   text-align: center;
   color: var(--color-text);
@@ -578,7 +581,7 @@ defineExpose({
 
 .calendar-grid__head {
   gap: 4px;
-  padding: 12px;
+  padding: 14px 12px;
   min-height: 80px;
 }
 
@@ -631,9 +634,9 @@ defineExpose({
 .calendar-grid__meal {
   align-items: stretch;
   text-align: center;
-  gap: 6px;
+  gap: 8px;
   justify-content: flex-start;
-  padding: 16px 12px 14px;
+  padding: 18px 16px 16px;
 }
 
 .calendar-grid__meal.today {
@@ -642,7 +645,7 @@ defineExpose({
 
 .calendar-grid__meal-name {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.94rem;
   font-weight: 600;
   color: var(--color-text);
   line-height: 1.25;
@@ -650,7 +653,7 @@ defineExpose({
 
 .calendar-grid__meal-desc {
   margin: 0;
-  font-size: 0.76rem;
+  font-size: 0.8rem;
   color: var(--color-text-muted);
   line-height: 1.4;
   /* Show the full description — no clamp, no overflow hidden.
@@ -694,18 +697,18 @@ defineExpose({
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .calendar-grid__delivery-inputs input {
-  width: 64px;
+  width: 78px;
   min-width: 0;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
-  font-size: 0.72rem;
+  font-size: 0.76rem;
   padding: 4px 3px;
   text-align: center;
 }
@@ -720,9 +723,9 @@ defineExpose({
   background: var(--color-surface);
   color: var(--color-primary);
   cursor: pointer;
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  padding: 5px 8px;
+  padding: 6px 10px;
   transition:
       background var(--duration-fast) var(--ease-out),
       color var(--duration-fast) var(--ease-out),
@@ -789,18 +792,20 @@ defineExpose({
   /* As the cells get narrower we let the user scroll horizontally
      instead of hiding the description (which the user wants visible). */
   .calendar-board {
+    width: 100%;
+    padding-inline: var(--space-5);
     overflow-x: auto;
     padding-bottom: 6px;
   }
 
   .calendar-board__inner {
-    min-width: 1160px;
+    min-width: 1220px;
   }
 }
 
 @media (max-width: 600px) {
   .calendar-board__inner {
-    min-width: 1080px;
+    min-width: 1180px;
   }
 
   .calendar-grid__meal-name {
