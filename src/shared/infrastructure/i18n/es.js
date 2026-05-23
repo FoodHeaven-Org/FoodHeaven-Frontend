@@ -145,7 +145,17 @@ export default {
         deliveryScheduleRequired: "Completa la hora de inicio y fin.",
         deliveryScheduleOrderError: "La hora final debe ser posterior a la hora inicial.",
         deliveryScheduleRangeError: "El horario debe estar entre {min} y {max}.",
-        deliveryScheduleSaved: "Horarios de entrega guardados correctamente."
+        deliveryScheduleSaved: "Horarios de entrega guardados correctamente.",
+        thisWeek: "Esta semana",
+        nextWeek: "Próxima semana",
+        deliveryAllowed: "Permitido {min}–{max}",
+        deliveryWindowLegend: "Horarios de entrega permitidos",
+        breakfastWindowLegend: "Desayuno: 05:00–12:00",
+        mealsWindowLegend: "Almuerzo y cena: 12:00–23:00",
+        nextWeekEmpty: "Aún no programaste comidas para la próxima semana.",
+        nextWeekEmptyHint: "Elige platos para los días pasados de esta semana en Inicio y aparecerán aquí.",
+        currentWeekEmpty: "Aún no tienes un plan programado para esta semana.",
+        planForWeekOf: "Plan para la semana del {date}"
     },
     login: {
         title: "Bienvenido de nuevo",
@@ -204,7 +214,7 @@ export default {
         limitReached: "Tu plan actual permite hasta {meals} comida(s) por día. Quita una comida de este día o cambia tu plan.",
         loadingPlan: "Cargando tu plan semanal...",
         saved: "Comida guardada en tu calendario semanal.",
-        savedForNextWeek: "Cambio guardado para la próxima semana.",
+        savedForNextWeek: "Cambio guardado para la próxima semana. Míralo en el Calendario → Próxima semana.",
         adjustedToPlan: "Tu calendario semanal se ajustó al límite de tu plan actual.",
         nextWeekNotice: "Los cambios para hoy o días anteriores se guardan para la próxima semana.",
         loadError: "No se pudo cargar tu plan semanal. Inicia sesión nuevamente.",
