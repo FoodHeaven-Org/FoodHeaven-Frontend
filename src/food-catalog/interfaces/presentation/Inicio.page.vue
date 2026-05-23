@@ -19,8 +19,7 @@ import {
   getPlanId,
   getPlanMeals,
   toBackendDate,
-  trimMealSlotsToDailyLimit,
-  trimMealSlotsToDailyLimitFromDay
+  trimMealSlotsToDailyLimit
 } from '@/meal-plans/application/internal/weekly-plan.helpers.js'
 import { getSubscriptionPlan } from '@/security/domain/model/valueobjects/subscription-plan.valueobject.js'
 
@@ -99,11 +98,7 @@ async function loadCurrentWeekPlan() {
     if (currentPlan) {
       currentPlanId.value = getPlanId(currentPlan)
       const planMealSlots = getPlanMeals(currentPlan)
-      const trimmedMealSlots = trimMealSlotsToDailyLimitFromDay(
-          planMealSlots,
-          subscriptionPlan.value.mealsPerDay,
-          todayIndex + 1
-      )
+      const trimmedMealSlots = trimMealSlotsToDailyLimit(planMealSlots, subscriptionPlan.value.mealsPerDay)
       currentWeekSlots = trimmedMealSlots
       mealSlots.value = trimmedMealSlots
 
