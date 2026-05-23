@@ -5,9 +5,15 @@ import { MealPlanApiService } from '@/meal-plans/application/internal/meal-plan-
 import { ComidasApiService } from '@/food-catalog/application/internal/comidas-api.service.js'
 import { toComidaEntitiesFromResponse } from '@/food-catalog/application/internal/comida-resource.transform.js'
 import {
+  createDefaultDeliverySchedules,
+  DAYS_IN_WEEK,
   findPlanForWeek,
   getCurrentWeekRange,
-  getPlanMeals
+  getMealSlotIndex,
+  getPlanDeliverySchedules,
+  getPlanId,
+  getPlanMeals,
+  toBackendDate
 } from '@/meal-plans/application/internal/weekly-plan.helpers.js'
 
 const { t, locale } = useI18n()
@@ -52,7 +58,8 @@ function buildWeekDates() {
     out.push({
       dia: dias.value[i],
       numero: fecha.getDate(),
-      esHoy: i === todayIndex
+      esHoy: i === todayIndex,
+      protegido: i <= todayIndex
     })
   }
   return out
@@ -64,11 +71,17 @@ watch(() => locale.value, () => {
   fechasSemana.value = buildWeekDates()
 })
 
-const emptyMeal = { nombre: '', descripcion: '', calorias: 0 }
+const emptyMeal = { nombre: '', descripcion: '', calorias: 0, horarioEntrega: '' }
+const defaultDeliverySchedules = createDefaultDeliverySchedules()
+const currentPlanId = ref(null)
 const selectedMealIds = ref([])
+const selectedDeliverySchedules = ref(createDefaultDeliverySchedules())
 const mealById = ref(new Map())
 const isLoading = ref(true)
+const isSavingSchedule = ref(false)
 const errorMessage = ref('')
+const scheduleStatusMessage = ref('')
+const scheduleErrorMessage = ref('')
 const hasActivePlan = ref(false)
 
 onBeforeMount(async () => {
@@ -88,7 +101,9 @@ onBeforeMount(async () => {
     }
 
     hasActivePlan.value = true
+    currentPlanId.value = getPlanId(activePlan)
     selectedMealIds.value = getPlanMeals(activePlan)
+    selectedDeliverySchedules.value = getPlanDeliverySchedules(activePlan)
   } catch (error) {
     console.error(error)
     errorMessage.value = t('calendar.loadError')
@@ -115,9 +130,14 @@ function createEmptyWeek() {
   ]
 }
 
-const datosComida = computed(() => buildCalendarMeals(selectedMealIds.value, mealById.value, locale.value))
+const datosComida = computed(() => buildCalendarMeals(
+    selectedMealIds.value,
+    selectedDeliverySchedules.value,
+    mealById.value,
+    locale.value
+))
 
-function buildCalendarMeals(mealIds, mealById, currentLocale) {
+function buildCalendarMeals(mealIds, deliverySchedules, mealById, currentLocale) {
   const calendarMeals = createEmptyWeek()
 
   for (let mealTypeIndex = 0; mealTypeIndex < 3; mealTypeIndex++) {
@@ -131,13 +151,153 @@ function buildCalendarMeals(mealIds, mealById, currentLocale) {
       calendarMeals[mealTypeIndex][dayIndex] = {
         nombre: localizedMeal.nombre,
         descripcion: localizedMeal.complemento,
-        calorias: localizedMeal.nutriente
+        calorias: localizedMeal.nutriente,
+        horarioEntrega: deliverySchedules[(mealTypeIndex * 7) + dayIndex]
       }
     }
   }
 
   return calendarMeals
 }
+
+function getDeliveryWindowForMealType(mealTypeIndex) {
+  return mealTypeIndex === 0
+      ? { min: '05:00', max: '12:00' }
+      : { min: '12:00', max: '23:00' }
+}
+
+function getDeliveryScheduleParts(slotIndex) {
+  const fallback = defaultDeliverySchedules[slotIndex]
+  const schedule = selectedDeliverySchedules.value[slotIndex] || fallback
+  const [start = '', end = ''] = schedule.split('-')
+
+  return { start, end }
+}
+
+function getDeliveryStart(slotIndex) {
+  return getDeliveryScheduleParts(slotIndex).start
+}
+
+function getDeliveryEnd(slotIndex) {
+  return getDeliveryScheduleParts(slotIndex).end
+}
+
+function updateDeliverySchedule(slotIndex, segment, value) {
+  scheduleStatusMessage.value = ''
+  scheduleErrorMessage.value = ''
+
+  const parts = getDeliveryScheduleParts(slotIndex)
+  const nextStart = segment === 'start' ? value : parts.start
+  const nextEnd = segment === 'end' ? value : parts.end
+  const nextSchedules = [...selectedDeliverySchedules.value]
+  nextSchedules[slotIndex] = `${nextStart}-${nextEnd}`
+  selectedDeliverySchedules.value = nextSchedules
+
+  if (!isValidDeliverySchedule(slotIndex)) {
+    scheduleErrorMessage.value = getDeliveryScheduleError(slotIndex)
+  }
+}
+
+function applyDeliveryScheduleToWeek(mealTypeIndex, dayIndex) {
+  const sourceSlotIndex = getMealSlotIndex(mealTypeIndex + 1, dayIndex)
+
+  if (!isValidDeliverySchedule(sourceSlotIndex)) {
+    scheduleErrorMessage.value = getDeliveryScheduleError(sourceSlotIndex)
+    return
+  }
+
+  const nextSchedules = [...selectedDeliverySchedules.value]
+  const deliverySchedule = nextSchedules[sourceSlotIndex]
+
+  for (let currentDayIndex = 0; currentDayIndex < DAYS_IN_WEEK; currentDayIndex++) {
+    if (fechasSemana.value[currentDayIndex]?.protegido) continue
+
+    const targetSlotIndex = getMealSlotIndex(mealTypeIndex + 1, currentDayIndex)
+    if (selectedMealIds.value[targetSlotIndex] <= 0) continue
+
+    nextSchedules[targetSlotIndex] = deliverySchedule
+  }
+
+  selectedDeliverySchedules.value = nextSchedules
+  scheduleErrorMessage.value = ''
+  scheduleStatusMessage.value = t('calendar.deliveryScheduleApplied', {
+    meal: mealTypeLabels.value[mealTypeIndex].toLowerCase()
+  })
+}
+
+function isValidDeliverySchedule(slotIndex) {
+  return !getDeliveryScheduleError(slotIndex)
+}
+
+function getDeliveryScheduleError(slotIndex) {
+  const mealTypeIndex = Math.floor(slotIndex / DAYS_IN_WEEK)
+  const { min, max } = getDeliveryWindowForMealType(mealTypeIndex)
+  const { start, end } = getDeliveryScheduleParts(slotIndex)
+  const startMinutes = toMinutes(start)
+  const endMinutes = toMinutes(end)
+  const minMinutes = toMinutes(min)
+  const maxMinutes = toMinutes(max)
+
+  if (Number.isNaN(startMinutes) || Number.isNaN(endMinutes)) {
+    return t('calendar.deliveryScheduleRequired')
+  }
+
+  if (startMinutes >= endMinutes) {
+    return t('calendar.deliveryScheduleOrderError')
+  }
+
+  if (startMinutes < minMinutes || endMinutes > maxMinutes) {
+    return t('calendar.deliveryScheduleRangeError', { min, max })
+  }
+
+  return ''
+}
+
+function toMinutes(value) {
+  const [hours, minutes] = value.split(':').map(Number)
+
+  if (!Number.isInteger(hours) || !Number.isInteger(minutes)) return Number.NaN
+
+  return (hours * 60) + minutes
+}
+
+async function saveDeliverySchedules() {
+  scheduleStatusMessage.value = ''
+  scheduleErrorMessage.value = ''
+
+  if (!currentPlanId.value) {
+    scheduleErrorMessage.value = t('calendar.noPlan')
+    throw new Error(scheduleErrorMessage.value)
+  }
+
+  for (let slotIndex = 0; slotIndex < selectedMealIds.value.length; slotIndex++) {
+    if (selectedMealIds.value[slotIndex] <= 0) continue
+
+    const error = getDeliveryScheduleError(slotIndex)
+    if (error) {
+      scheduleErrorMessage.value = error
+      throw new Error(error)
+    }
+  }
+
+  isSavingSchedule.value = true
+
+  try {
+    await mealPlanApiService.updateWeeklyMealPlan(currentPlanId.value, {
+      fechaInicio: toBackendDate(monday),
+      fechaFin: toBackendDate(nextMonday),
+      listaComidas: selectedMealIds.value,
+      horariosEntrega: selectedDeliverySchedules.value
+    })
+    scheduleStatusMessage.value = t('calendar.deliveryScheduleSaved')
+  } finally {
+    isSavingSchedule.value = false
+  }
+}
+
+defineExpose({
+  saveDeliverySchedules
+})
 </script>
 
 <template>
@@ -193,6 +353,39 @@ function buildCalendarMeals(mealIds, mealById, currentLocale) {
               <p class="calendar-grid__meal-name">{{ datosComida[i][j].nombre }}</p>
               <p class="calendar-grid__meal-desc">{{ datosComida[i][j].descripcion }}</p>
               <span class="calendar-grid__meal-cal">{{ datosComida[i][j].calorias }} kcal</span>
+              <div class="calendar-grid__delivery" :class="{ locked: fecha.protegido }">
+                <span class="calendar-grid__delivery-label">{{ t('calendar.deliveryWindow') }}</span>
+                <div class="calendar-grid__delivery-inputs">
+                  <input
+                      type="time"
+                      :value="getDeliveryStart(getMealSlotIndex(i + 1, j))"
+                      :min="getDeliveryWindowForMealType(i).min"
+                      :max="getDeliveryWindowForMealType(i).max"
+                      :disabled="fecha.protegido || isSavingSchedule"
+                      :aria-label="t('calendar.deliveryStart')"
+                      @input="updateDeliverySchedule(getMealSlotIndex(i + 1, j), 'start', $event.target.value)"
+                  />
+                  <span>-</span>
+                  <input
+                      type="time"
+                      :value="getDeliveryEnd(getMealSlotIndex(i + 1, j))"
+                      :min="getDeliveryWindowForMealType(i).min"
+                      :max="getDeliveryWindowForMealType(i).max"
+                      :disabled="fecha.protegido || isSavingSchedule"
+                      :aria-label="t('calendar.deliveryEnd')"
+                      @input="updateDeliverySchedule(getMealSlotIndex(i + 1, j), 'end', $event.target.value)"
+                  />
+                </div>
+                <button
+                    class="calendar-grid__delivery-apply"
+                    type="button"
+                    :disabled="fecha.protegido || isSavingSchedule || !isValidDeliverySchedule(getMealSlotIndex(i + 1, j))"
+                    @click="applyDeliveryScheduleToWeek(i, j)"
+                >
+                  {{ t('calendar.applyScheduleToWeek') }}
+                </button>
+                <small v-if="fecha.protegido">{{ t('calendar.deliveryProtected') }}</small>
+              </div>
             </template>
             <span v-else class="calendar-grid__meal-empty">—</span>
           </div>
@@ -218,6 +411,17 @@ function buildCalendarMeals(mealIds, mealById, currentLocale) {
         <span class="label">{{ t('calendar.totalWeekCalories') }}</span>
         <strong>{{ caloriasSemana }} <em>kcal</em></strong>
       </div>
+
+      <transition name="fh-fade">
+        <p v-if="scheduleStatusMessage" class="calendar-board__toast calendar-board__toast--success">
+          {{ scheduleStatusMessage }}
+        </p>
+      </transition>
+      <transition name="fh-fade">
+        <p v-if="scheduleErrorMessage" class="calendar-board__toast calendar-board__toast--error">
+          {{ scheduleErrorMessage }}
+        </p>
+      </transition>
     </div>
   </div>
 </template>
@@ -299,6 +503,25 @@ function buildCalendarMeals(mealIds, mealById, currentLocale) {
   font-size: 1rem;
   opacity: 0.9;
   margin-left: 4px;
+}
+
+.calendar-board__toast {
+  align-self: center;
+  margin: 0;
+  padding: 10px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.calendar-board__toast--success {
+  color: var(--color-success);
+  background: var(--color-success-soft);
+}
+
+.calendar-board__toast--error {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
 }
 
 /* Grid */
@@ -449,6 +672,84 @@ function buildCalendarMeals(mealIds, mealById, currentLocale) {
   font-weight: 600;
 }
 
+.calendar-grid__delivery {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-divider);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+
+.calendar-grid__delivery-label {
+  color: var(--color-text-soft);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.calendar-grid__delivery-inputs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.calendar-grid__delivery-inputs input {
+  width: 64px;
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.72rem;
+  padding: 4px 3px;
+  text-align: center;
+}
+
+.calendar-grid__delivery-inputs input:disabled {
+  opacity: 0.58;
+}
+
+.calendar-grid__delivery-apply {
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-primary);
+  cursor: pointer;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 5px 8px;
+  transition:
+      background var(--duration-fast) var(--ease-out),
+      color var(--duration-fast) var(--ease-out),
+      transform var(--duration-fast) var(--ease-out);
+}
+
+.calendar-grid__delivery-apply:hover:not(:disabled) {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  transform: translateY(-1px);
+}
+
+.calendar-grid__delivery-apply:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.calendar-grid__delivery small {
+  color: var(--color-text-soft);
+  font-size: 0.68rem;
+  line-height: 1.25;
+}
+
+.calendar-grid__delivery.locked {
+  opacity: 0.75;
+}
+
 .calendar-grid__meal-empty {
   color: var(--color-text-soft);
   font-size: 1.4rem;
@@ -493,13 +794,13 @@ function buildCalendarMeals(mealIds, mealById, currentLocale) {
   }
 
   .calendar-board__inner {
-    min-width: 980px;
+    min-width: 1160px;
   }
 }
 
 @media (max-width: 600px) {
   .calendar-board__inner {
-    min-width: 880px;
+    min-width: 1080px;
   }
 
   .calendar-grid__meal-name {

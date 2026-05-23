@@ -133,7 +133,19 @@ export default {
         no: "No",
         today: "Today",
         empty: "No meal",
-        weekOf: "Week of"
+        weekOf: "Week of",
+        saving: "Saving...",
+        saveError: "Unable to save the plan.",
+        deliveryWindow: "Window",
+        deliveryStart: "Start time",
+        deliveryEnd: "End time",
+        applyScheduleToWeek: "Apply to week",
+        deliveryProtected: "Updates require 1 day of notice.",
+        deliveryScheduleApplied: "Schedule applied to editable {meal} days.",
+        deliveryScheduleRequired: "Complete the start and end time.",
+        deliveryScheduleOrderError: "End time must be after start time.",
+        deliveryScheduleRangeError: "Schedule must be between {min} and {max}.",
+        deliveryScheduleSaved: "Delivery schedules saved successfully."
     },
     login: {
         title: "Welcome back",

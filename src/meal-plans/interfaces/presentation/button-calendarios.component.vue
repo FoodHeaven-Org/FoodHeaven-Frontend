@@ -1,21 +1,47 @@
 <script setup>
 import { useConfirm } from 'primevue/useconfirm'
 import { useRouter } from 'vue-router'
+import { ref } from 'vue'
 const confirm = useConfirm()
 const router = useRouter()
 
+const props = defineProps({
+  saveAction: {
+    type: Function,
+    default: null
+  }
+})
+
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
+const isSaving = ref(false)
+const errorMessage = ref('')
 
 function confirmarAccion() {
+  errorMessage.value = ''
   confirm.require({
     group: 'headless',
     message: t('calendar.confirmText1'),
     acceptLabel: t('calendar.yes'),
     rejectLabel: t('calendar.no'),
-    accept: () => confirmationDone(),
+    accept: () => saveAndConfirm(),
     reject: () => {}
   })
+}
+
+async function saveAndConfirm() {
+  isSaving.value = true
+  errorMessage.value = ''
+
+  try {
+    await props.saveAction?.()
+    confirmationDone()
+  } catch (error) {
+    console.error(error)
+    errorMessage.value = error?.message || t('calendar.saveError')
+  } finally {
+    isSaving.value = false
+  }
 }
 
 function confirmationDone() {
@@ -65,9 +91,13 @@ function confirmationDone() {
       </template>
     </ConfirmDialog>
 
-    <button class="fh-btn fh-btn--primary calendar-actions__save" type="button" @click="confirmarAccion">
-      <i class="pi pi-save"></i>
-      {{ $t('calendar.confirmButton') }}
+    <p v-if="errorMessage" class="calendar-actions__error">
+      {{ errorMessage }}
+    </p>
+
+    <button class="fh-btn fh-btn--primary calendar-actions__save" type="button" :disabled="isSaving" @click="confirmarAccion">
+      <i :class="isSaving ? 'pi pi-spin pi-spinner' : 'pi pi-save'"></i>
+      {{ isSaving ? $t('calendar.saving') : $t('calendar.confirmButton') }}
     </button>
   </div>
 </template>
@@ -75,8 +105,21 @@ function confirmationDone() {
 <style>
 .calendar-actions {
   display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
   justify-content: center;
   padding: var(--space-3) var(--space-5) var(--space-8);
+}
+
+.calendar-actions__error {
+  margin: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 10px 16px;
 }
 
 .calendar-actions__save {

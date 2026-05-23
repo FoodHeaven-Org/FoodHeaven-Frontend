@@ -133,7 +133,19 @@ export default {
         no: "No",
         today: "Hoy",
         empty: "Sin comida",
-        weekOf: "Semana del"
+        weekOf: "Semana del",
+        saving: "Guardando...",
+        saveError: "No se pudo guardar el plan.",
+        deliveryWindow: "Horario",
+        deliveryStart: "Hora de inicio",
+        deliveryEnd: "Hora de fin",
+        applyScheduleToWeek: "Aplicar a la semana",
+        deliveryProtected: "Se actualiza con 1 día de anticipación.",
+        deliveryScheduleApplied: "Horario aplicado a {meal} para los días editables.",
+        deliveryScheduleRequired: "Completa la hora de inicio y fin.",
+        deliveryScheduleOrderError: "La hora final debe ser posterior a la hora inicial.",
+        deliveryScheduleRangeError: "El horario debe estar entre {min} y {max}.",
+        deliveryScheduleSaved: "Horarios de entrega guardados correctamente."
     },
     login: {
         title: "Bienvenido de nuevo",
