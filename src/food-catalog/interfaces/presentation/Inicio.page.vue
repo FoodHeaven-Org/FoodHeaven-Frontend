@@ -204,8 +204,7 @@ async function persistCurrentPlan() {
       await mealPlanApiService.updateWeeklyMealPlan(currentPlanId.value, payload)
     } else {
       const createdPlan = await mealPlanApiService.createWeeklyMealPlan(payload)
-      currentPlanId.value = getPlanId(createdPlan)
-      mealSlots.value = getPlanMeals(createdPlan)
+      await reconcileCreatedPlan(createdPlan, currentPlanId, mealSlots, monday, nextMonday)
     }
 
     statusMessage.value = t('planner.saved')
@@ -217,6 +216,32 @@ async function persistCurrentPlan() {
   } finally {
     isSavingPlan.value = false
   }
+}
+
+// After creating a plan, some backends echo back a "thin" response without the
+// plan id or the meal list. If we trusted it blindly we would (a) wipe the dish
+// the user just chose, and (b) create duplicate plans on the next selection.
+// This reconciles the local optimistic state against the server, re-fetching
+// the real plan id when needed and only adopting server meals if they exist.
+async function reconcileCreatedPlan(createdPlan, planIdRef, mealSlotsRef, weekStart, weekEnd) {
+  let newPlanId = getPlanId(createdPlan)
+  const serverSlots = getPlanMeals(createdPlan)
+
+  if (!newPlanId) {
+    try {
+      const plans = await mealPlanApiService.getCurrentUserMealPlans()
+      newPlanId = getPlanId(findPlanForWeek(plans, weekStart, weekEnd))
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  planIdRef.value = newPlanId
+
+  if (serverSlots.some(mealId => mealId > 0)) {
+    mealSlotsRef.value = serverSlots
+  }
+  // else: keep the optimistic local slots — the dish stays visible.
 }
 
 async function persistNextWeekPlan() {
@@ -235,8 +260,7 @@ async function persistNextWeekPlan() {
       await mealPlanApiService.updateWeeklyMealPlan(nextWeekPlanId.value, payload)
     } else {
       const createdPlan = await mealPlanApiService.createWeeklyMealPlan(payload)
-      nextWeekPlanId.value = getPlanId(createdPlan)
-      nextWeekMealSlots.value = getPlanMeals(createdPlan)
+      await reconcileCreatedPlan(createdPlan, nextWeekPlanId, nextWeekMealSlots, nextWeekMonday, followingMonday)
     }
 
     statusMessage.value = t('planner.savedForNextWeek')
@@ -277,9 +301,10 @@ async function persistNextWeekPlan() {
         </div>
         <p class="planner-status__meta">
           {{ $t('planner.planLimit', { meals: subscriptionPlan.mealsPerDay }) }}
-          <span v-if="selectedDayAppliesNextWeek">
-            {{ $t('planner.nextWeekNotice') }}
-          </span>
+        </p>
+        <p v-if="selectedDayAppliesNextWeek" class="planner-status__notice">
+          <i class="pi pi-info-circle"></i>
+          {{ $t('planner.nextWeekNotice') }}
         </p>
       </div>
 
@@ -404,11 +429,23 @@ async function persistNextWeekPlan() {
   color: var(--color-text-soft);
 }
 
-.planner-status__meta span {
-  display: block;
-  margin-top: 4px;
+.planner-status__notice {
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
   color: var(--color-primary);
+  font-size: 0.85rem;
   font-weight: 600;
+  line-height: 1.45;
+}
+
+.planner-status__notice i {
+  margin-top: 2px;
+  flex-shrink: 0;
 }
 
 .status-toast {

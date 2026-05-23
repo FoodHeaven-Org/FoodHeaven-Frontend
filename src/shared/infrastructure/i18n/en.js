@@ -145,7 +145,17 @@ export default {
         deliveryScheduleRequired: "Complete the start and end time.",
         deliveryScheduleOrderError: "End time must be after start time.",
         deliveryScheduleRangeError: "Schedule must be between {min} and {max}.",
-        deliveryScheduleSaved: "Delivery schedules saved successfully."
+        deliveryScheduleSaved: "Delivery schedules saved successfully.",
+        thisWeek: "This week",
+        nextWeek: "Next week",
+        deliveryAllowed: "Allowed {min}–{max}",
+        deliveryWindowLegend: "Allowed delivery times",
+        breakfastWindowLegend: "Breakfast: 05:00–12:00",
+        mealsWindowLegend: "Lunch & dinner: 12:00–23:00",
+        nextWeekEmpty: "You haven't planned meals for next week yet.",
+        nextWeekEmptyHint: "Pick dishes for the past days of this week on Home and they'll show up here.",
+        currentWeekEmpty: "You haven't set a meal plan for this week yet.",
+        planForWeekOf: "Plan for the week of {date}"
     },
     login: {
         title: "Welcome back",
@@ -204,7 +214,7 @@ export default {
         limitReached: "Your current plan allows up to {meals} meal(s) per day. Remove a meal from this day or upgrade your plan.",
         loadingPlan: "Loading your weekly plan...",
         saved: "Meal saved to your weekly calendar.",
-        savedForNextWeek: "Change saved for next week.",
+        savedForNextWeek: "Change saved for next week. See it on Calendar → Next week.",
         adjustedToPlan: "Your weekly calendar was adjusted to your current plan limit.",
         nextWeekNotice: "Changes for today or earlier days are saved for next week.",
         loadError: "Unable to load your weekly plan. Please sign in again.",
