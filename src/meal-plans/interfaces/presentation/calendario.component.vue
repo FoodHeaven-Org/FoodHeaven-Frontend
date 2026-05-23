@@ -431,7 +431,7 @@ defineExpose({
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  width: min(1680px, calc(100vw - 48px));
+  width: min(1880px, calc(100vw - 32px));
   max-width: none;
   padding-inline: 0;
 }
@@ -538,7 +538,7 @@ defineExpose({
 
 .calendar-grid__row {
   display: grid;
-  grid-template-columns: 150px repeat(7, minmax(150px, 1fr));
+  grid-template-columns: 165px repeat(7, minmax(170px, 1fr));
   border-bottom: 1px solid var(--color-divider);
 }
 
@@ -799,13 +799,13 @@ defineExpose({
   }
 
   .calendar-board__inner {
-    min-width: 1220px;
+    min-width: 1360px;
   }
 }
 
 @media (max-width: 600px) {
   .calendar-board__inner {
-    min-width: 1180px;
+    min-width: 1320px;
   }
 
   .calendar-grid__meal-name {
